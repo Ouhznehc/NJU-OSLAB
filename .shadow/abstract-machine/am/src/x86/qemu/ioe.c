@@ -176,6 +176,8 @@ static void gpu_init() {
   struct vbe_info *info = (struct vbe_info *)0x00004000;
   display.w = info->width;
   display.h = info->height;
+  printf("screen width : %d\n", display.w);
+  printf("screen height: %d\n", display.h);
   fb = (void *)((intptr_t)(info->framebuffer));
 }
 

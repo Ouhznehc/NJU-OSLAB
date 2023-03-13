@@ -7,9 +7,11 @@
 #define SIGINT 2
 static int w, h;  // Screen size
 
+/* 
 #define KEYNAME(key) \
-  [AM_KEY_##key] = #key,
-static const char *key_names[] = { AM_KEYS(KEYNAME) };
+   [AM_KEY_##key] = #key,
+ static const char *key_names[] = { AM_KEYS(KEYNAME) };
+*/
 
 static inline void puts(const char *s) {
   for (; *s; s++) putch(*s);
@@ -20,8 +22,6 @@ void fetch_key() {
   ioe_read(AM_INPUT_KEYBRD, &event);
   if (event.keycode != AM_KEY_NONE && event.keydown) {
     if(event.keycode == AM_KEY_ESCAPE) halt(SIGINT);
-    puts(key_names[event.keycode]);
-    puts("\n");
   }
 }
 

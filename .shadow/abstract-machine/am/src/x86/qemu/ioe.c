@@ -180,11 +180,11 @@ static void gpu_init() {
   // display.w = 640;
   // display.h = 480;
 
-  display.w = 320;
-  display.h = 200;
+  // display.w = 320;
+  // display.h = 200;
 
-  // display.w = 800;
-  // display.h = 600;
+  display.w = 800;
+  display.h = 600;
 
   printf("screen width : %d\n", display.w);
   printf("screen height: %d\n", display.h);

@@ -4,7 +4,7 @@
 #include <klib-macros.h>
 
 #define SIDE 16
-
+#define SIGINT 2
 static int w, h;  // Screen size
 
 #define KEYNAME(key) \
@@ -19,7 +19,7 @@ void fetch_key() {
   AM_INPUT_KEYBRD_T event = { .keycode = AM_KEY_NONE };
   ioe_read(AM_INPUT_KEYBRD, &event);
   if (event.keycode != AM_KEY_NONE && event.keydown) {
-    if(event.keycode == AM_KEY_ESCAPE) halt(0);
+    if(event.keycode == AM_KEY_ESCAPE) halt(SIGINT);
     puts(key_names[event.keycode]);
     puts("\n");
   }

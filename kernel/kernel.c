@@ -4,24 +4,24 @@
 #include <klib-macros.h>
 
 #define SIDE 16
-
+#define SIGINT 2
 static int w, h;  // Screen size
 
+/* 
 #define KEYNAME(key) \
-  [AM_KEY_##key] = #key,
-static const char *key_names[] = { AM_KEYS(KEYNAME) };
+   [AM_KEY_##key] = #key,
+ static const char *key_names[] = { AM_KEYS(KEYNAME) };
+*/
 
 static inline void puts(const char *s) {
   for (; *s; s++) putch(*s);
 }
 
-void print_key() {
+void fetch_key() {
   AM_INPUT_KEYBRD_T event = { .keycode = AM_KEY_NONE };
   ioe_read(AM_INPUT_KEYBRD, &event);
   if (event.keycode != AM_KEY_NONE && event.keydown) {
-    puts("Key pressed: ");
-    puts(key_names[event.keycode]);
-    puts("\n");
+    if(event.keycode == AM_KEY_ESCAPE) halt(SIGINT);
   }
 }
 
@@ -64,7 +64,7 @@ int main(const char *args) {
 
   puts("Press any key to see its key code...\n");
   while (1) {
-    print_key();
+    fetch_key();
   }
   return 0;
 }

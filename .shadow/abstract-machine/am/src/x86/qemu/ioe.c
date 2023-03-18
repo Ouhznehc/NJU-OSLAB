@@ -174,14 +174,14 @@ static inline void *to_host(gpuptr_t ptr) { return ptr == AM_GPU_NULL ? NULL : v
 
 static void gpu_init() {
   struct vbe_info *info = (struct vbe_info *)0x00004000;
-  // display.w = info->width;
-  // display.h = info->height;
+  display.w = info->width;
+  display.h = info->height;
 
   // display.w = 640;
   // display.h = 480;
 
-  display.w = 320;
-  display.h = 200;
+  // display.w = 320;
+  // display.h = 200;
 
   // display.w = 800;
   // display.h = 600;

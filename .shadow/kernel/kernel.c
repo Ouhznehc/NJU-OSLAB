@@ -55,7 +55,7 @@ void splash() {
 // Operating system is a C program!
 int main(const char *args) {
   ioe_init();
-
+  srand(rand());
   splash();
 
   puts("Press any key to see its key code...\n");

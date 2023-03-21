@@ -22,7 +22,7 @@ int round_cnt;
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 #define MAX3(x, y, z) MAX(MAX(x, y), z)
 #define THREAD_COND consent[global_x][global_y]
-#define GLOBAL_COND round_cnt
+#define GLOBAL_COND !round_cnt
 
 
 void Tworker(int id) {
@@ -61,7 +61,6 @@ int main(int argc, char *argv[]) {
   }
   for(int round = 0; round < N + M - 1; round++){
     mutex_lock(&lk);
-    printf("fuck\n");
     while(!GLOBAL_COND)
       cond_wait(&global, &lk);
     if(round < N){

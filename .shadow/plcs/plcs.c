@@ -36,11 +36,11 @@ void Tworker(int id) {
       cond_wait(&thread, &lk);
       printf("thread %d check: global_x = %d, global_y = %d\n", id, global_x, global_y);
     }
+    printf("thread %d check pass: global_x = %d, global_y = %d\n", id, global_x, global_y);
     if(kill_signal){
       mutex_unlock(&lk);
       break;
     }
-    printf("thread %d check pass: global_x = %d, global_y = %d\n", id, global_x, global_y);
     thread_x = global_x;
     thread_y = global_y;
     consent[global_x][global_y] = 0;

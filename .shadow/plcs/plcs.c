@@ -50,6 +50,7 @@ void Tworker(int id) {
     if(global_x >= 1 && global_y < M - 1)
       consent[global_x - 1][global_y + 1] = 1;
     global_x--; global_y++;
+    round_cnt--;
     cond_broadcast(&thread);
     printf("thread: wake up thread\n");
     mutex_unlock(&lk);
@@ -57,7 +58,6 @@ void Tworker(int id) {
     int skip_b = DP(thread_x, thread_y - 1);
     int take_both = DP(thread_x - 1, thread_y - 1) + (A[thread_x] == B[thread_y]);
     dp[thread_x][thread_y] = MAX3(skip_a, skip_b, take_both);
-    round_cnt--;
     printf("thread %d: round_cnt = %d\n", id, round_cnt);
     if(!round_cnt){
       printf("thread %d broadcast\n", id);

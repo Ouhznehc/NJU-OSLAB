@@ -60,7 +60,7 @@ void Tworker(int id) {
     round_cnt--;
     if(!round_cnt){
       printf("thread %d broadcast\n", id);
-      cond_broadcast(&global);
+      cond_broadcast(&thread);
       if(thread_x == N - 1 && thread_y == M - 1){
         printf("kill !!\n");
         kill_signal = 1;
@@ -86,7 +86,7 @@ int main(int argc, char *argv[]) {
     mutex_lock(&lk);
     while(!GLOBAL_COND){
       printf("global %d sleep\n", round);
-      cond_wait(&global, &lk);
+      cond_wait(&thread, &lk);
       printf("global %d check: round_cnt = %d\n", round, round_cnt);
     }
     printf("global %d check pass: round_cnt = %d\n", round, round_cnt);

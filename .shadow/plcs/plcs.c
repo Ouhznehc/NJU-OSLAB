@@ -83,6 +83,7 @@ int main(int argc, char *argv[]) {
   }
   for(int round = 0; round < N + M - 1; round++){
     mutex_lock(&lk);
+    printf("round_cnt = %d\n", round_cnt);
     while(!GLOBAL_COND){
       printf("global %d sleep\n", round);
       cond_wait(&thread, &lk);

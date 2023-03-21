@@ -103,8 +103,8 @@ int main(int argc, char *argv[]) {
   cond_wait(&last, &lk);
   kill_signal = 1;
   cond_broadcast(&thread);
-  mutex_unlock(&lk);
   printf("kill !!!\n");
+  mutex_unlock(&lk);
   join();  // Wait for all workers
   printf("%d\n", dp[N - 1][M - 1]);
   return 0;

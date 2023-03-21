@@ -61,8 +61,9 @@ void Tworker(int id) {
       printf("thread %d broadcast\n", id);
       cond_broadcast(&global);
       if(thread_x == N - 1 && thread_y == M - 1){
-        printf("thread %d broadcast last !!!\n", id);
-        cond_broadcast(&last);
+        printf("kill !!\n");
+        kill_signal = 1;
+        cond_broadcast(&thread);
       }
     } 
   }
@@ -102,11 +103,6 @@ int main(int argc, char *argv[]) {
     cond_broadcast(&thread);
     mutex_unlock(&lk);
   }
-  cond_wait(&last, &lk);
-  kill_signal = 1;
-  cond_broadcast(&thread);
-  printf("kill !!!\n");
-  mutex_unlock(&lk);
   join();  // Wait for all workers
   printf("%d\n", dp[N - 1][M - 1]);
   return 0;

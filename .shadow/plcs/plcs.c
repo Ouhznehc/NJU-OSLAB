@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
   N = strlen(A);
   M = strlen(B);
   T = !argv[1] ? 1 : atoi(argv[1]);
-  printf("fuck\n");
+  printf("fuck\n");while(1);
   // Add preprocessing code here
 
   for (int i = 0; i < T; i++) {

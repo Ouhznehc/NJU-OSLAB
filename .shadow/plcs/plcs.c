@@ -75,6 +75,7 @@ void Tworker(int id) {
 }
 
 int main(int argc, char *argv[]) {
+  setbuf(stdout, NULL);
   // No need to change
   assert(scanf("%s%s", A, B) == 2);
   N = strlen(A);

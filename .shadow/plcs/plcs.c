@@ -64,7 +64,9 @@ void Tworker(int id) {
         printf("kill !!\n");
         kill_signal = 1;
       }
+      mutex_lock(&lk);
       cond_broadcast(&thread);
+      mutex_unlock(&lk);
     } 
   }
 

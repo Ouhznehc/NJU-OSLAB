@@ -83,7 +83,7 @@ int main(int argc, char *argv[]) {
     mutex_lock(&lk);
     //printf("round_cnt = %d\n", round_cnt);
     while(!GLOBAL_COND){
-      printf("global %d sleep\n", round);
+      //printf("global %d sleep\n", round);
       cond_wait(&global, &lk);
       //printf("global %d check: round_cnt = %d\n", round, round_cnt);
     }

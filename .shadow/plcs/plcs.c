@@ -59,9 +59,9 @@ int main(int argc, char *argv[]) {
   for (int i = 0; i < T; i++) {
     create(Tworker); 
   }
-  printf("fuck\n");
   for(int round = 0; round < N + M - 1; round++){
     mutex_lock(&lk);
+    printf("fuck\n");
     while(!GLOBAL_COND)
       cond_wait(&global, &lk);
     if(round < N){

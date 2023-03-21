@@ -60,11 +60,15 @@ void Tworker(int id) {
     round_cnt--;
     if(!round_cnt){
       printf("thread %d broadcast\n", id);
+      mutex_lock(&lk);
       cond_broadcast(&global);
+      mutex_unlock(&lk);
       if(thread_x == N - 1 && thread_y == M - 1){
         printf("kill !!\n");
         kill_signal = 1;
+        mutex_lock(&lk);
         cond_broadcast(&thread);
+        mutex_unlock(&lk);
       }
     } 
   }

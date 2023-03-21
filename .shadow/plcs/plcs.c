@@ -40,7 +40,7 @@ void Tworker(int id) {
     printf("thread %d check pass: global_x = %d, global_y = %d, kill = %d\n", id, global_x, global_y, kill_signal);
     printf("thread %d check pass\n", id);
     if(kill_signal){
-      cond_broadcast(&lk);
+      cond_broadcast(&thread);
       mutex_unlock(&lk);
       break;
     }

@@ -31,7 +31,7 @@ void Tworker(int id) {
   int thread_x, thread_y;
   while(1){
     mutex_lock(&lk);
-    printf("thread %d check: kill = %d\n", id, kill_signal);
+    //printf("thread %d check: kill = %d\n", id, kill_signal);
     while(!THREAD_COND){
       printf("thread %d sleep\n", id);
       cond_wait(&thread, &lk);
@@ -60,15 +60,8 @@ void Tworker(int id) {
     round_cnt--;
     printf("thread %d: round_cnt = %d\n", id, round_cnt);
     if(!round_cnt){
-      if(thread_x == N - 1 && thread_y == M - 1){
-        printf("kill !!\n");
-        kill_signal = 1;
-        cond_broadcast(&thread);
-      }
-      mutex_lock(&lk);
       printf("thread %d broadcast\n", id);
       cond_broadcast(&global);
-      mutex_unlock(&lk);
     } 
   }
 
@@ -109,6 +102,8 @@ int main(int argc, char *argv[]) {
     cond_broadcast(&thread);
     mutex_unlock(&lk);
   }
+  kill_signal = 1;
+  cond_broadcast(&thread);
   join();  // Wait for all workers
   printf("%d\n", dp[N - 1][M - 1]);
   return 0;

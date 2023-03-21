@@ -59,12 +59,12 @@ void Tworker(int id) {
     dp[thread_x][thread_y] = MAX3(skip_a, skip_b, take_both);
     round_cnt--;
     if(!round_cnt){
-      printf("thread %d broadcast\n", id);
       if(thread_x == N - 1 && thread_y == M - 1){
         printf("kill !!\n");
         kill_signal = 1;
       }
       mutex_lock(&lk);
+      printf("thread %d broadcast\n", id);
       cond_broadcast(&thread);
       mutex_unlock(&lk);
     } 

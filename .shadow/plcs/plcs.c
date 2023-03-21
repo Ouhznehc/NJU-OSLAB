@@ -33,9 +33,9 @@ void Tworker(int id) {
     mutex_lock(&lk);
     //printf("thread %d check: kill = %d\n", id, kill_signal);
     while(!THREAD_COND){
-      //printf("thread %d sleep\n", id);
+      printf("thread %d sleep\n", id);
       cond_wait(&thread, &lk);
-      //printf("thread %d check: global_x = %d, global_y = %d, kill = %d\n", id, global_x, global_y, kill_signal);
+      printf("thread %d check: global_x = %d, global_y = %d, kill = %d\n", id, global_x, global_y, kill_signal);
     }
     //printf("thread %d check pass: global_x = %d, global_y = %d, kill = %d\n", id, global_x, global_y, kill_signal);
     //printf("thread %d check pass\n", id);

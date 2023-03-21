@@ -12,7 +12,7 @@
 #define MAX_PROCESS 32768
 #define MAX_CHILD 512
 static int root = 0;
-enum{OPT_NONE = 0x0, OPT_V = 0x7, OPT_N = 0x2, OPT_P = 0x1, OPT_NP = 0x3, OPT_INVALID = 0xf, CMD_INVALID = 127};
+enum{OPT_NONE = 0x0, OPT_V = 0x7, OPT_N = 0x2, OPT_P = 0x1, OPT_NP = 0x3, OPT_INVALID = 0xf};
 struct process_info
 {
   char name[MAX_STRING];
@@ -135,11 +135,7 @@ int pstree(int args){
 int handle_cmd(int argc, char *argv[])
 {
   int handle_flag = OPT_NONE;
-  if (strcmp("pstree", argv[1]) != 0){
-    printf("command not found: %s\n", argv[1]);
-    return CMD_INVALID;
-  }
-  for(int i = 2; i < argc; i++){
+  for(int i = 1; i < argc; i++){
     if(strcmp(argv[i], "-p") == 0 || strcmp(argv[i], "--show-pids")         == 0) handle_flag |= OPT_P;
     else if(strcmp(argv[i], "-n") == 0 || strcmp(argv[i], "--numeric-sort") == 0) handle_flag |= OPT_N;
     else if(strcmp(argv[i], "-V") == 0 || strcmp(argv[i], "--version")      == 0) handle_flag |= OPT_V;
@@ -150,7 +146,6 @@ int handle_cmd(int argc, char *argv[])
 
 int run_cmd(int args){
   switch(args){
-    case CMD_INVALID: return CMD_INVALID;
     case OPT_INVALID: return error_msg();
     case OPT_V:       return version_msg();
     case OPT_NONE:

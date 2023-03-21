@@ -1,5 +1,6 @@
 NAME := kernel
 SRCS := kernel.c
+export TOKEN := WEyKpc8l
 export MODULE  := L0
 export AM_HOME := $(PWD)/../abstract-machine
 ifeq ($(ARCH),)

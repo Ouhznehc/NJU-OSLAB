@@ -46,7 +46,7 @@ void splash() {
   for (int x = 0; x * SIDE <= w; x ++) {
     for (int y = 0; y * SIDE <= h; y++) {
       if ((x & 1) ^ (y & 1)) {
-        draw_tile(x * SIDE, y * SIDE, SIDE, SIDE, rand()); // white
+        draw_tile(x * SIDE, y * SIDE, SIDE, SIDE, rand() * rand()); // white
       }
     }
   }
@@ -57,7 +57,6 @@ int main(const char *args) {
   ioe_init();
   srand(rand());
   splash();
-
   puts("Press any key to see its key code...\n");
   while (1) {
     fetch_key();

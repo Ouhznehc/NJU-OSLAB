@@ -4,3 +4,6 @@ all: $(NAME)-64 $(NAME)-32
 LDFLAGS += -lpthread
 
 include ../Makefile
+
+test: commit-and-make
+

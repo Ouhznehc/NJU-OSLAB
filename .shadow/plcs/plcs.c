@@ -31,13 +31,13 @@ void Tworker(int id) {
   int thread_x, thread_y;
   while(1){
     mutex_lock(&lk);
-    printf("thread %d check: kill = %d\n", id, kill_signal);
+    //printf("thread %d check: kill = %d\n", id, kill_signal);
     while(!THREAD_COND){
-      printf("thread %d sleep\n", id);
+      //printf("thread %d sleep\n", id);
       cond_wait(&thread, &lk);
-      printf("thread %d check: global_x = %d, global_y = %d, kill = %d\n", id, global_x, global_y, kill_signal);
+      //printf("thread %d check: global_x = %d, global_y = %d, kill = %d\n", id, global_x, global_y, kill_signal);
     }
-    printf("thread %d check pass: global_x = %d, global_y = %d, kill = %d\n", id, global_x, global_y, kill_signal);
+    //printf("thread %d check pass: global_x = %d, global_y = %d, kill = %d\n", id, global_x, global_y, kill_signal);
     //printf("thread %d check pass\n", id);
     if(kill_signal){
       mutex_unlock(&lk);
@@ -50,7 +50,7 @@ void Tworker(int id) {
       consent[global_x - 1][global_y + 1] = 1;
     global_x--; global_y++;
     cond_broadcast(&thread);
-    printf("thread: wake up thread\n");
+    //printf("thread: wake up thread\n");
     mutex_unlock(&lk);
     int skip_a = DP(thread_x - 1, thread_y);
     int skip_b = DP(thread_x, thread_y - 1);
@@ -58,10 +58,10 @@ void Tworker(int id) {
     dp[thread_x][thread_y] = MAX3(skip_a, skip_b, take_both);
     round_cnt--;
     if(!round_cnt){
-      printf("thread %d broadcast\n", id);
+      //printf("thread %d broadcast\n", id);
       cond_broadcast(&global);
       if(thread_x == N - 1 && thread_y == M - 1){
-        printf("kill !!\n");
+        //printf("kill !!\n");
         kill_signal = 1;
         cond_broadcast(&thread);
       }
@@ -84,11 +84,11 @@ int main(int argc, char *argv[]) {
   for(int round = 0; round < N + M - 1; round++){
     mutex_lock(&lk);
     while(!GLOBAL_COND){
-      printf("global %d sleep\n", round);
+      //printf("global %d sleep\n", round);
       cond_wait(&global, &lk);
-      printf("global %d check: round_cnt = %d\n", round, round_cnt);
+      //printf("global %d check: round_cnt = %d\n", round, round_cnt);
     }
-    printf("global %d check pass: round_cnt = %d\n", round, round_cnt);
+    //printf("global %d check pass: round_cnt = %d\n", round, round_cnt);
     if(round < N){
       global_x = round; 
       global_y = 0;
@@ -99,7 +99,7 @@ int main(int argc, char *argv[]) {
     }
     round_cnt = MIN(global_x + 1, M - global_y);
     consent[global_x][global_y] = 1;
-    printf("global %d: wake up thread\n", round);
+    //printf("global %d: wake up thread\n", round);
     cond_broadcast(&thread);
     mutex_unlock(&lk);
   }

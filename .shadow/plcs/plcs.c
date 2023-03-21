@@ -73,6 +73,7 @@ int main(int argc, char *argv[]) {
   N = strlen(A);
   M = strlen(B);
   T = !argv[1] ? 1 : atoi(argv[1]);
+  if(N > M) swap(N, M);
   // Add preprocessing code here
 
   for (int i = 0; i < T; i++) {

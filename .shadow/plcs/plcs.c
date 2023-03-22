@@ -27,7 +27,7 @@ int kill_signal;
 #define GLOBAL_COND !round_cnt
 
 FILE *fp;
-#define _DEBUG 0
+#define _DEBUG 1
 #if _DEBUG
   #define debug(...) printf(__VA_ARGS__)
 #else

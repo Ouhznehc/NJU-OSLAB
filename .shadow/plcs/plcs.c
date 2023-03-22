@@ -48,6 +48,7 @@ void Tworker(int id) {
     //debug("thread %d check pass\n", id);
     if(kill_signal){
       cond_broadcast(&thread);
+      debug("thread %d is killed!\n", id);
       mutex_unlock(&lk);
       break;
     }

@@ -25,6 +25,8 @@ int kill_signal;
 #define MAX3(x, y, z) MAX(MAX(x, y), z)
 #define THREAD_COND (((global_x >= 0 && global_y < M) ? consent[global_x][global_y] : 0) || kill_signal)
 #define GLOBAL_COND !round_cnt
+
+FILE *fp;
 #define _DEBUG 0
 #if _DEBUG
   #define debug(...) printf(__VA_ARGS__)
@@ -78,7 +80,6 @@ void Tworker(int id) {
 }
 
 int main(int argc, char *argv[]) {
-  FILE *fp;
   fp = fopen("log.txt", "w");
   setbuf(stdout, NULL);
   // No need to change

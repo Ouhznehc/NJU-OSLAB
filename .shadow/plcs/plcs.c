@@ -58,11 +58,13 @@ void Tworker(int id) {
     int take_both = DP(thread_x - 1, thread_y - 1) + (A[thread_x] == B[thread_y]);
     dp[thread_x][thread_y] = MAX3(skip_a, skip_b, take_both);
     //printf("thread %d: round_cnt = %d\n", id, round_cnt);
+    mutex_lock(&lk);
     round_cnt--;
     if(!round_cnt){
       //printf("thread %d broadcast\n", id);
       cond_broadcast(&global);
     } 
+    mutex_unlock(&lk);
   }
 
 }

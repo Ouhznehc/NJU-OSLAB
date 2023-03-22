@@ -37,6 +37,7 @@ void Tworker(int id) {
       cond_wait(&thread, &lk);
       printf("thread %d check: global_x = %d, global_y = %d, kill = %d\n", id, global_x, global_y, kill_signal);
     }
+    assert(THREAD_COND);
     printf("thread %d lock: global_x = %d, global_y = %d, kill = %d\n", id, global_x, global_y, kill_signal);
     //printf("thread %d check pass\n", id);
     if(kill_signal){

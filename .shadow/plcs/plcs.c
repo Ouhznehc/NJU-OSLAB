@@ -27,9 +27,9 @@ int kill_signal;
 #define GLOBAL_COND !round_cnt
 #define _DEBUG 1
 #ifdef _DEBUG
-  #define debug printf
+  #define debug(...) printf(__VA_ARGS__)
 #else
-  #define debug( sprintf(stderr,
+  #define debug(..) sprintf(stderr, __VA_ARGS__)
 #endif
 
 void Tworker(int id) {

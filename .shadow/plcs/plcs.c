@@ -25,6 +25,7 @@ int kill_signal;
 #define MAX3(x, y, z) MAX(MAX(x, y), z)
 #define THREAD_COND (((global_x >= 0 && global_y < M) ? consent[global_x][global_y] : 0) || kill_signal)
 #define GLOBAL_COND !round_cnt
+#define _DEBUG 1
 #ifdef _DEBUG
   #define debug printf
 #else

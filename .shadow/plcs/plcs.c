@@ -108,8 +108,11 @@ int main(int argc, char *argv[]) {
     printf("global %d unlock: round_cnt = %d\n", round, round_cnt);
     mutex_unlock(&lk);
   }
-  while(!GLOBAL_COND)
+  while(!GLOBAL_COND){
+    printf("kill sleep\n");
     cond_wait(&global, &lk);
+  }
+  printf("kill start\n");
   kill_signal = 1;
   cond_broadcast(&thread);
   mutex_unlock(&lk);

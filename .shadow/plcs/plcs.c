@@ -63,7 +63,7 @@ void Tworker(int id) {
     printf("thread %d lock: round_cnt = %d\n", id, round_cnt);
     round_cnt--;
     if(!round_cnt){
-      printf("thread %d broadcast\n", id);
+      //printf("thread %d broadcast\n", id);
       cond_broadcast(&global);
     } 
     printf("thread %d unlock: round_cnt = %d\n", id, round_cnt);

@@ -29,7 +29,7 @@ int kill_signal;
 #if _DEBUG
   #define debug(...) printf(__VA_ARGS__)
 #else
-  #define debug(...) fprintf(stderr, __VA_ARGS__)
+  #define debug(...) fprintf("log.txt", __VA_ARGS__)
 #endif
 
 void Tworker(int id) {

@@ -104,8 +104,11 @@ int main(int argc, char *argv[]) {
     cond_broadcast(&thread);
     mutex_unlock(&lk);
   }
+  while(!GLOBAL_COND)
+    cond_wait(&global, &lk);
   kill_signal = 1;
   cond_broadcast(&thread);
+  mutex_unlock(&lk);
   join();  // Wait for all workers
   printf("%d\n", dp[N - 1][M - 1]);
   return 0;

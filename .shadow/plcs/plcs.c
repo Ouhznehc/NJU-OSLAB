@@ -37,7 +37,7 @@ void Tworker(int id) {
       cond_wait(&thread, &lk);
       printf("thread %d check: global_x = %d, global_y = %d, kill = %d\n", id, global_x, global_y, kill_signal);
     }
-    //printf("thread %d check pass: global_x = %d, global_y = %d, kill = %d\n", id, global_x, global_y, kill_signal);
+    printf("thread %d check pass: global_x = %d, global_y = %d, kill = %d\n", id, global_x, global_y, kill_signal);
     //printf("thread %d check pass\n", id);
     if(kill_signal){
       cond_broadcast(&thread);
@@ -57,11 +57,11 @@ void Tworker(int id) {
     int skip_b = DP(thread_x, thread_y - 1);
     int take_both = DP(thread_x - 1, thread_y - 1) + (A[thread_x] == B[thread_y]);
     dp[thread_x][thread_y] = MAX3(skip_a, skip_b, take_both);
-    //printf("thread %d: round_cnt = %d\n", id, round_cnt);
     mutex_lock(&lk);
     round_cnt--;
+    printf("thread %d: round_cnt = %d\n", id, round_cnt);
     if(!round_cnt){
-      //printf("thread %d broadcast\n", id);
+      printf("thread %d broadcast\n", id);
       cond_broadcast(&global);
     } 
     mutex_unlock(&lk);

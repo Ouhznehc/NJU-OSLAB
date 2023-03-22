@@ -26,10 +26,10 @@ int kill_signal;
 #define THREAD_COND (((global_x >= 0 && global_y < M) ? consent[global_x][global_y] : 0) || kill_signal)
 #define GLOBAL_COND !round_cnt
 #define _DEBUG 0
-#ifdef _DEBUG
+#if _DEBUG
   #define debug(...) printf(__VA_ARGS__)
 #else
-  #define debug(..) sprintf(stderr, __VA_ARGS__)
+  #define debug(...) sprintf(stderr, __VA_ARGS__)
 #endif
 
 void Tworker(int id) {

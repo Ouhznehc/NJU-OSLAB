@@ -91,7 +91,7 @@ int main(int argc, char *argv[]) {
       cond_wait(&global, &lk);
       printf("global %d check: round_cnt = %d\n", round, round_cnt);
     }
-    printf("global %d check pass: round_cnt = %d\n", round, round_cnt);
+    printf("global %d lock: round_cnt = %d\n", round, round_cnt);
     if(round < N){
       global_x = round; 
       global_y = 0;
@@ -104,6 +104,7 @@ int main(int argc, char *argv[]) {
     consent[global_x][global_y] = 1;
     //printf("global %d: wake up thread\n", round);
     cond_broadcast(&thread);
+    printf("global %d unlock: round_cnt = %d\n", round, round_cnt);
     mutex_unlock(&lk);
   }
   while(!GLOBAL_COND)

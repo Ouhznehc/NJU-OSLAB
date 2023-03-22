@@ -29,7 +29,7 @@ int kill_signal;
 #if _DEBUG
   #define debug(...) printf(__VA_ARGS__)
 #else
-  #define debug(...) sprintf("log.txt", __VA_ARGS__)
+  #define debug(...) fprintf(fp, __VA_ARGS__)
 #endif
 
 void Tworker(int id) {
@@ -78,6 +78,8 @@ void Tworker(int id) {
 }
 
 int main(int argc, char *argv[]) {
+  FILE *fp;
+  fp = fopen("log.txt", "w");
   setbuf(stdout, NULL);
   // No need to change
   assert(scanf("%s%s", A, B) == 2);
@@ -123,5 +125,6 @@ int main(int argc, char *argv[]) {
   mutex_unlock(&lk);
   join();  // Wait for all workers
   printf("%d\n", dp[N - 1][M - 1]);
+  fclose(fp);
   return 0;
 }

@@ -26,11 +26,11 @@ int kill_signal;
 #define THREAD_COND (((global_x >= 0 && global_y < M) ? consent[global_x][global_y] : 0) || kill_signal)
 #define GLOBAL_COND !round_cnt
 
-FILE *fp;
+//FILE *fp;
 #if _DEBUG
-  #define debug(...) printf(__VA_ARGS__)
-#else
   #define debug(...) fprintf(fp, __VA_ARGS__)
+#else
+  #define debug(...)  
 #endif
 
 void Tworker(int id) {
@@ -80,7 +80,7 @@ void Tworker(int id) {
 }
 
 int main(int argc, char *argv[]) {
-  fp = fopen("log.txt", "w");
+  //fp = fopen("log.txt", "w");
   setbuf(stdout, NULL);
   // No need to change
   assert(scanf("%s%s", A, B) == 2);
@@ -116,6 +116,7 @@ int main(int argc, char *argv[]) {
     debug("global %d unlock: round_cnt = %d\n", round, round_cnt);
     mutex_unlock(&lk);
   }
+  mutex_lock(&lk);
   while(!GLOBAL_COND){
     debug("kill sleep\n");
     cond_wait(&global, &lk);
@@ -126,6 +127,6 @@ int main(int argc, char *argv[]) {
   mutex_unlock(&lk);
   join();  // Wait for all workers
   printf("%d\n", dp[N - 1][M - 1]);
-  fclose(fp);
+  //fclose(fp);
   return 0;
 }

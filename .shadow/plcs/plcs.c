@@ -81,7 +81,7 @@ void Tworker(int id) {
 
 int main(int argc, char *argv[]) {
   //fp = fopen("log.txt", "w");
-  setbuf(stdout, NULL);
+  //setbuf(stdout, NULL);
   // No need to change
   assert(scanf("%s%s", A, B) == 2);
   N = strlen(A);

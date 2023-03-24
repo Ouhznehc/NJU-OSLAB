@@ -1,181 +1,132 @@
-// #include <stdio.h>
-// #include <stdlib.h>
-// #include <assert.h>
-// #include "thread.h"
-// #include "thread-sync.h"
-
-// #define MAXN 10000
-// int T, N, M;
-// char A[MAXN + 1], B[MAXN + 1];
-// int dp[MAXN][MAXN];
-// int result;
-
-// mutex_t lk = MUTEX_INIT();
-// cond_t thread = COND_INIT();
-// cond_t global = COND_INIT();
-// cond_t last = COND_INIT();
-// int consent[MAXN][MAXN];
-// int global_x, global_y;
-// int round_cnt;
-// int kill_signal;
-
-// #define DP(x, y) (((x) >= 0 && (y) >= 0) ? dp[x][y] : 0)
-// #define MAX(x, y) (((x) > (y)) ? (x) : (y))
-// #define MIN(x, y) (((x) < (y)) ? (x) : (y))
-// #define MAX3(x, y, z) MAX(MAX(x, y), z)
-// #define THREAD_COND (((global_x >= 0 && global_y < M) ? consent[global_x][global_y] : 0) || kill_signal)
-// #define GLOBAL_COND !round_cnt
-
-// //FILE *fp;
-// #if _DEBUG
-//   #define debug(...) fprintf(fp, __VA_ARGS__)
-// #else
-//   #define debug(...)  
-// #endif
-
-// void Tworker(int id) {
-//   int thread_x, thread_y;
-//   while(1){
-//     mutex_lock(&lk);
-//     //debug("thread %d check: kill = %d\n", id, kill_signal);
-//     while(!THREAD_COND){
-//       debug("thread %d sleep\n", id);
-//       cond_wait(&thread, &lk);
-//       debug("thread %d check: global_x = %d, global_y = %d, kill = %d\n", id, global_x, global_y, kill_signal);
-//     }
-//     assert(THREAD_COND);
-//     debug("thread %d lock: global_x = %d, global_y = %d, kill = %d\n", id, global_x, global_y, kill_signal);
-//     //debug("thread %d check pass\n", id);
-//     if(kill_signal){
-//       cond_broadcast(&thread);
-//       debug("thread %d is killed!\n", id);
-//       mutex_unlock(&lk);
-//       break;
-//     }
-//     thread_x = global_x;
-//     thread_y = global_y;
-//     consent[global_x][global_y] = 0;
-//     if(global_x >= 1 && global_y < M - 1)
-//       consent[global_x - 1][global_y + 1] = 1;
-//     global_x--; global_y++;
-//     cond_broadcast(&thread);
-//     //debug("thread: wake up thread\n");
-//     debug("thread %d unlock: global_x = %d, global_y = %d, kill = %d\n", id, global_x, global_y, kill_signal);
-//     mutex_unlock(&lk);
-//     int skip_a = DP(thread_x - 1, thread_y);
-//     int skip_b = DP(thread_x, thread_y - 1);
-//     int take_both = DP(thread_x - 1, thread_y - 1) + (A[thread_x] == B[thread_y]);
-//     dp[thread_x][thread_y] = MAX3(skip_a, skip_b, take_both);
-//     mutex_lock(&lk);
-//     debug("thread %d lock: round_cnt = %d\n", id, round_cnt);
-//     round_cnt--;
-//     if(!round_cnt){
-//       //debug("thread %d broadcast\n", id);
-//       cond_broadcast(&global);
-//     } 
-//     debug("thread %d unlock: round_cnt = %d\n", id, round_cnt);
-//     mutex_unlock(&lk);
-//   }
-
-// }
-
-// int main(int argc, char *argv[]) {
-//   //fp = fopen("log.txt", "w");
-//   //setbuf(stdout, NULL);
-//   // No need to change
-//   assert(scanf("%s%s", A, B) == 2);
-//   N = strlen(A);
-//   M = strlen(B);
-//   T = !argv[1] ? 1 : atoi(argv[1]);
-//   // Add preprocessing code here
-
-//   for (int i = 0; i < T; i++) {
-//     create(Tworker); 
-//   }
-//   for(int round = 0; round < N + M - 1; round++){
-//     mutex_lock(&lk);
-//     //debug("round_cnt = %d\n", round_cnt);
-//     while(!GLOBAL_COND){
-//       debug("global %d sleep\n", round);
-//       cond_wait(&global, &lk);
-//       debug("global %d check: round_cnt = %d\n", round, round_cnt);
-//     }
-//     debug("global %d lock: round_cnt = %d\n", round, round_cnt);
-//     if(round < N){
-//       global_x = round; 
-//       global_y = 0;
-//     }
-//     else{
-//       global_x = N - 1;
-//       global_y = round - N + 1;
-//     }
-//     round_cnt = MIN(global_x + 1, M - global_y);
-//     consent[global_x][global_y] = 1;
-//     //debug("global %d: wake up thread\n", round);
-//     cond_broadcast(&thread);
-//     debug("global %d unlock: round_cnt = %d\n", round, round_cnt);
-//     mutex_unlock(&lk);
-//   }
-//   mutex_lock(&lk);
-//   while(!GLOBAL_COND){
-//     debug("kill sleep\n");
-//     cond_wait(&global, &lk);
-//   }
-//   debug("kill start\n");
-//   kill_signal = 1;
-//   cond_broadcast(&thread);
-//   mutex_unlock(&lk);
-//   join();  // Wait for all workers
-//   printf("%d\n", dp[N - 1][M - 1]);
-//   //fclose(fp);
-//   return 0;
-// }
-
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <omp.h>
+#include <assert.h>
+#include "thread.h"
+#include "thread-sync.h"
 
-#define MAX_LENGTH 1000
+#define MAXN 10000
+int T, N, M;
+char A[MAXN + 1], B[MAXN + 1];
+int dp[MAXN][MAXN];
+int result;
 
-int lcs_parallel(char* str1, char* str2, int m, int n)
-{
-    int i, j, len = 0;
-    int L[m + 1][n + 1];
+mutex_t lk = MUTEX_INIT();
+cond_t thread = COND_INIT();
+cond_t global = COND_INIT();
+cond_t last = COND_INIT();
+int consent[MAXN][MAXN];
+int global_x, global_y;
+int round_cnt;
+int kill_signal;
 
-    #pragma omp parallel for shared(L) private(i, j) schedule(dynamic)
-    for (i = 0; i <= m; i++) {
-        for (j = 0; j <= n; j++) {
-            if (i == 0 || j == 0) {
-                L[i][j] = 0;
-            } else if (str1[i - 1] == str2[j - 1]) {
-                L[i][j] = L[i - 1][j - 1] + 1;
-            } else {
-                L[i][j] = (L[i - 1][j] > L[i][j - 1]) ? L[i - 1][j] : L[i][j - 1];
-            }
-        }
+#define DP(x, y) (((x) >= 0 && (y) >= 0) ? dp[x][y] : 0)
+#define MAX(x, y) (((x) > (y)) ? (x) : (y))
+#define MIN(x, y) (((x) < (y)) ? (x) : (y))
+#define MAX3(x, y, z) MAX(MAX(x, y), z)
+#define THREAD_COND (((global_x >= 0 && global_y < M) ? consent[global_x][global_y] : 0) || kill_signal)
+#define GLOBAL_COND !round_cnt
+
+//FILE *fp;
+#if _DEBUG
+  #define debug(...) fprintf(fp, __VA_ARGS__)
+#else
+  #define debug(...)  
+#endif
+
+void Tworker(int id) {
+  int thread_x, thread_y;
+  while(1){
+    mutex_lock(&lk);
+    //debug("thread %d check: kill = %d\n", id, kill_signal);
+    while(!THREAD_COND){
+      debug("thread %d sleep\n", id);
+      cond_wait(&thread, &lk);
+      debug("thread %d check: global_x = %d, global_y = %d, kill = %d\n", id, global_x, global_y, kill_signal);
     }
+    assert(THREAD_COND);
+    debug("thread %d lock: global_x = %d, global_y = %d, kill = %d\n", id, global_x, global_y, kill_signal);
+    //debug("thread %d check pass\n", id);
+    if(kill_signal){
+      cond_broadcast(&thread);
+      debug("thread %d is killed!\n", id);
+      mutex_unlock(&lk);
+      break;
+    }
+    thread_x = global_x;
+    thread_y = global_y;
+    consent[global_x][global_y] = 0;
+    if(global_x >= 1 && global_y < M - 1)
+      consent[global_x - 1][global_y + 1] = 1;
+    global_x--; global_y++;
+    cond_broadcast(&thread);
+    //debug("thread: wake up thread\n");
+    debug("thread %d unlock: global_x = %d, global_y = %d, kill = %d\n", id, global_x, global_y, kill_signal);
+    mutex_unlock(&lk);
+    int skip_a = DP(thread_x - 1, thread_y);
+    int skip_b = DP(thread_x, thread_y - 1);
+    int take_both = DP(thread_x - 1, thread_y - 1) + (A[thread_x] == B[thread_y]);
+    dp[thread_x][thread_y] = MAX3(skip_a, skip_b, take_both);
+    mutex_lock(&lk);
+    debug("thread %d lock: round_cnt = %d\n", id, round_cnt);
+    round_cnt--;
+    if(!round_cnt){
+      //debug("thread %d broadcast\n", id);
+      cond_broadcast(&global);
+    } 
+    debug("thread %d unlock: round_cnt = %d\n", id, round_cnt);
+    mutex_unlock(&lk);
+  }
 
-    len = L[m][n];
-    return len;
 }
 
-int main()
-{
-    char str1[MAX_LENGTH], str2[MAX_LENGTH];
-    int len1, len2, lcs_len;
+int main(int argc, char *argv[]) {
+  //fp = fopen("log.txt", "w");
+  //setbuf(stdout, NULL);
+  // No need to change
+  assert(scanf("%s%s", A, B) == 2);
+  N = strlen(A);
+  M = strlen(B);
+  T = !argv[1] ? 1 : atoi(argv[1]);
+  // Add preprocessing code here
 
-    printf("Enter string 1: ");
-    scanf("%s", str1);
-    printf("Enter string 2: ");
-    scanf("%s", str2);
-
-    len1 = strlen(str1);
-    len2 = strlen(str2);
-
-    lcs_len = lcs_parallel(str1, str2, len1, len2);
-
-    printf("Length of LCS: %d\n", lcs_len);
-
-    return 0;
+  for (int i = 0; i < T; i++) {
+    create(Tworker); 
+  }
+  for(int round = 0; round < N + M - 1; round++){
+    mutex_lock(&lk);
+    //debug("round_cnt = %d\n", round_cnt);
+    while(!GLOBAL_COND){
+      debug("global %d sleep\n", round);
+      cond_wait(&global, &lk);
+      debug("global %d check: round_cnt = %d\n", round, round_cnt);
+    }
+    debug("global %d lock: round_cnt = %d\n", round, round_cnt);
+    if(round < N){
+      global_x = round; 
+      global_y = 0;
+    }
+    else{
+      global_x = N - 1;
+      global_y = round - N + 1;
+    }
+    round_cnt = MIN(global_x + 1, M - global_y);
+    consent[global_x][global_y] = 1;
+    //debug("global %d: wake up thread\n", round);
+    cond_broadcast(&thread);
+    debug("global %d unlock: round_cnt = %d\n", round, round_cnt);
+    mutex_unlock(&lk);
+  }
+  mutex_lock(&lk);
+  while(!GLOBAL_COND){
+    debug("kill sleep\n");
+    cond_wait(&global, &lk);
+  }
+  debug("kill start\n");
+  kill_signal = 1;
+  cond_broadcast(&thread);
+  mutex_unlock(&lk);
+  join();  // Wait for all workers
+  printf("%d\n", dp[N - 1][M - 1]);
+  //fclose(fp);
+  return 0;
 }

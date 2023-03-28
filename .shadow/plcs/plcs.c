@@ -166,7 +166,7 @@ int main(int argc, char *argv[]) {
   M = strlen(B);
   T = !argv[1] ? 1 : atoi(argv[1]);
   // Add preprocessing code here
-  if(T == 1) usleep(300000);
+//  if(T == 1) usleep(300000);
 
   queue_push((Work){0, 0, MIN(STEP, M)});
   for (int i = 0; i < T; i++) {

@@ -26,11 +26,11 @@ short dp[MAXN][MAXN];
 cond_t cv  = COND_INIT();
 mutex_t lk = MUTEX_INIT();
 
-// worker define [l, r)
+// worker define [l, r) default step is 1024
+#define STEP 1024
 typedef struct info{
   short row, l, r;
 }Work;
-#define STEP 1024
 Work workload[MAXN];
 bool kill_signal;
 bool busy[MAXN];
@@ -55,7 +55,7 @@ void print_queue(){
 }
 bool queue_push(Work work){
   if(inqueue[work.row] || busy[work.row]){
-    //debug("{%d %d %d} push failed\n", work.row, work.l, work.r);
+    debug("{%d %d %d} push failed\n", work.row, work.l, work.r);
     return false;
   }
   inqueue[work.row] = true;
@@ -79,18 +79,18 @@ void allocate_work(Work work){
   Work down  = (Work){.row = work.row + 1, .l = progress[work.row + 1], .r = MIN(M, progress[work.row + 1] + STEP)};
   if(work.row == N - 1 && work.r == M) return;
   else if(work.row == N - 1){
-    //debug("work {%d %d %d} allocate {%d %d %d}\n", work.row, work.l, work.r, right.row, right.l, right.r);
+    debug("work {%d %d %d} allocate {%d %d %d}\n", work.row, work.l, work.r, right.row, right.l, right.r);
     if(right.l < right.r)
       queue_push(right);
   }
   else if(work.r == M){
-    //debug("work {%d %d %d} allocate {%d %d %d}\n", work.row, work.l, work.r, down.row, down.l, down.r);
+    debug("work {%d %d %d} allocate {%d %d %d}\n", work.row, work.l, work.r, down.row, down.l, down.r);
     if(down.l < down.r)
       queue_push(down);
   } 
   else {
-    //debug("work {%d %d %d} allocate {%d %d %d}\n", work.row, work.l, work.r, right.row, right.l, right.r);
-    //debug("work {%d %d %d} allocate {%d %d %d}\n", work.row, work.l, work.r, down.row, down.l, down.r);
+    debug("work {%d %d %d} allocate {%d %d %d}\n", work.row, work.l, work.r, right.row, right.l, right.r);
+    debug("work {%d %d %d} allocate {%d %d %d}\n", work.row, work.l, work.r, down.row, down.l, down.r);
     if(right.l < right.r)
     queue_push(right);
     if(down.l < down.r)
@@ -112,14 +112,14 @@ void Tworker(int id) {
   while(1){
     mutex_lock(&lk);
     while(!WORKER_COND){
-      //debug("worker %d sleep \n", id);
+      debug("worker %d sleep \n", id);
       cond_wait(&cv, &lk);
-      //debug("worker %d awake \n", id);
+      debug("worker %d awake \n", id);
     }
-    //debug("worker %d locked\n", id);
+    debug("worker %d locked\n", id);
     if(kill_signal){
-      //debug("worker %d killed\n", id);
-      //debug("worker %d unlock\n", id);
+      debug("worker %d killed\n", id);
+      debug("worker %d unlock\n", id);
       cond_broadcast(&cv);
       mutex_unlock(&lk);
       break;
@@ -129,9 +129,9 @@ void Tworker(int id) {
     busy[thread_work.row] = true;
     if(thread_work.row == N - 1 && thread_work.r == M) {
       kill_signal = 1;
-      //debug("kill signal is send by worker %d\n", id);
+      debug("kill signal is send by worker %d\n", id);
     }
-    //debug("worker %d unlock: {%d %d %d}\n", id, thread_work.row, thread_work.l, thread_work.r);
+    debug("worker %d unlock: {%d %d %d}\n", id, thread_work.row, thread_work.l, thread_work.r);
     mutex_unlock(&lk);
 
     short i = thread_work.row;
@@ -147,7 +147,7 @@ void Tworker(int id) {
     progress[thread_work.row] = thread_work.r;
     allocate_work(thread_work);
     cond_broadcast(&cv);
-    //debug("worker %d finished\n", id);
+    debug("worker %d finished\n", id);
     //print_queue();
     //check();
     mutex_unlock(&lk);

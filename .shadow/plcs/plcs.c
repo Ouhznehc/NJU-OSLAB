@@ -30,7 +30,7 @@ mutex_t lk = MUTEX_INIT();
 typedef struct info{
   short row, l, r;
 }Work;
-#define STEP 1024
+#define STEP 2048
 Work workload[MAXN];
 bool kill_signal;
 bool busy[MAXN];

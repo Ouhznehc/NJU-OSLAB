@@ -16,10 +16,8 @@
 #ifdef __DEBUG
 
     #define Log(format, ...) \
-    lock_acquire(&printf_lk); \
     printf("\33[1;35m[%s,%d,%s] " format "\33[0m\n", \
-        __FILE__, __LINE__, __func__, ## __VA_ARGS__); \
-    lock_release(&printf_lk); 
+        __FILE__, __LINE__, __func__, ## __VA_ARGS__);
 
     #define panic(format, ...) \
     do { \

@@ -11,9 +11,9 @@
 #undef panic_on
 #endif
 
-//#define __DEBUG
+#define __DEBUG_MODE__
 
-#ifdef __DEBUG
+#ifdef __DEBUG_MODE__
     #define Log(format, ...) \
     printf("\33[1;35m[%s,%d,%s] " format "\33[0m\n", \
         __FILE__, __LINE__, __func__, ## __VA_ARGS__);

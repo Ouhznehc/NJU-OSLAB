@@ -1,11 +1,5 @@
 #include <common.h>
 
-typedef struct spinlock{
-  bool locked;
-  const char *name;
-  int cpu;
-}spinlock_t;
-
 
 void init_lock(spinlock_t *lk, char *name){
     lk->name = name;

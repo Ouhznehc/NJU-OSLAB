@@ -9,7 +9,7 @@ void init_lock(spinlock_t *lk, char *name){
 
 void spin_lock(spinlock_t *lk) {
   while (1) {
-    intptr_t value = atomic_xchg((int*)lk->locked, 1);
+    int value = atomic_xchg((int*)lk->locked, 1);
     if (value == 0) break;
   }
 }

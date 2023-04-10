@@ -1,7 +1,8 @@
 #include <common.h>
 
 bool holding(spinlock_t *lk){
-  return lk->locked && lk->cpu == cpu_current();
+  //return lk->locked && lk->cpu == cpu_current();
+  return lk->locked;
 }
 
 void init_lock(spinlock_t *lk, char *name){
@@ -15,7 +16,6 @@ void spin_lock(spinlock_t *lk) {
   while(atomic_xchg(&lk->locked, 1) != 0);
   __sync_synchronize();
   lk->cpu = cpu_current();
-  Log("test");
 }
 
 void spin_unlock(spinlock_t *lk) {

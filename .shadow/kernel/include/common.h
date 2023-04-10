@@ -1,11 +1,11 @@
+#ifndef __COMMON_H__
+#define __COMMON_H__
+
 #include <kernel.h>
 #include <klib.h>
 #include <klib-macros.h>
 #include "spinlock.h"
 
-#define __DEBUG_MODE__
-
-#ifdef __DEBUG_MODE__
 
 #ifdef assert
 #undef assert
@@ -16,6 +16,8 @@
 #ifdef panic_on
 #undef panic_on
 #endif
+#ifdef __DEBUG_MODE__
+
 
     extern spinlock_t debug_lk;
 
@@ -61,4 +63,6 @@
     #define panic_on(cond,format,...) 
     #define assert(cond)
     #define Assert(cond,format,...)
+#endif
+
 #endif

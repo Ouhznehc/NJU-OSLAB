@@ -17,6 +17,7 @@ void spin_lock(spinlock_t *lk) {
   __sync_synchronize();
   lk->cpu = cpu_current();
   printf("%s: %d\n", lk->name, lk->cpu);
+  Log("fuck");
 }
 
 void spin_unlock(spinlock_t *lk) {

@@ -8,7 +8,6 @@ spinlock_t debug_lk;
 static void os_init() {
   #ifdef __DEBUG_MODE__
   init_lock(&debug_lk, "debug_lk");
-  Log("Debug Mode");
   #endif
   pmm->init();
 }

@@ -1,14 +1,12 @@
 #ifndef __SPINLOCK_H__
 #define __SPINLOCK_H__
 
-// typedef struct spinlock{
-//   bool locked;
-//   const char *name;
-//   int cpu;
-// }spinlock_t;
+typedef struct spinlock{
+    const char *name;
+    int locked;
+    int cpu;
+}spinlock_t;
 
-typedef int spinlock_t;
-#define SPIN_INIT() 0
 
 void init_lock(spinlock_t *lk, char *name);
 void spin_lock(spinlock_t *lk);

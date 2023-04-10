@@ -1,14 +1,14 @@
 #include <common.h>
 
 #ifdef __DEBUG_MODE__
-spinlock_t debug_lk = SPIN_INIT();
+spinlock_t debug_lk;
 #endif
 
 
 static void os_init() {
   #ifdef __DEBUG_MODE__
+  init_lock(&debug_lk, "debug_lk");
   Log("Debug Mode");
-  //init_lock(&debug_lk, "debug_lk");
   #endif
   pmm->init();
 }

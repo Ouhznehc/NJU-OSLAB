@@ -6,6 +6,7 @@
 #include <klib-macros.h>
 #include "spinlock.h"
 
+#define __DEBUG_MODE__
 
 #ifdef assert
 #undef assert

@@ -7,7 +7,7 @@ spinlock_t debug_lk = SPIN_INIT();
 
 static void os_init() {
   #ifdef __DEBUG_MODE__
-  Log("Open debug mode");
+  Log("Debug Mode");
   //init_lock(&debug_lk, "debug_lk");
   #endif
   pmm->init();

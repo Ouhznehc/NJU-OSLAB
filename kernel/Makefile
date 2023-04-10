@@ -1,4 +1,5 @@
 export MODULE  := L1
+export token   := WEyKpc8l
 NAME           := kernel
 SRCS           := framework/main.c $(shell find -L ./src/ -name "*.c")
 INC_PATH       := include/ framework/

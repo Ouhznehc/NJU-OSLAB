@@ -1,5 +1,5 @@
-// #ifndef __COMMON_H__
-// #define __COMMON_H__
+#ifndef __COMMON_H__
+#define __COMMON_H__
 
 #include <kernel.h>
 #include <klib.h>
@@ -67,4 +67,4 @@
     #define Assert(cond,format,...)
 #endif
 
-//#endif
+#endif

@@ -17,7 +17,6 @@ static void os_run() {
   for (const char *s = "Hello World from CPU #*\n"; *s; s++) {
     putch(*s == '*' ? '0' + cpu_current() : *s);
   }
-  panic_on(1, "test");
   while (1) ;
 }
 

@@ -18,7 +18,7 @@
 #undef panic_on
 #endif
 
-#ifndef __DEBUG_MODE__
+#ifdef __DEBUG_MODE__
 
 
     extern spinlock_t debug_lk;

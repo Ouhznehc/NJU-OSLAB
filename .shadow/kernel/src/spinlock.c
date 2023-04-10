@@ -15,7 +15,7 @@ void spin_lock(spinlock_t *lk) {
   while(atomic_xchg(&lk->locked, 1) != 0);
   __sync_synchronize();
   lk->cpu = cpu_current();
-  Log("%s: %d\n", lk->name, lk->cpu);
+  printf("%s: %d\n", lk->name, lk->cpu);
 }
 
 void spin_unlock(spinlock_t *lk) {

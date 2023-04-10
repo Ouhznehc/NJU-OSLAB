@@ -11,7 +11,7 @@
 #undef panic_on
 #endif
 
-#define __DEBUG
+//#define __DEBUG
 
 #ifdef __DEBUG
     #define Log(format, ...) \

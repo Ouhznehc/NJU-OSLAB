@@ -1,7 +1,7 @@
 #include <common.h>
 
 bool holding(spinlock_t *lk){
-  printf("%s: %d\n", lk->name, lk->cpu);
+  printf("holding %s: %d\n", lk->name, lk->cpu);
   return lk->locked && lk->cpu == cpu_current();
 }
 

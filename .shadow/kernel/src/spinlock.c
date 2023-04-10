@@ -2,7 +2,7 @@
 
 bool holding(spinlock_t *lk){
   printf("holding %s: %d %d cpu=%d\n", lk->name, lk->cpu, lk->locked, cpu_current());
-  return lk->locked && lk->cpu == cpu_current();
+  return (lk->locked && lk->cpu == cpu_current());
 }
 
 void init_lock(spinlock_t *lk, char *name){

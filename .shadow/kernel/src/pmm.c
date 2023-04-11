@@ -207,10 +207,12 @@ static void *kalloc(size_t size)
     {
       spin_lock(&freepage->lk);
       ret = object_from_slab(freepage);
+      kmem[cpu].free_list[slab_index].next = &freepage->node;
       spin_unlock(&freepage->lk);
     }
     else
     {
+      assert(freepage->node.next == NULL);
       page_t *page = attach_page2slab(slab_index, cpu);
       if (page == NULL)
         return NULL;

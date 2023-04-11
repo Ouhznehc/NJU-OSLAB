@@ -1,8 +1,8 @@
 #include <common.h>
 
 static page_t *heap_start = NULL;
-// static kmem_cache kmem[MAX_CPU];
-// static spinlock_t heap_lock;
+//static kmem_cache kmem[MAX_CPU];
+static spinlock_t heap_lock;
 int slab_type[SLAB_TYPE] = {2, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096};
 
 
@@ -12,14 +12,35 @@ static inline size_t align(size_t size){
   else return (1 << (msb + 1));
 }
 
+static bool kmalloc_valid(page_t *page, size_t size){
+  size_t pages = size / PAGE_SIZE;
+  for(int i = 0; i < pages; i++)
+    if((page + i)->object_size) return false;
+  return true;
+}
 
+static page_t* increase_by_page(page_t *page){
+  Assert(page->object_size, "increase_by_page");
+  if(page->object_size > PAGE_SIZE) return page + page->object_size / PAGE_SIZE;
+  else return page + 1;
+}
 
+static void *kmalloc_large(size_t size){
+  spin_lock(&heap_lock);
+  page_t *ret = heap_start;
+  while(!kmalloc_valid(ret, size)){
+    ret = increase_by_page(ret);
+  };
+  ret->object_size = size;
+  spin_unlock(&heap_lock);
+  return ret;
+}
 
 
 
 static void *kalloc(size_t size) {
   size = align(size);
-  Log("size = %d", size);
+  if(size > PAGE_SIZE) return kmalloc_large(size);
   return NULL;
 }
 

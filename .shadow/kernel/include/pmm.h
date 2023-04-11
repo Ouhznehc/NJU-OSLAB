@@ -28,7 +28,7 @@ typedef union page_t{
   {
     list_t node;
     int cpu;
-    int object_size;
+    int object_size; // 0 means free page
     int object_counter;
     int object_capacity;
     void *object_start;

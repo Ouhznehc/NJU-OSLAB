@@ -138,8 +138,9 @@ static page_t *attach_page2slab(int slab_index, int cpu)
   page_t *page = pages_from_heap(cpu, slab_type[slab_index], 1);
   if (page == NULL)
     return NULL;
-  assert(kmem[cpu].free_list[slab_index].next->next == NULL);
+  list_t *next_node = kmem[cpu].free_list[slab_index].next->next;
   kmem[cpu].free_list[slab_index].next->next = &page->node;
+  page->node.next = next_node;
   kmem[cpu].free_list[slab_index].next = &page->node;
   kmem[cpu].free_page[slab_index]++;
   return page;
@@ -207,7 +208,6 @@ static void *kalloc(size_t size)
     {
       spin_lock(&freepage->lk);
       ret = object_from_slab(freepage);
-      kmem[cpu].free_list[slab_index].next = &freepage->node;
       spin_unlock(&freepage->lk);
     }
     else

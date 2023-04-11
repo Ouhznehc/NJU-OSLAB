@@ -34,10 +34,10 @@ static page_t* find_heap_space(size_t size){
   while(1){
     switch (heap_valid(page, size))
     {
-    case 0: return NULL;
-    case 1: return page = increase_by_page(page);
-    case 2: return page;
-    default: panic("find_heap_space");
+      case 0: return NULL;
+      case 1: return page = increase_by_page(page);
+      case 2: return page;
+      default: panic("find_heap_space");
     }
   };
 }
@@ -59,7 +59,7 @@ static void *kmalloc_large(size_t size){
 static void kfree_large(page_t *page){
   spin_lock(&heap_lock);
   page->object_size = 0;
-  Log("success free %07p", page->object_start);
+  // Log("success free %07p", page->object_start);
   spin_unlock(&heap_lock);
 }
 
@@ -67,13 +67,14 @@ static void *kalloc(size_t size) {
   size = align(size);
   if(size > PAGE_SIZE) return kmalloc_large(size);
 
+
   return NULL;
 }
 
 static void kfree(void *ptr) {
   page_t *page = (page_t *)((size_t)ptr & PAGE_MASK);
   spin_lock(&page->lk);
-  Log("try free %07p at page %07p", ptr, page);
+  // Log("try free %07p at page %07p", ptr, page);
   if(page->object_size > PAGE_SIZE){
     spin_unlock(&page->lk);
     return kfree_large(page);

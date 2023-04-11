@@ -5,8 +5,9 @@
 #include <klib.h>
 #include <klib-macros.h>
 #include "spinlock.h"
+#include "pmm.h"
 
-#define __DEBUG_MODE__
+// #define __DEBUG_MODE__
 
 #ifdef assert
 #undef assert
@@ -34,10 +35,12 @@
         } while (0)
 
     #define Log(format, ...) \
+        do{ \
         spin_lock(&debug_lk); \
         printf("\33[1;35m[%s,%d,%s] " format "\33[0m\n", \
             __FILE__, __LINE__, __func__, ## __VA_ARGS__); \
-        spin_unlock(&debug_lk);
+        spin_unlock(&debug_lk); \
+        }while(0)
 
     #define panic(format, ...) \
         do { \
@@ -70,11 +73,12 @@
 
 
 #else
-    #define Log(format,...)
-    #define panic(format, ...)
+    #define kernal_panic(format, ...)
+    #define Log(format,...)           
+    #define panic(format, ...)        
     #define panic_on(cond,format,...) 
-    #define assert(cond)
-    #define Assert(cond,format,...)
+    #define assert(cond)              
+    #define Assert(cond,format,...)   
 #endif
 
 #endif

@@ -41,7 +41,7 @@ static int heap_valid(page_t *page, size_t size)
     return 0;
   //Log("page=%07p, add=%07p", page, (void *)page + 4 KB);
   assert(((void *)page + 4 KB) <= heap.end);
-  if(size >= PAGE_SIZE && !address_align((size_t)((void *)page), size)) return 1;
+  if(size >= PAGE_SIZE && !address_align((size_t)((void *)page + 4 KB), size)) return 1;
   for (int i = 0; i < pages; i++)
   {
     if ((page + i)->object_size)
@@ -157,8 +157,7 @@ static void *kmalloc_large(size_t size)
   init_lock(&page->lk, "page");
   spin_lock(&page->lk);
   page->object_size = size;
-  //ret = page->object_start = (void *)page + 4096;
-  ret = page->object_start = (void *)page;
+  ret = page->object_start = (void *)page + 4096;
   Log("success alloc %07p, size = %07p", ret, page->object_size);
   spin_unlock(&page->lk);
   spin_unlock(&heap_lock);

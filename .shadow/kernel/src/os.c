@@ -34,14 +34,14 @@ static void os_run() {
       // else
       // size = 4096;
       // spin_lock(&plock);
-      // printf("cpu %d want to alloc time %d with %dB\n", now, pos, size);
+      // Log("cpu %d want to alloc time %d with %dB\n", now, pos, size);
       // spin_unlock(&plock);
 
       alloc[pos] = (uintptr_t)pmm->alloc(size);
       if (alloc[pos] == 0)
       {
         spin_lock(&plock);
-        printf("no more space\n");
+        Log("no more space\n");
         spin_unlock(&plock);
         spin_unlock(&lk[pos]);
         // s = 0;
@@ -49,14 +49,14 @@ static void os_run() {
         continue;
       }
       spin_lock(&plock);
-      printf("cpu %d alloc at %p with %dB\n", now, alloc[pos], size);
+      Log("cpu %d alloc at %p with %dB\n", now, alloc[pos], size);
       spin_unlock(&plock);
     }
     else
     {
       pmm->free((void *)alloc[pos]);
       spin_lock(&plock);
-      printf("cpu %d free time %d at %p\n", now, pos, alloc[pos]);
+      Log("cpu %d free time %d at %p\n", now, pos, alloc[pos]);
       spin_unlock(&plock);
       alloc[pos] = 0;
       // if (pos == maxx - 1)
@@ -73,13 +73,13 @@ static void os_run() {
   for (int i = 1; i <= 4000; i++)
   {
     al[i] = (uintptr_t)pmm->alloc(2);
-    printf("%p\n", al[i]);
+    Log("%p\n", al[i]);
   }
-  printf("\n");
+  Log("\n");
   for (int i = 1; i <= 9; i++)
   {
     pmm->free((void *)al[i]);
-    printf("%p\n", (uintptr_t)pmm->alloc(1024));
+    Log("%p\n", (uintptr_t)pmm->alloc(1024));
   // }
   while(1);
   }

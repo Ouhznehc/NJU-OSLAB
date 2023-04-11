@@ -11,6 +11,14 @@
 #define SLAB_MIN (8)
 #define SLAB_MAX (16)
 
+// #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
+// get struct entry
+#define  container_of(ptr, type, member) ({    \
+     const typeof( ((type *)0)->member ) *__mptr = (ptr); \
+     (type *)( (char *)__mptr - offsetof(type,member) );})
+#define setbit(x,pos)  ((x) |=  (1<<(pos)))     
+#define clrbit(x,pos)  ((x) &= ~(1<<(pos)))   
+#define getbit(x,pos)  ((x) >> (pos) & 1) 
 
 typedef struct list_t
 {

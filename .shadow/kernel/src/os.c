@@ -10,16 +10,16 @@ static void os_init() {
   init_lock(&debug_lk, "debug_lk");
   #endif
   pmm->init();
-}     
+}    
 
+int a[20] = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8 KB, 32 KB, 512 KB, 1 MB, 2 MB, 8 MB, 16 MB};
 static void os_run() {
   for (const char *s = "Hello World from CPU #*\n"; *s; s++) {
     putch(*s == '*' ? '0' + cpu_current() : *s);
   }
-  int a[6] = {8 KB, 32 KB, 1 MB, 2 MB, 8 MB, 16 MB};
   while(1){
 
-    void *test = pmm->alloc(a[rand() % 6]);
+    void *test = pmm->alloc(a[rand() % 20]);
     if(test != NULL) pmm->free(test);
     //Log("--------------");
   }

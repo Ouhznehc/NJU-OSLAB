@@ -18,7 +18,7 @@ static void os_run() {
   }
   void *test = pmm->alloc(12345);
   pmm->free(test);
-  Log("success");
+  Log("success alloc %p", test);
   while (1) ;
 }                     
         

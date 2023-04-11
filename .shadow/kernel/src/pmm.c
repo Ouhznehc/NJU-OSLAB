@@ -5,6 +5,9 @@ static page_t *heap_start = NULL;
 static spinlock_t heap_lock;
 int slab_type[SLAB_TYPE] = {2, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096};
 
+static inline size_t size2page(size_t size){
+  return size / PAGE_SIZE + 1;
+}
 
 static inline size_t align(size_t size){
   size_t msb = 31 - __builtin_clz(size);
@@ -13,7 +16,7 @@ static inline size_t align(size_t size){
 }
 
 static bool heap_valid(page_t *page, size_t size){
-  size_t pages = size / PAGE_SIZE;
+  size_t pages = size2page(size);
   for(int i = 0; i < pages; i++)
     if((page + i)->object_size) return false;
   return true;
@@ -21,8 +24,7 @@ static bool heap_valid(page_t *page, size_t size){
 
 static page_t* increase_by_page(page_t *page){
   Assert(page->object_size, "increase_by_page");
-  if(page->object_size > PAGE_SIZE) return page + page->object_size / PAGE_SIZE + 1;
-  else return page + 1;
+  return page + size2page(page->object_size);
 }
 
 static page_t* find_heap_space(size_t size){

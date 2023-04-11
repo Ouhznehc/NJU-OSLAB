@@ -160,8 +160,8 @@ static void *kmalloc_large(size_t size)
   init_lock(&page->lk, "page");
   spin_lock(&page->lk);
   page->object_size = size;
-  //ret = page->object_start = (void *)page + 4 KB;
-  ret = page->object_start = (void *)page;
+  ret = page->object_start = (void *)page + 4 KB;
+  //ret = page->object_start = (void *)page;
   Log("success alloc %07p, size = %07p", ret, page->object_size);
   spin_unlock(&page->lk);
   spin_unlock(&heap_lock);

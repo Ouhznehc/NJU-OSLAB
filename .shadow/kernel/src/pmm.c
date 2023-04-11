@@ -61,7 +61,7 @@ static void *kmalloc_large(size_t size){
 static void kfree_large(page_t *page){
   spin_lock(&heap_lock);
   page->object_size = 0;
-  // Log("success free %07p", page->object_start);
+  Log("success free %07p", page->object_start);
   spin_unlock(&heap_lock);
 }
 

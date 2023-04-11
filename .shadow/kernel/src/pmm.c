@@ -124,7 +124,7 @@ static void pmm_init() {
       kmem[i].slab_list[j].next = &pages->node;
       kmem[i].free_list[j].next = &pages->node;
       kmem[i].free_page[j] = SLAB_MIN;
-      Assert(((size_t)&pages == (size_t)&pages->node), "fuck union");
+      Assert(((size_t)&pages == (size_t)&pages->node), "fuck union: page=%07p, node=%07p", (size_t)&pages, (size_t)&pages->node);
     }
 
   }

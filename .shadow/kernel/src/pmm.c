@@ -5,7 +5,6 @@ static kmem_cache kmem[MAX_CPU];
 static spinlock_t heap_lock;
 int slab_type[SLAB_TYPE] = {2, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096};
 
-
 static inline int match_slab_type(size_t size)
 {
   for (int i = 0; i < SLAB_TYPE; i++)
@@ -29,11 +28,18 @@ static inline size_t align(size_t size)
     return (1 << (msb + 1));
 }
 
+static bool address_align(size_t address, size_t size){
+  size_t lsb_address = __builtin_ctz(address);
+  size_t lsb_size = __builtin_ctz(size);
+  return lsb_address == lsb_size;
+}
+
 static int heap_valid(page_t *page, size_t size)
 {
   size_t pages = size2page(size);
   if ((void *)(page + pages) >= heap.end)
     return 0;
+  if(size >= PAGE_SIZE && !address_align((size_t)page, size)) return 1;
   for (int i = 0; i < pages; i++)
   {
     if ((page + i)->object_size)
@@ -76,7 +82,7 @@ static void *object_from_slab(page_t *page)
       continue;
     for (int j = 0; j < 128; j++)
     {
-      if (getbit(page->bitset[i], j)== 0)
+      if (getbit(page->bitset[i], j) == 0)
       {
         if (page->object_counter == 0)
         {
@@ -111,7 +117,7 @@ static page_t *pages_from_heap(int cpu, int slab_type, int pages)
     page->object_size = slab_type;
     page->object_counter = 0;
     page->object_capacity = (PAGE_SIZE - PAGE_CONFIG) / slab_type;
-    page->object_start = (void *)page + PAGE_CONFIG;
+    page->object_start = (slab_type <= PAGE_CONFIG) ? (void *)page + PAGE_CONFIG : (void*)page + slab_type;
     page->node.next = NULL;
     if (ret == NULL)
       ret = page;
@@ -125,9 +131,11 @@ static page_t *pages_from_heap(int cpu, int slab_type, int pages)
   return ret;
 }
 
-static page_t* attach_page2slab(int slab_index, int cpu){
+static page_t *attach_page2slab(int slab_index, int cpu)
+{
   page_t *page = pages_from_heap(cpu, slab_type[slab_index], 1);
-  if(page == NULL) return NULL;
+  if (page == NULL)
+    return NULL;
   assert(kmem[cpu].free_list[slab_index].next->next == NULL);
   kmem[cpu].free_list[slab_index].next->next = &page->node;
   kmem[cpu].free_list[slab_index].next = &page->node;
@@ -163,6 +171,8 @@ static void kfree_large(page_t *page)
 
 static void *kalloc(size_t size)
 {
+  if (size > 16 MB)
+    return NULL;
   void *ret = NULL;
   size = align(size);
   if (size >= PAGE_SIZE)
@@ -199,7 +209,8 @@ static void *kalloc(size_t size)
     else
     {
       page_t *page = attach_page2slab(slab_index, cpu);
-      if(page == NULL) return NULL;
+      if (page == NULL)
+        return NULL;
       ret = object_from_slab(page);
     }
   }
@@ -220,7 +231,8 @@ static void kfree(void *ptr)
   int i = offset / 128, j = offset % 128;
   assert(getbit(page->bitset[i], j) == 1);
   clrbit(page->bitset[i], j);
-  if(page->object_counter == 0){
+  if (page->object_counter == 0)
+  {
     int cpu = page->cpu, slab_index = match_slab_type(page->object_size);
     spin_lock(&kmem[cpu].lk);
     kmem[cpu].free_page[slab_index]++;

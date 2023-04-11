@@ -19,7 +19,7 @@ static void os_run() {
   }
   while(1){
 
-    void *test = pmm->alloc(a[rand() % 20]);
+    void *test = pmm->alloc(16 MB);
     if(test != NULL) pmm->free(test);
     //Log("--------------");
   }

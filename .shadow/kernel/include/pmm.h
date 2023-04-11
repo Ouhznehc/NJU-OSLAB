@@ -6,6 +6,7 @@
 #define SLAB_TYPE (11)
 #define PAGE_SIZE (8 KB)
 #define INFO_SIZE (256)
+#define PAGE_MASK (0xffff2000)
 #define MAX_CPU (8)
 
 
@@ -28,7 +29,7 @@ typedef union page_t{
   {
     list_t node;
     int cpu;
-    int object_size; // 0 means free page
+    int object_size; // "0" means free page
     int object_counter;
     int object_capacity;
     void *object_start;

@@ -46,7 +46,11 @@ static void *kmalloc_large(size_t size){
   return ret;
 }
 
-
+static void kfree_large(page_t *page){
+  spin_lock(&heap_lock);
+  page->object_size = 0;
+  spin_unlock(&heap_lock);
+}
 
 static void *kalloc(size_t size) {
   size = align(size);
@@ -56,7 +60,8 @@ static void *kalloc(size_t size) {
 }
 
 static void kfree(void *ptr) {
-
+  page_t *page = (page_t *)((size_t)ptr & PAGE_MASK);
+  if(page->object_size > PAGE_SIZE) return kfree_large(page);
 }
 
 static void pmm_init() {

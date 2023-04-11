@@ -51,9 +51,11 @@ static void *kmalloc_large(size_t size){
   if(page == NULL) return NULL;
   panic_on(page->object_size, "find_heap_size: page=%07p, size=%07p", page, page->object_size);
   init_lock(&page->lk, "");
+  spin_lock(&page->lk);
   page->object_size = size;
   ret = page->object_start = (void *)page + PAGE_CONFIG;
   Log("success alloc %07p, size = %07p", ret, page->object_size);
+  spin_unlock(&page->lk);
   spin_unlock(&heap_lock);
   return ret;
 }
@@ -76,7 +78,9 @@ static void *kalloc(size_t size) {
 static void kfree(void *ptr) {
   page_t *page = (page_t *)((size_t)ptr & PAGE_MASK);
   // Log("try free %07p at page %07p", ptr, page);
+  spin_lock(&page->lk);
   if(page->object_size > PAGE_SIZE){
+    spin_unlock(&page->lk);
     return kfree_large(page);
   }
 }

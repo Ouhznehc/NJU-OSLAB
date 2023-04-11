@@ -8,7 +8,7 @@
 #define PAGE_MASK (0xffffe000)
 #define MAX_CPU (8)
 #define SLAB_TYPE (11)
-#define SLAB_MIN (8)
+#define SLAB_MIN (1)
 #define SLAB_MAX (16)
 
 // #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)

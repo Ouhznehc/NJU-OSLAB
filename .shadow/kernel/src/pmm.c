@@ -26,7 +26,7 @@ static int heap_valid(page_t *page, size_t size){
 
 static page_t* increase_by_page(page_t *page){
   size_t size = page->object_size;
-  Assert(size > 0, "increase_by_page: page=%07p, size=%9p", page, size);
+  Assert(size > 0, "increase_by_page: page=%07p, size=%08p", page, size);
   return page + size2page(size);
 }
 

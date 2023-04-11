@@ -3,11 +3,13 @@
 
 #define KB * 1024
 #define MB KB * 1024
-#define SLAB_TYPE (11)
 #define PAGE_SIZE (8 KB)
 #define PAGE_CONFIG (256)
 #define PAGE_MASK (0xffffe000)
 #define MAX_CPU (8)
+#define SLAB_TYPE (11)
+#define SLAB_MIN (8)
+#define SLAB_MAX (16)
 
 
 typedef struct list_t

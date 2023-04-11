@@ -21,7 +21,7 @@ static void os_run() {
 
     void *test = pmm->alloc(a[rand() % 6]);
     if(test != NULL) pmm->free(test);
-    Log("--------------");
+    //Log("--------------");
   }
   while (1) ;
 }                     

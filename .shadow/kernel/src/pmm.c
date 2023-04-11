@@ -247,6 +247,7 @@ static void kfree(void *ptr)
     kmem[cpu].free_page[slab_index]++;
     spin_unlock(&kmem[cpu].lk);
   }
+  Log("success free %07p", ptr);
   spin_unlock(&page->lk);
 }
 

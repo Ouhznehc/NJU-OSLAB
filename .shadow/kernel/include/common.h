@@ -25,8 +25,8 @@
     extern spinlock_t debug_lk;
 
     #define debug(format, ...) \
-        printf("\33[1;35m[%s,%d,%s] " format "\33[0m\n", \
-            __FILE__, __LINE__, __func__, ## __VA_ARGS__);
+        printf("\33[1;35m[%s: %d] " format "\33[0m\n", \
+            __func__, __LINE__, ## __VA_ARGS__);
 
     #define kernal_panic(format, ...) \
         do { \

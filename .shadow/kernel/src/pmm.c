@@ -63,6 +63,7 @@ static void *kalloc(size_t size) {
 
 static void kfree(void *ptr) {
   page_t *page = (page_t *)((size_t)ptr & PAGE_MASK);
+  Log("%d", page->object_size);
   if(page->object_size > PAGE_SIZE) return kfree_large(page);
 }
 

@@ -93,6 +93,7 @@ static void *object_from_slab(page_t *page)
           kmem[page->cpu].free_page[slab_index]--;
         }
         setbit(page->bitset[i], j);
+        assert(getbit(page->bitset[i], j) == 1);
         page->object_counter++;
         ret = page->object_start + (128 * i + j) * page->object_size;
         return ret;
@@ -250,7 +251,6 @@ static void kfree(void *ptr)
   Log("success free %07p", ptr);
   spin_unlock(&page->lk);
   spin_unlock(&kmem[page->cpu].lk);
-
 }
 
 static void pmm_init()

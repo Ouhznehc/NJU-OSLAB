@@ -12,7 +12,7 @@ static inline size_t align(size_t size){
   else return (1 << (msb + 1));
 }
 
-static bool kmalloc_valid(page_t *page, size_t size){
+static bool heap_valid(page_t *page, size_t size){
   size_t pages = size / PAGE_SIZE;
   for(int i = 0; i < pages; i++)
     if((page + i)->object_size) return false;
@@ -25,13 +25,19 @@ static page_t* increase_by_page(page_t *page){
   else return page + 1;
 }
 
-static void *kmalloc_large(size_t size){
-  spin_lock(&heap_lock);
-  void *ret = NULL;
+static page_t* find_heap_space(size_t size){
   page_t *page = heap_start;
-  while(!kmalloc_valid(page, size)){
+  while(!heap_valid(page, size)){
     page = increase_by_page(page);
   };
+  return page;
+}
+
+
+static void *kmalloc_large(size_t size){
+  void *ret = NULL;
+  spin_lock(&heap_lock);
+  page_t *page = find_heap_space(size);
   page->object_size = size;
   ret = page->object_start = page + 1;
   spin_unlock(&heap_lock);

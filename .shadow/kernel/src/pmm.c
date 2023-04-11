@@ -28,11 +28,11 @@ static inline size_t align(size_t size)
     return (1 << (msb + 1));
 }
 
-static bool address_align(size_t address, size_t size){
-  size_t lsb_address = __builtin_ctz(address);
-  size_t lsb_size = __builtin_ctz(size);
-  return lsb_address == lsb_size;
-}
+// static bool address_align(size_t address, size_t size){
+//   size_t lsb_address = __builtin_ctz(address);
+//   size_t lsb_size = __builtin_ctz(size);
+//   return lsb_address == lsb_size;
+// }
 
 static int heap_valid(page_t *page, size_t size)
 {
@@ -41,7 +41,7 @@ static int heap_valid(page_t *page, size_t size)
     return 0;
   //Log("page=%07p, add=%07p", page, (void *)page + 4 KB);
   assert(((void *)page + 4 KB) <= heap.end);
-  if(size >= PAGE_SIZE && !address_align((size_t)((void *)page + 4 KB), size)) return 1;
+  //if(size >= PAGE_SIZE && !address_align((size_t)((void *)page + 4 KB), size)) return 1;
   for (int i = 0; i < pages; i++)
   {
     if ((page + i)->object_size)

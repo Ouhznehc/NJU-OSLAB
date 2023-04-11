@@ -19,13 +19,13 @@ static int heap_valid(page_t *page, size_t size){
   size_t pages = size2page(size);
   for(int i = 0; i < pages; i++){
     if((void*)(page + i) >= heap.end) return 0;
-    if((page + i)->object_size) return 1;
+    else if((page + i)->object_size) return 1;
   }
   return 2;
 }
 
 static page_t* increase_by_page(page_t *page){
-  //Assert(page->object_size, "increase_by_page: page=%07p, size=%07p", page, page->object_size);
+  Assert(page->object_size, "increase_by_page: page=%07p, size=%07p", page, page->object_size);
   return page + size2page(page->object_size);
 }
 

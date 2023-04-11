@@ -163,7 +163,7 @@ static void *kalloc(size_t size)
 {
   void *ret = NULL;
   size = align(size);
-  if (size > PAGE_SIZE)
+  if (size >= PAGE_SIZE)
     return kmalloc_large(size);
   int cpu = cpu_current(), slab_index = match_slab_type(size);
   spin_lock(&kmem[cpu].lk);
@@ -209,7 +209,7 @@ static void kfree(void *ptr)
 {
   page_t *page = (page_t *)((size_t)ptr & PAGE_MASK);
   spin_lock(&page->lk);
-  if (page->object_size > PAGE_SIZE)
+  if (page->object_size >= PAGE_SIZE)
   {
     spin_unlock(&page->lk);
     return kfree_large(page);

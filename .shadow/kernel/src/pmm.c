@@ -1,8 +1,8 @@
 #include <common.h>
 
+static spinlock_t heap_lock;
 static page_t *heap_start = NULL;
 static kmem_cache kmem[MAX_CPU];
-static spinlock_t heap_lock;
 int slab_type[SLAB_TYPE] = {2, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096};
 
 static inline int match_slab_type(size_t size)

@@ -41,7 +41,7 @@ static int heap_valid(page_t *page, size_t size)
     return 0;
   //Log("page=%07p, add=%07p", page, (void *)page + 4 KB);
   assert(((void *)page + 4 KB) <= heap.end);
-  if(size >= PAGE_SIZE && !address_align((size_t)((void *)page), size)) return 1;
+  if(size >= PAGE_SIZE && !address_align((size_t)((void *)page + 4 KB), size)) return 1;
   for (int i = 0; i < pages; i++)
   {
     if ((page + i)->object_size)
@@ -104,6 +104,7 @@ static void *object_from_slab(page_t *page)
 
 static page_t *pages_from_heap(int cpu, int slab_type, int pages)
 {
+  Log("try heap lock");
   spin_lock(&heap_lock);
   page_t *ret = NULL;
   while (pages--)
@@ -111,6 +112,7 @@ static page_t *pages_from_heap(int cpu, int slab_type, int pages)
     page_t *page = find_heap_space(slab_type);
     if (page == NULL)
     {
+      Log("heap unlock");
       spin_unlock(&heap_lock);
       return NULL;
     }
@@ -129,6 +131,7 @@ static page_t *pages_from_heap(int cpu, int slab_type, int pages)
       ret = page;
     }
   }
+  Log("heap unlock");
   spin_unlock(&heap_lock);
   return ret;
 }
@@ -138,8 +141,9 @@ static page_t *attach_page2slab(int slab_index, int cpu)
   page_t *page = pages_from_heap(cpu, slab_type[slab_index], 1);
   if (page == NULL)
     return NULL;
-  assert(kmem[cpu].free_list[slab_index].next->next == NULL);
+  list_t *next_node = kmem[cpu].free_list[slab_index].next->next;
   kmem[cpu].free_list[slab_index].next->next = &page->node;
+  page->node.next = next_node;
   kmem[cpu].free_list[slab_index].next = &page->node;
   kmem[cpu].free_page[slab_index]++;
   return page;
@@ -148,27 +152,32 @@ static page_t *attach_page2slab(int slab_index, int cpu)
 static void *kmalloc_large(size_t size)
 {
   void *ret = NULL;
+  Log("try heap lock");
   spin_lock(&heap_lock);
   page_t *page = find_heap_space(size);
-  if (page == NULL)
+  if (page == NULL){
+    spin_unlock(&heap_lock);
     return NULL;
+  }
   panic_on(page->object_size, "find_heap_size: page=%07p, size=%07p", page, page->object_size);
   init_lock(&page->lk, "page");
   spin_lock(&page->lk);
   page->object_size = size;
-  //ret = page->object_start = (void *)page + 4096;
-  ret = page->object_start = (void *)page;
+  ret = page->object_start = (void *)page + 4096;
   Log("success alloc %07p, size = %07p", ret, page->object_size);
   spin_unlock(&page->lk);
+  Log("heap unlock");
   spin_unlock(&heap_lock);
   return ret;
 }
 
 static void kfree_large(page_t *page)
 {
+  Log("try heap lock");
   spin_lock(&heap_lock);
   page->object_size = 0;
   Log("success free %07p", page->object_start);
+  Log("heap unlock");
   spin_unlock(&heap_lock);
 }
 
@@ -178,6 +187,7 @@ static void *kalloc(size_t size)
     return NULL;
   void *ret = NULL;
   size = align(size);
+  
   if (size >= PAGE_SIZE)
     return kmalloc_large(size);
   int cpu = cpu_current(), slab_index = match_slab_type(size);
@@ -211,6 +221,7 @@ static void *kalloc(size_t size)
     }
     else
     {
+      assert(freepage->node.next == NULL);
       page_t *page = attach_page2slab(slab_index, cpu);
       if (page == NULL)
         return NULL;

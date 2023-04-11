@@ -16,9 +16,11 @@ static void os_run() {
   for (const char *s = "Hello World from CPU #*\n"; *s; s++) {
     putch(*s == '*' ? '0' + cpu_current() : *s);
   }
-  void *test = pmm->alloc(12345);
-  pmm->free(test);
-  Log("success alloc %p", test);
+  for(int i = 0; i < 3; i++){
+    void *test = pmm->alloc(12345);
+    pmm->free(test);
+    Log("success alloc %p", test);
+  }
   while (1) ;
 }                     
         

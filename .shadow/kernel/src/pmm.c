@@ -29,7 +29,7 @@ static inline size_t align(size_t size)
 }
 
 static bool address_align(size_t address, size_t size){
-  size_t lsb_address = __builtin_ctz(address + 4 KB);
+  size_t lsb_address = __builtin_ctz(address);
   size_t lsb_size = __builtin_ctz(size);
   return lsb_address == lsb_size;
 }

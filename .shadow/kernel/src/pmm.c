@@ -7,8 +7,9 @@ int slab_type[SLAB_TYPE] = {2, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096};
 
 
 static inline size_t align(size_t size){
-  size_t msb = 32 - __builtin_clz(size);
-  return (1 << msb);
+  size_t msb = 31 - __builtin_clz(size);
+  if(size == (1 << msb)) return size;
+  else return (1 << (msb + 1));
 }
 
 

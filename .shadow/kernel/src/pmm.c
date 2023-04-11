@@ -41,7 +41,7 @@ static int heap_valid(page_t *page, size_t size)
     return 0;
   //Log("page=%07p, add=%07p", page, (void *)page + 4 KB);
   assert(((void *)page + 4 KB) <= heap.end);
-  if(size >= PAGE_SIZE && !address_align((size_t)((void *)page + 4 KB), size)) return 1;
+  if(size >= PAGE_SIZE && !address_align((size_t)((void *)page), size)) return 1;
   for (int i = 0; i < pages; i++)
   {
     if ((page + i)->object_size)

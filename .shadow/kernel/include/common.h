@@ -35,10 +35,12 @@
         } while (0)
 
     #define Log(format, ...) \
+        do{ \
         spin_lock(&debug_lk); \
         printf("\33[1;35m[%s,%d,%s] " format "\33[0m\n", \
             __FILE__, __LINE__, __func__, ## __VA_ARGS__); \
-        spin_unlock(&debug_lk);
+        spin_unlock(&debug_lk); \
+        }while(0)
 
     #define panic(format, ...) \
         do { \

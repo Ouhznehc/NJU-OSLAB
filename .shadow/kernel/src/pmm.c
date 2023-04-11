@@ -34,7 +34,7 @@ static page_t* find_heap_space(size_t size){
   while(1){
     switch (heap_valid(page, size))
     {
-      case 0: return NULL;
+      case 0: Log("check overflow"); return NULL;
       case 1: page = increase_by_page(page); break;
       case 2: return page;
       default: panic("find_heap_space");

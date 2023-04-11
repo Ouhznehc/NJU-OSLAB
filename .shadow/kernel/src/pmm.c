@@ -47,8 +47,8 @@ static void *kmalloc_large(size_t size){
   void *ret = NULL;
   spin_lock(&heap_lock);
   page_t *page = find_heap_space(size);
-  panic_on(page->object_size, "find_heap_size: page=%07p, size=%07p", page, page->object_size);
   if(page == NULL) return NULL;
+  panic_on(page->object_size, "find_heap_size: page=%07p, size=%07p", page, page->object_size);
   init_lock(&page->lk, "");
   page->object_size = size;
   ret = page->object_start = (void *)page + PAGE_CONFIG;

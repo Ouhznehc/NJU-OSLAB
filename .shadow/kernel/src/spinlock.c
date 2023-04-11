@@ -1,8 +1,8 @@
 #include <common.h>
 
 bool holding(spinlock_t *lk){
-  //return lk->locked && lk->cpu == cpu_current();
-  return lk->locked;
+  return lk->locked && lk->cpu == cpu_current();
+  //return lk->locked;
 }
 
 void init_lock(spinlock_t *lk, char *name){

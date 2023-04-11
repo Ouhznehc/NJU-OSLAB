@@ -1,8 +1,8 @@
 #include <common.h>
 
+static spinlock_t heap_lock;
 static page_t *heap_start = NULL;
 static kmem_cache kmem[MAX_CPU];
-static spinlock_t heap_lock;
 int slab_type[SLAB_TYPE] = {2, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096};
 
 static inline int match_slab_type(size_t size)
@@ -39,7 +39,9 @@ static int heap_valid(page_t *page, size_t size)
   size_t pages = size2page(size);
   if ((void *)(page + pages) >= heap.end)
     return 0;
-  if(size >= PAGE_SIZE && !address_align((size_t)page, size)) return 1;
+  //Log("page=%07p, add=%07p", page, (void *)page + 4 KB);
+  assert(((void *)page + 4 KB) <= heap.end);
+  if(size >= PAGE_SIZE && !address_align((size_t)((void *)page), size)) return 1;
   for (int i = 0; i < pages; i++)
   {
     if ((page + i)->object_size)
@@ -154,7 +156,8 @@ static void *kmalloc_large(size_t size)
   init_lock(&page->lk, "page");
   spin_lock(&page->lk);
   page->object_size = size;
-  ret = page->object_start = (void *)page + PAGE_CONFIG;
+  //ret = page->object_start = (void *)page + 4096;
+  ret = page->object_start = (void *)page;
   Log("success alloc %07p, size = %07p", ret, page->object_size);
   spin_unlock(&page->lk);
   spin_unlock(&heap_lock);

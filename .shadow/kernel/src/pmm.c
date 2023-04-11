@@ -185,7 +185,7 @@ static void *kalloc(size_t size)
     return NULL;
   void *ret = NULL;
   size = align(size);
-  Log("try alloc %07p", size);
+  Log("try alloc %07p %07p", size, 8 MB);
   if (size >= PAGE_SIZE)
     return kmalloc_large(size);
   int cpu = cpu_current(), slab_index = match_slab_type(size);

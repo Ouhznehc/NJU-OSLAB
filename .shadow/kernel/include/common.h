@@ -37,7 +37,7 @@
     #define Log(format, ...) \
         do{ \
         spin_lock(&debug_lk); \
-        printf("\33[1;35m[%s: %03d] " format "\33[0m\n", \
+        printf("\33[1;35m[%s: %d] " format "\33[0m\n", \
             __func__, __LINE__, ## __VA_ARGS__); \
         spin_unlock(&debug_lk); \
         }while(0)

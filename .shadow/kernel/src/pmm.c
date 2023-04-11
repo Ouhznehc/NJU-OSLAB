@@ -15,11 +15,13 @@ static inline size_t align(size_t size){
   else return (1 << (msb + 1));
 }
 
-static bool heap_valid(page_t *page, size_t size){
+static int heap_valid(page_t *page, size_t size){
   size_t pages = size2page(size);
-  for(int i = 0; i < pages; i++)
-    if((void *)(page + i) >= heap.end || (page + i)->object_size) return false;
-  return true;
+  for(int i = 0; i < pages; i++){
+    if((void*)(page + i) >= heap.end) return 0;
+    if((page + i)->object_size) return 1;
+  }
+  return 2;
 }
 
 static page_t* increase_by_page(page_t *page){
@@ -29,10 +31,15 @@ static page_t* increase_by_page(page_t *page){
 
 static page_t* find_heap_space(size_t size){
   page_t *page = heap_start;
-  while(!heap_valid(page, size)){
-    page = increase_by_page(page);
+  while(1){
+    switch (heap_valid(page, size))
+    {
+    case 0: return NULL;
+    case 1: return page = increase_by_page(page);
+    case 2: return page;
+    default: panic("find_heap_space");
+    }
   };
-  return page;
 }
 
 
@@ -40,6 +47,7 @@ static void *kmalloc_large(size_t size){
   void *ret = NULL;
   spin_lock(&heap_lock);
   page_t *page = find_heap_space(size);
+  if(page == NULL) return NULL;
   page->object_size = size;
   ret = page->object_start = (void *)page + PAGE_SIZE;
   Log("success alloc %07p", ret);

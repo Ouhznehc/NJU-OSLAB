@@ -21,7 +21,7 @@ static bool heap_valid(page_t *page, size_t size){
 
 static page_t* increase_by_page(page_t *page){
   Assert(page->object_size, "increase_by_page");
-  if(page->object_size > PAGE_SIZE) return page + page->object_size / PAGE_SIZE;
+  if(page->object_size > PAGE_SIZE) return page + page->object_size / PAGE_SIZE + 1;
   else return page + 1;
 }
 
@@ -49,10 +49,12 @@ static void *kmalloc_large(size_t size){
 static void *kalloc(size_t size) {
   size = align(size);
   if(size > PAGE_SIZE) return kmalloc_large(size);
+
   return NULL;
 }
 
 static void kfree(void *ptr) {
+
 }
 
 static void pmm_init() {

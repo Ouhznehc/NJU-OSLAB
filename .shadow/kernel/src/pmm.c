@@ -155,8 +155,10 @@ static void *kmalloc_large(size_t size)
   Log("try heap lock");
   spin_lock(&heap_lock);
   page_t *page = find_heap_space(size);
-  if (page == NULL)
+  if (page == NULL){
+    spin_unlock(&heap_lock);
     return NULL;
+  }
   panic_on(page->object_size, "find_heap_size: page=%07p, size=%07p", page, page->object_size);
   init_lock(&page->lk, "page");
   spin_lock(&page->lk);
@@ -185,7 +187,7 @@ static void *kalloc(size_t size)
     return NULL;
   void *ret = NULL;
   size = align(size);
-  Log("try alloc %07p %07p", size, 8 MB);
+  
   if (size >= PAGE_SIZE)
     return kmalloc_large(size);
   int cpu = cpu_current(), slab_index = match_slab_type(size);

@@ -27,11 +27,13 @@ static page_t* increase_by_page(page_t *page){
 
 static void *kmalloc_large(size_t size){
   spin_lock(&heap_lock);
-  page_t *ret = heap_start;
-  while(!kmalloc_valid(ret, size)){
-    ret = increase_by_page(ret);
+  void *ret = NULL;
+  page_t *page = heap_start;
+  while(!kmalloc_valid(page, size)){
+    page = increase_by_page(page);
   };
-  ret->object_size = size;
+  page->object_size = size;
+  ret = page->object_start = page + 1;
   spin_unlock(&heap_lock);
   return ret;
 }

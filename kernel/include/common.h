@@ -7,7 +7,7 @@
 #include "spinlock.h"
 #include "pmm.h"
 
-// #define __DEBUG_MODE__
+#define __DEBUG_MODE__
 
 #ifdef assert
 #undef assert
@@ -25,8 +25,8 @@
     extern spinlock_t debug_lk;
 
     #define debug(format, ...) \
-        printf("\33[1;35m[%s,%d,%s] " format "\33[0m\n", \
-            __FILE__, __LINE__, __func__, ## __VA_ARGS__);
+        printf("\33[1;35m[%s: %d] " format "\33[0m\n", \
+            __func__, __LINE__, ## __VA_ARGS__);
 
     #define kernal_panic(format, ...) \
         do { \
@@ -37,8 +37,8 @@
     #define Log(format, ...) \
         do{ \
         spin_lock(&debug_lk); \
-        printf("\33[1;35m[%s,%d,%s] " format "\33[0m\n", \
-            __FILE__, __LINE__, __func__, ## __VA_ARGS__); \
+        printf("\33[1;35m[%s: %d] " format "\33[0m\n", \
+            __func__, __LINE__, ## __VA_ARGS__); \
         spin_unlock(&debug_lk); \
         }while(0)
 

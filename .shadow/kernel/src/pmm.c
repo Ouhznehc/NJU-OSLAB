@@ -178,6 +178,7 @@ static void kfree_large(page_t *page)
 
 static void *kalloc(size_t size)
 {
+  
   if (size > 16 MB)
     return NULL;
   void *ret = NULL;
@@ -230,6 +231,7 @@ static void *kalloc(size_t size)
 static void kfree(void *ptr)
 {
   page_t *page = (page_t *)((size_t)ptr & PAGE_MASK);
+  spin_lock(&kmem[page->cpu].lk);
   spin_lock(&page->lk);
   if (page->object_size >= PAGE_SIZE)
   {
@@ -243,12 +245,12 @@ static void kfree(void *ptr)
   if (page->object_counter == 0)
   {
     int cpu = page->cpu, slab_index = match_slab_type(page->object_size);
-    spin_lock(&kmem[cpu].lk);
     kmem[cpu].free_page[slab_index]++;
-    spin_unlock(&kmem[cpu].lk);
   }
   Log("success free %07p", ptr);
   spin_unlock(&page->lk);
+  spin_unlock(&kmem[page->cpu].lk);
+
 }
 
 static void pmm_init()

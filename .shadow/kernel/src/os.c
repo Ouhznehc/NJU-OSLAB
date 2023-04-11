@@ -18,7 +18,7 @@ static void os_run() {
     putch(*s == '*' ? '0' + cpu_current() : *s);
   }
   while(1){
-    void *test = pmm->alloc(a[rand() % 20]);
+    void *test = pmm->alloc(16 MB);
     if(test != NULL) pmm->free(test);
     //Log("--------------");
   }

@@ -223,9 +223,8 @@ static void *kalloc(size_t size)
     {
       assert(freepage->node.next == NULL);
       page_t *page = attach_page2slab(slab_index, cpu);
-      if (page == NULL)
-        return NULL;
-      ret = object_from_slab(page);
+      if (page == NULL) ret = NULL;
+      else ret = object_from_slab(page);
     }
   }
   spin_unlock(&kmem[cpu].lk);

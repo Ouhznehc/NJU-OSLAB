@@ -36,7 +36,7 @@ static page_t* find_heap_space(size_t size){
     {
       case 0: Log("check overflow"); return NULL;
       case 1: page = increase_by_page(page); break;
-      case 2: return page;
+      case 2: Log("nani"); return page;
       default: panic("find_heap_space");
     }
   };

@@ -19,6 +19,7 @@ static void os_run() {
   for(int i = 0; i < 20; i++){
     void *test = pmm->alloc(16 MB);
     if(test != NULL) pmm->free(test);
+    Log("--------------");
   }
   while (1) ;
 }                     

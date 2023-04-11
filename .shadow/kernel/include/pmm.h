@@ -3,9 +3,10 @@
 
 #define KB * 1024
 #define MB KB * 1024
-#define SLAB_TYPE 11
-#define PAGE_SIZE 8 KB
-
+#define SLAB_TYPE (11)
+#define PAGE_SIZE (8 KB)
+#define INFO_SIZE (256)
+#define MAX_CPU (8)
 
 
 typedef struct list_t
@@ -27,7 +28,7 @@ typedef union page_t{
   {
     list_t node;
     int cpu;
-    int slab_type;
+    int object_size;
     int object_counter;
     int object_capacity;
     void *object_start;
@@ -35,6 +36,8 @@ typedef union page_t{
   };
   uint8_t data[PAGE_SIZE];
 }__attribute__((packed)) page_t;
+
+
 
 
 #endif

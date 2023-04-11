@@ -12,6 +12,7 @@ static inline int match_slab_type(size_t size)
     if (size <= slab_type[i])
       return i;
   panic("match_slab_type: should not reach here");
+  return 0;
 }
 
 static inline size_t size2page(size_t size)
@@ -90,6 +91,7 @@ static void *object_from_slab(page_t *page)
     }
   }
   panic("object_from_slab: should not reach here");
+  return NULL;
 }
 
 static page_t *pages_from_heap(int cpu, int slab_type, int pages)

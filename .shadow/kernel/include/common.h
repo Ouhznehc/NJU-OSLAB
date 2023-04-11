@@ -7,7 +7,7 @@
 #include "spinlock.h"
 #include "pmm.h"
 
-#define __DEBUG_MODE__
+// #define __DEBUG_MODE__
 
 #ifdef assert
 #undef assert
@@ -73,11 +73,12 @@
 
 
 #else
-    #define Log(format,...)
-    #define panic(format, ...)
+    #define kernal_panic(format, ...)
+    #define Log(format,...)           
+    #define panic(format, ...)        
     #define panic_on(cond,format,...) 
-    #define assert(cond)
-    #define Assert(cond,format,...)
+    #define assert(cond)              
+    #define Assert(cond,format,...)   
 #endif
 
 #endif

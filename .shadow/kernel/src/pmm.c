@@ -75,10 +75,8 @@ static void *kalloc(size_t size) {
 
 static void kfree(void *ptr) {
   page_t *page = (page_t *)((size_t)ptr & PAGE_MASK);
-  spin_lock(&page->lk);
   // Log("try free %07p at page %07p", ptr, page);
   if(page->object_size > PAGE_SIZE){
-    spin_unlock(&page->lk);
     return kfree_large(page);
   }
 }

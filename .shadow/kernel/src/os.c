@@ -19,9 +19,9 @@ static void os_run() {
   }
   //int num = 10;
   while(1){
-    void *test = pmm->alloc(16 MB);
+    void *test = pmm->alloc(a[rand() % 20]);
     if(test != NULL) pmm->free(test);
-    //Log("--------------");
+    else Log("alloc failed");
   }
   while (1) ;
 }                     

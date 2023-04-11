@@ -25,8 +25,9 @@ static int heap_valid(page_t *page, size_t size){
 }
 
 static page_t* increase_by_page(page_t *page){
-  Assert(page->object_size > 0, "increase_by_page: page=%07p, size=%08d", page, page->object_size);
-  return page + size2page(page->object_size);
+  size_t size = page->object_size;
+  Assert(size, "increase_by_page: page=%07p, size=%08d", page, size);
+  return page + size2page(size);
 }
 
 static page_t* find_heap_space(size_t size){

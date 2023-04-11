@@ -25,7 +25,7 @@ static int heap_valid(page_t *page, size_t size){
 }
 
 static page_t* increase_by_page(page_t *page){
-  Assert(page->object_size, "increase_by_page");
+  Assert(page->object_size, "increase_by_page: page=%07p, size=%08d", page, page->object_size);
   return page + size2page(page->object_size);
 }
 
@@ -47,7 +47,7 @@ static void *kmalloc_large(size_t size){
   void *ret = NULL;
   spin_lock(&heap_lock);
   page_t *page = find_heap_space(size);
-  panic_on(page->object_size, "find_heap_size");
+  panic_on(page->object_size, "find_heap_size: page=%07p, size=%08d", page, page->object_size);
   if(page == NULL) return NULL;
   init_lock(&page->lk, "");
   page->object_size = size;

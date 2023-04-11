@@ -36,7 +36,7 @@ static bool address_align(size_t address, size_t size){
 
 static int heap_valid(page_t *page, size_t size)
 {
-  Log("test valid %07p", page);
+  //Log("test valid %07p", page);
   size_t pages = size2page(size);
   if ((void *)(page + pages) >= heap.end)
     return 0;

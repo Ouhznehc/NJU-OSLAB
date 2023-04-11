@@ -63,8 +63,12 @@ static void *kalloc(size_t size) {
 
 static void kfree(void *ptr) {
   page_t *page = (page_t *)((size_t)ptr & PAGE_MASK);
+  spin_lock(&page->lk);
   Log("%d", page->object_size);
-  if(page->object_size > PAGE_SIZE) return kfree_large(page);
+  if(page->object_size > PAGE_SIZE){
+    spin_unlock(&page->lk);
+    return kfree_large(page);
+  }
 }
 
 static void pmm_init() {

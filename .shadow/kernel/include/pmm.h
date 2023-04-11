@@ -28,6 +28,7 @@ typedef union page_t{
   struct
   {
     list_t node;
+    spinlock_t lk;
     int cpu;
     int object_size; // "0" means free page
     int object_counter;
@@ -36,7 +37,7 @@ typedef union page_t{
     __int128_t bitset[8];
   };
   uint8_t data[PAGE_SIZE];
-}__attribute__((packed)) page_t;
+}page_t;
 
 
 

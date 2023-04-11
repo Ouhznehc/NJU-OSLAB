@@ -112,6 +112,7 @@ static page_t *pages_from_heap(int cpu, int slab_type, int pages)
     page_t *page = find_heap_space(slab_type);
     if (page == NULL)
     {
+      Log("heap unlock");
       spin_unlock(&heap_lock);
       return NULL;
     }
@@ -130,6 +131,7 @@ static page_t *pages_from_heap(int cpu, int slab_type, int pages)
       ret = page;
     }
   }
+  Log("heap unlock");
   spin_unlock(&heap_lock);
   return ret;
 }
@@ -162,6 +164,7 @@ static void *kmalloc_large(size_t size)
   ret = page->object_start = (void *)page + 4096;
   Log("success alloc %07p, size = %07p", ret, page->object_size);
   spin_unlock(&page->lk);
+  Log("heap unlock");
   spin_unlock(&heap_lock);
   return ret;
 }
@@ -172,6 +175,7 @@ static void kfree_large(page_t *page)
   spin_lock(&heap_lock);
   page->object_size = 0;
   Log("success free %07p", page->object_start);
+  Log("heap unlock");
   spin_unlock(&heap_lock);
 }
 

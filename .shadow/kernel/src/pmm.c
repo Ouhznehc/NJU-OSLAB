@@ -42,6 +42,7 @@ static void *kmalloc_large(size_t size){
   page_t *page = find_heap_space(size);
   page->object_size = size;
   ret = page->object_start = page + 1;
+  Log("success alloc %07p", ret);
   spin_unlock(&heap_lock);
   return ret;
 }
@@ -49,6 +50,7 @@ static void *kmalloc_large(size_t size){
 static void kfree_large(page_t *page){
   spin_lock(&heap_lock);
   page->object_size = 0;
+  Log("success free %07p", page->object_start);
   spin_unlock(&heap_lock);
 }
 

@@ -19,7 +19,6 @@ static void os_run() {
   for(int i = 0; i < 3; i++){
     void *test = pmm->alloc(16 MB);
     pmm->free(test);
-    Log("success alloc %07p", test);
   }
   while (1) ;
 }                     

@@ -104,6 +104,7 @@ static void *object_from_slab(page_t *page)
 
 static page_t *pages_from_heap(int cpu, int slab_type, int pages)
 {
+  Log("try heap lock");
   spin_lock(&heap_lock);
   page_t *ret = NULL;
   while (pages--)
@@ -149,6 +150,7 @@ static page_t *attach_page2slab(int slab_index, int cpu)
 static void *kmalloc_large(size_t size)
 {
   void *ret = NULL;
+  Log("try heap lock");
   spin_lock(&heap_lock);
   page_t *page = find_heap_space(size);
   if (page == NULL)
@@ -166,6 +168,7 @@ static void *kmalloc_large(size_t size)
 
 static void kfree_large(page_t *page)
 {
+  Log("try heap lock");
   spin_lock(&heap_lock);
   page->object_size = 0;
   Log("success free %07p", page->object_start);

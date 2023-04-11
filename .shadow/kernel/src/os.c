@@ -17,7 +17,7 @@ static void os_run() {
     putch(*s == '*' ? '0' + cpu_current() : *s);
   }
   for(int i = 0; i < 3; i++){
-    void *test = pmm->alloc(12345);
+    void *test = pmm->alloc(16 MB);
     pmm->free(test);
     Log("success alloc %p", test);
   }

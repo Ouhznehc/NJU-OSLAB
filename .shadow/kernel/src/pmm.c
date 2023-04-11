@@ -18,7 +18,7 @@ static inline size_t align(size_t size){
 static bool heap_valid(page_t *page, size_t size){
   size_t pages = size2page(size);
   for(int i = 0; i < pages; i++)
-    if((page + i)->object_size) return false;
+    if((void *)(page + i) >= heap.end || (page + i)->object_size) return false;
   return true;
 }
 

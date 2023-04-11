@@ -36,6 +36,7 @@ static bool address_align(size_t address, size_t size){
 
 static int heap_valid(page_t *page, size_t size)
 {
+  Log("test valid %07p", page);
   size_t pages = size2page(size);
   if ((void *)(page + pages) >= heap.end)
     return 0;
@@ -159,7 +160,7 @@ static void *kmalloc_large(size_t size)
   init_lock(&page->lk, "page");
   spin_lock(&page->lk);
   page->object_size = size;
-  ret = page->object_start = (void *)page + 4096;
+  ret = page->object_start = (void *)page + 4 KB;
   Log("success alloc %07p, size = %07p", ret, page->object_size);
   spin_unlock(&page->lk);
   spin_unlock(&heap_lock);

@@ -42,30 +42,30 @@ static void os_run()
         spin_unlock(&lk[pos]);
         continue;
       }
-      // else
-      // {
-      //   for (int i = 0; i < size / 4; i++)
-      //   {
-      //     int *check = (int *)(alloc[pos] + 4 * i);
-      //     if (*check == -1)
-      //       panic("double alloc");
-      //   }
-      //   num[pos] = size;
-      //   memset((void *)alloc[pos], 0x1, size);
-      // }
+      else
+      {
+        for (int i = 0; i < size / 4; i++)
+        {
+          int *check = (int *)(alloc[pos] + 4 * i);
+          if (*check == -1)
+            panic("double alloc");
+        }
+        num[pos] = size;
+        memset((void *)alloc[pos], 0x1, size);
+      }
 
       Log("cpu %d alloc at %p with %dB\n", now, alloc[pos], size);
     }
     else
     {
-      // pmm->free((void *)alloc[pos]);
-      // for (int i = 0; i < num[pos] / 4; i++)
-      // {
-      //   int *check = (int *)(alloc[pos] + 4 * i);
-      //   if (*check == 0)
-      //     panic("double free");
-      // }
-      // memset((void *)alloc[pos], 0x1, num[pos]);
+      pmm->free((void *)alloc[pos]);
+      for (int i = 0; i < num[pos] / 4; i++)
+      {
+        int *check = (int *)(alloc[pos] + 4 * i);
+        if (*check == 0)
+          panic("double free");
+      }
+      memset((void *)alloc[pos], 0x1, num[pos]);
       Log("cpu %d free time %d at %p\n", now, pos, alloc[pos]);
       alloc[pos] = 0;
     }

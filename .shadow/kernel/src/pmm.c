@@ -284,6 +284,7 @@ static void *kalloc_page()
   if (ret == NULL)
     return NULL;
   assert(ret != NULL);
+  assert((uintptr_t)ret->memory_start + ret->memory_size - (uintptr_t)ret == 8 KB);
   return ret->memory_start;
 }
 

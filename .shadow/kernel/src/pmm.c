@@ -413,13 +413,16 @@ static inline void *fetch_header(void *ptr, int magic)
 static void kfree(void *ptr)
 {
   int magic = fetch_magic(ptr);
+  Log("1");
   if (magic == MAGIC)
   {
+    Log("2");
     memory_t *memory = fetch_header(ptr, magic);
     return kfree_large(memory);
   }
   else
   {
+    Log("3");
     slab_t *page = fetch_header(ptr, magic);
     return kfree_slab(page, ptr);
   }

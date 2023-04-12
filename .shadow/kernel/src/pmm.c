@@ -102,6 +102,7 @@ static memory_t *memory_from_heap(size_t size)
       uintptr_t *magic = (uintptr_t *)(memory_start - sizeof(intptr_t));
       uintptr_t *header = (uintptr_t *)(memory_start - 2 * sizeof(intptr_t));
       *magic = MAGIC, *header = (uintptr_t)cur;
+#ifdef __DEBUG_MODE__
       for (uintptr_t i = 0; i < cur->memory_size; i++)
       {
         uintptr_t *check = (uintptr_t *)(memory_start + i);
@@ -113,6 +114,7 @@ static memory_t *memory_from_heap(size_t size)
         uintptr_t *check = (uintptr_t *)(memory_start + i);
         *check = MAGIC;
       }
+#endif
       ret = cur;
     }
   }
@@ -125,6 +127,19 @@ static memory_t *memory_from_heap(size_t size)
 static void memory_to_heap(memory_t *memory)
 {
   spin_lock(&heap_lock);
+#ifdef __DEBUG_MODE__
+  for (uintptr_t i = 0; i < memory->memory_size; i++)
+  {
+    uintptr_t *check = (uintptr_t *)(memory->memory_start + i);
+    if (*check == 0)
+      panic("double free");
+  }
+  for (uintptr_t i = 0; i < memory->memory_size; i++)
+  {
+    uintptr_t *check = (uintptr_t *)(memory->memory_start + i);
+    *check = 0;
+  }
+#endif
   memory->memory_size = (uintptr_t)memory->memory_start + memory->memory_size - (uintptr_t)memory - MEMORY_CONFIG;
   memory->memory_start = (void *)(uintptr_t)memory + MEMORY_CONFIG;
   memory->next = heap_pool.next;
@@ -143,6 +158,19 @@ static void page_to_slab_pool(memory_t *page)
   spin_lock(&slab_lock);
   page->next = slab_pool.next;
   slab_pool.next = page;
+#ifdef __DEBUG_MODE__
+  for (uintptr_t i = 0; i < page->memory_size; i++)
+  {
+    uintptr_t *check = (uintptr_t *)(page->memory_start + i);
+    if (*check == 0)
+      panic("double free");
+  }
+  for (uintptr_t i = 0; i < page->memory_size; i++)
+  {
+    uintptr_t *check = (uintptr_t *)(page->memory_start + i);
+    *check = 0;
+  }
+#endif
   spin_unlock(&slab_lock);
 }
 
@@ -155,6 +183,7 @@ static memory_t *page_from_slab_pool()
   {
     ret = slab_pool.next;
     slab_pool.next = ret->next;
+#ifdef __DEBUG_MODE__
     for (uintptr_t i = 0; i < ret->memory_size; i++)
     {
       uintptr_t *check = (uintptr_t *)(ret->memory_start + i);
@@ -166,6 +195,7 @@ static memory_t *page_from_slab_pool()
       uintptr_t *check = (uintptr_t *)(ret->memory_start + i);
       *check = MAGIC;
     }
+#endif
     spin_unlock(&slab_lock);
   }
   else

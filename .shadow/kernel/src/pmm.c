@@ -301,9 +301,9 @@ static void slab_init()
 
       kmem[cpu].free_slab[slab] = SLAB_MIN;
     }
-    Log("end initial");
-    assert(0);
   }
+  Log("end initial");
+  assert(0);
 }
 
 static void pmm_init()

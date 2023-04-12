@@ -249,6 +249,7 @@ static void *kalloc(size_t size)
     return NULL;
   void *ret = NULL;
   size = align_size(size);
+  assert(0);
   if (size > 4 KB)
   {
     assert(0);

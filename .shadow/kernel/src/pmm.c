@@ -182,6 +182,7 @@ static void *kmalloc_slab(size_t size)
 {
   void *ret = NULL;
   int cpu = cpu_current(), slab_index = match_slab_type(size);
+  assert(0);
   spin_lock(&kmem[cpu].lk);
   slab_t *page = kmem[cpu].available_page[slab_index];
   if (page->object_counter < page->object_capacity)
@@ -261,9 +262,7 @@ static void *kalloc(size_t size)
   }
   else
   {
-
     ret = kmalloc_slab(size);
-    assert(0);
   }
   return ret;
 }

@@ -187,6 +187,7 @@ static memory_t *page_from_slab_pool()
 // attach one page to slab_list
 static slab_t *fetch_page_to_slab(int slab_index, int cpu)
 {
+  assert(cpu < MAX_CPU);
   slab_t *page = (slab_t *)page_from_slab_pool();
   if (page == NULL)
     return NULL;
@@ -235,6 +236,7 @@ static void *kalloc_slab(size_t size)
 {
   void *ret = NULL;
   int cpu = cpu_current(), slab_index = match_slab_type(size);
+  assert(cpu < MAX_CPU);
 #ifdef DEAD_LOCK
   Log("spin_lock CPU#%d", cpu);
 #endif

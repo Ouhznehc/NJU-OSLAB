@@ -48,11 +48,11 @@ static void os_run()
         for (int i = 0; i < size / 4; i++)
         {
           int *check = (int *)(alloc[pos] + 4 * i);
-          if (*check == -1)
+          if (*check == 0)
             panic("double alloc");
         }
         num[pos] = size;
-        memset((void *)alloc[pos], 0x1, size);
+        memset((void *)alloc[pos], 0, size);
       }
 
       Log("cpu %d alloc at %p with %dB\n", now, alloc[pos], size);
@@ -63,7 +63,7 @@ static void os_run()
       for (int i = 0; i < num[pos] / 4; i++)
       {
         int *check = (int *)(alloc[pos] + 4 * i);
-        if (*check == 0)
+        if (*check == -1)
           panic("double free");
       }
       memset((void *)alloc[pos], 0x1, num[pos]);

@@ -188,9 +188,9 @@ static void *kmalloc_slab(size_t size)
     ret = object_from_slab(page);
   else
   {
-    assert(0);
     page = kmem[cpu].slab_list[slab_index]->next;
     assert(page->object_counter <= page->object_capacity);
+    assert(0);
     while (page->object_counter == page->object_capacity && page->next != NULL)
     {
       page = page->next;

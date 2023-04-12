@@ -190,6 +190,7 @@ static void *kmalloc_slab(size_t size)
 {
   void *ret = NULL;
   int cpu = cpu_current(), slab_index = match_slab_type(size);
+  Log("address = %07p", kmem[cpu].slab_list[slab_index]);
   spin_lock(&kmem[cpu].lk);
   slab_t *page = kmem[cpu].available_page[slab_index];
   Log("countewr = %d", page->object_counter);

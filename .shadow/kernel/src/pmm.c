@@ -51,6 +51,11 @@ static void *object_from_slab(slab_t *page)
         setbit(page->bitset[i], j);
         page->object_counter++;
         ret = page->object_start + (32 * i + j) * page->object_size;
+#ifdef DOUBLE_PMM
+        uintptr_t *check = ret;
+        assert(*check == 0);
+        *check = MAGIC;
+#endif
         return ret;
       }
     }
@@ -235,17 +240,17 @@ static slab_t *fetch_page_to_slab(int slab_index, int cpu)
   return page;
 }
 
-static void *kmalloc_large(size_t size)
+static void *kalloc_large(size_t size)
 {
   return memory_from_heap(size)->memory_start;
 }
 
-static void *kmalloc_page()
+static void *kalloc_page()
 {
   return page_from_slab_pool()->memory_start;
 }
 
-static void *kmalloc_slab(size_t size)
+static void *kalloc_slab(size_t size)
 {
   void *ret = NULL;
   int cpu = cpu_current(), slab_index = match_slab_type(size);
@@ -334,15 +339,15 @@ static void *kalloc(size_t size)
   size = align_size(size);
   if (size > 4 KB)
   {
-    ret = kmalloc_large(size);
+    ret = kalloc_large(size);
   }
   else if (size == 4 KB)
   {
-    ret = kmalloc_page();
+    ret = kalloc_page();
   }
   else
   {
-    ret = kmalloc_slab(size);
+    ret = kalloc_slab(size);
   }
   return ret;
 }

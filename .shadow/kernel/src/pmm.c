@@ -226,7 +226,7 @@ static void *kalloc_page()
     return NULL;
   assert(ret != NULL);
   assert(*(uintptr_t *)(ret->memory_start - sizeof(uintptr_t)) == MAGIC);
-  assert(*(uintptr_t *)(ret->memory_start - sizeof(uintptr_t)) == (uintptr_t)ret);
+  assert(*(uintptr_t *)(ret->memory_start - 2 * sizeof(uintptr_t)) == (uintptr_t)ret);
   assert((uintptr_t)ret->memory_start + ret->memory_size - (uintptr_t)ret == 8 KB);
   assert(ret->memory_size == 4 KB);
   Log("kalloc_page end");

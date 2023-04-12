@@ -130,7 +130,6 @@ static memory_t *memory_from_heap(size_t size)
     }
   }
   spin_unlock(&heap_lock);
-  assert(ret != NULL);
   return ret;
 }
 

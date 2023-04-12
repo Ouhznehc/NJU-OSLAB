@@ -407,7 +407,7 @@ static inline int fetch_magic(void *ptr)
 static inline void *fetch_header(void *ptr, int magic)
 {
   if (magic == MAGIC)
-    return (void *)(*(size_t *)((uintptr_t)ptr - 2 * sizeof(intptr_t)));
+    return (void *)(*(uintptr_t *)((uintptr_t)ptr - 2 * sizeof(intptr_t)));
   else
     return (void *)((uintptr_t)ptr & SLAB_MASK);
 }

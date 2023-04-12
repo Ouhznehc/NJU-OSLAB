@@ -291,6 +291,8 @@ static void slab_init()
 {
   for (int cpu = 0; cpu < cpu_count(); cpu++)
   {
+    Log("end initial");
+    assert(0);
     init_lock(&kmem[cpu].lk, "cpu");
 
     for (int slab = 0; slab < SLAB_TYPE; slab++)

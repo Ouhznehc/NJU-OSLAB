@@ -55,7 +55,7 @@ static void os_run()
         }
         num[pos] = size;
         memset((void *)alloc[pos], -1, size);
-        Log("CPU #%d alloc at %07p with pos = %d", now, alloc[pos], pos);
+        Log("CPU #%d alloc at %07p with pos = %d, size = %d", now, alloc[pos], pos, size);
       }
     }
     else
@@ -70,7 +70,7 @@ static void os_run()
           panic("double free");
       }
       memset((void *)alloc[pos], 0, num[pos]);
-      Log("CPU #%d free at %p with pos = %d", now, alloc[pos], pos);
+      Log("CPU #%d free at %p with pos = %d, size = %d", now, alloc[pos], pos, num[pos]);
       alloc[pos] = 0;
       num[pos] = 0;
     }

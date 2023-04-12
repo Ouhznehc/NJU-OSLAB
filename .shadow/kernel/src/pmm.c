@@ -133,6 +133,7 @@ static void memory_to_heap(memory_t *memory)
   for (uintptr_t i = 0; i < memory->memory_size; i++)
   {
     uintptr_t *check = (uintptr_t *)(memory->memory_start + i);
+    assert(*check == MAGIC);
     if (*check == 0)
       panic("double free");
   }

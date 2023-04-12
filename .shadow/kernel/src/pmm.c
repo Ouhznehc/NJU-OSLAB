@@ -249,17 +249,21 @@ static void *kalloc(size_t size)
     return NULL;
   void *ret = NULL;
   size = align_size(size);
-  assert(0);
   if (size > 4 KB)
   {
     assert(0);
     ret = kmalloc_large(size);
   }
   else if (size == 4 KB)
+  {
+    assert(0);
     ret = kmalloc_page();
+  }
   else
+  {
+    assert(0);
     ret = kmalloc_slab(size);
-  assert(0);
+  }
   return ret;
 }
 

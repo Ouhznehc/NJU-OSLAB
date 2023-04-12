@@ -299,7 +299,7 @@ static void kfree_large(memory_t *memory)
 static void kfree_slab(slab_t *page, void *ptr)
 {
 #ifdef DEAD_LOCK
-  Log("spin_unlock CPU#%d", page->cpu);
+  Log("spin_lock CPU#%d", page->cpu);
 #endif
   spin_lock(&kmem[page->cpu].lk);
   int offset = (ptr - page->object_start) / page->object_size;

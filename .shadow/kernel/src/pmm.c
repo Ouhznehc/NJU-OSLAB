@@ -170,7 +170,6 @@ static memory_t *page_from_slab_pool()
   spin_lock(&slab_lock);
   if (slab_pool.next != NULL)
   {
-    Log("slab alloc");
     ret = slab_pool.next;
     assert(ret != NULL);
     slab_pool.next = ret->next;
@@ -179,7 +178,6 @@ static memory_t *page_from_slab_pool()
   }
   else
   {
-    Log("heap alloc");
     spin_unlock(&slab_lock);
     ret = page_from_heap_pool();
   }
@@ -222,7 +220,6 @@ static void *kalloc_large(size_t size)
 
 static void *kalloc_page()
 {
-  Log("kalloc_page begin");
   memory_t *ret = page_from_slab_pool();
   if (ret == NULL)
     return NULL;
@@ -231,7 +228,6 @@ static void *kalloc_page()
   assert(*(uintptr_t *)(ret->memory_start - 2 * sizeof(uintptr_t)) == (uintptr_t)ret);
   assert((uintptr_t)ret->memory_start + ret->memory_size - (uintptr_t)ret == 8 KB);
   assert(ret->memory_size == 4 KB);
-  Log("kalloc_page end");
   return ret->memory_start;
 }
 
@@ -334,7 +330,8 @@ static void *kalloc(size_t size)
   {
     ret = kalloc_slab(size);
   }
-  Log("success alloc from %07p to %07p", ret, ret + size);
+  if (ret != NULL)
+    Log("success alloc from %07p to %07p", ret, ret + size);
   return ret;
 }
 

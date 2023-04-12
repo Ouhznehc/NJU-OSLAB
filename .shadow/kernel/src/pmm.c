@@ -43,11 +43,6 @@ static void *object_from_slab(slab_t *page)
     {
       if (getbit(page->bitset[i], j) == 0)
       {
-        if (page->object_counter == 0)
-        {
-          int slab_index = match_slab_type(page->object_size);
-          kmem[page->cpu].free_slab[slab_index]--;
-        }
         setbit(page->bitset[i], j);
         page->object_counter++;
         ret = page->object_start + (32 * i + j) * page->object_size;
@@ -287,11 +282,6 @@ static void kfree_slab(slab_t *page, void *ptr)
   int i = offset / 32, j = offset % 32;
   assert(getbit(page->bitset[i], j) == 1);
   clrbit(page->bitset[i], j);
-  if (page->object_counter == 0)
-  {
-    int slab_index = match_slab_type(page->object_size);
-    kmem[page->cpu].free_slab[slab_index]++;
-  }
 // Log("success free %07p", ptr);
 #ifdef DEAD_LOCK
   Log("spin_unlock CPU#%d", page->cpu);
@@ -367,7 +357,6 @@ static void slab_init()
     for (int slab = 0; slab < SLAB_TYPE; slab++)
     {
       fetch_page_to_slab(slab, cpu);
-      kmem[cpu].free_slab[slab] = SLAB_MIN;
     }
   }
 }

@@ -44,7 +44,6 @@ typedef struct kmem_cache
   spinlock_t lk;
   slab_t *available_page[SLAB_TYPE];
   slab_t slab_list[SLAB_TYPE]; // the head of slab_list
-  size_t free_slab[SLAB_TYPE]; // the number of freepage in each slab
 } kmem_cache;
 
 typedef struct memory_t

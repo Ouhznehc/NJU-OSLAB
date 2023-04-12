@@ -210,12 +210,14 @@ static void *kalloc_large(size_t size)
 
 static void *kalloc_page()
 {
+  Log("kalloc_page begin");
   memory_t *ret = page_from_slab_pool();
   if (ret == NULL)
     return NULL;
   assert(ret != NULL);
   assert((uintptr_t)ret->memory_start + ret->memory_size - (uintptr_t)ret == 8 KB);
   assert(ret->memory_size == 4 KB);
+  Log("kalloc_page end");
   return ret->memory_start;
 }
 

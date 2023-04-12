@@ -150,6 +150,7 @@ static memory_t *page_from_slab_pool()
 static slab_t *fetch_page_to_slab(int slab_index, int cpu)
 {
   slab_t *page = (slab_t *)page_from_slab_pool();
+  assert(page != NULL);
   if (page == NULL)
     return NULL;
   spin_lock(&kmem[cpu].lk);

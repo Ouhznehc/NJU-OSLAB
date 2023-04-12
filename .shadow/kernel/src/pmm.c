@@ -39,7 +39,12 @@ static void *object_from_slab(slab_t *page)
   for (int i = 0; i < 64; i++)
   {
     if (page->bitset[i] == (int)(-1))
+    {
+      for (int j = 0; j < 32; j++)
+        assert(getbit(page->bitset[i], j) == 1);
       continue;
+    }
+
     for (int j = 0; j < 32; j++)
     {
       if (getbit(page->bitset[i], j) == 0)

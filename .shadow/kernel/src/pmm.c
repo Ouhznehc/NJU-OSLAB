@@ -217,6 +217,7 @@ static void *kalloc_page()
 
 static void *kalloc_slab(size_t size)
 {
+  Log("begin");
   void *ret = NULL;
   int cpu = cpu_current(), slab_index = match_slab_type(size);
 #ifdef DEAD_LOCK
@@ -259,6 +260,7 @@ static void *kalloc_slab(size_t size)
   Log("spin_unlock CPU#%d", cpu);
 #endif
   spin_unlock(&kmem[cpu].lk);
+  Log("end");
   return ret;
 }
 

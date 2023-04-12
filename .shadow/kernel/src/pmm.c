@@ -53,6 +53,7 @@ static void *object_from_slab(slab_t *page)
         ret = page->object_start + (32 * i + j) * page->object_size;
 #ifdef DOUBLE_PMM
         uintptr_t *check = ret;
+        assert(((uintptr_t)page + 8 KB) < (uintptr_t)heap.end);
         if (page->object_size >= 4)
         {
           assert(*check == 0);

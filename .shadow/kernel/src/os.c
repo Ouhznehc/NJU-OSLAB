@@ -32,9 +32,9 @@ static void os_run()
     spin_lock(&lk[pos]);
     if (alloc[pos] == 0)
     {
-      int size = rand() % 20 + 4;
+      int size = rand() % 20;
       if (size < 16)
-        size = 1 << (size % 10);
+        size = 1 << (size % 10 + 2);
       else if (size != 19)
         size = 4096;
       alloc[pos] = (uintptr_t)pmm->alloc(size);

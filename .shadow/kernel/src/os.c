@@ -12,15 +12,15 @@ static void os_init()
   pmm->init();
 }
 
-spinlock_t lk[100005];
-uintptr_t alloc[100005];
-size_t num[100005];
+// spinlock_t lk[100005];
+// uintptr_t alloc[100005];
+// size_t num[100005];
 static void os_run()
 {
-  for (int i = 0; i < 100005; i++)
-  {
-    init_lock(&lk[i], "lk");
-  }
+  // for (int i = 0; i < 100005; i++)
+  // {
+  //   init_lock(&lk[i], "lk");
+  // }
   // int now = cpu_current();
   // while (1)
   // {
@@ -73,18 +73,18 @@ static void os_run()
   //   spin_unlock(&lk[pos]);
   // }
 
-  uintptr_t al[4005];
-  for (int i = 1; i <= 4000; i++)
-  {
-    al[i] = (uintptr_t)pmm->alloc(2);
-    Log("%d times: %p\n", i, al[i]);
-  }
-  for (int i = 1; i <= 1000; i++)
-  {
-    pmm->free((void *)al[i]);
-    void *ret = pmm->alloc(4096);
-    Log("%d times: %p\n", i, ret);
-  }
+  // uintptr_t al[4005];
+  // for (int i = 1; i <= 4000; i++)
+  // {
+  //   al[i] = (uintptr_t)pmm->alloc(2);
+  //   Log("%d times: %p\n", i, al[i]);
+  // }
+  // for (int i = 1; i <= 1000; i++)
+  // {
+  //   pmm->free((void *)al[i]);
+  //   void *ret = pmm->alloc(4096);
+  //   Log("%d times: %p\n", i, ret);
+  // }
   halt(0);
 }
 

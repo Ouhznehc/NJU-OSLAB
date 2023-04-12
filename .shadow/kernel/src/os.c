@@ -26,6 +26,7 @@ static void os_run()
   while (1)
   {
     pos = (pos + 1);
+    Log("");
     Log("pos %d", pos);
     spin_lock(&lk[pos]);
     if (alloc[pos] == 0)
@@ -35,7 +36,6 @@ static void os_run()
         size = 1 << (size % 10);
       else if (size != 19)
         size = 4096;
-      Log("os: alloc %dB", size);
       alloc[pos] = (uintptr_t)pmm->alloc(size);
       if (alloc[pos] == 0)
       {

@@ -26,6 +26,8 @@ static void os_run()
     int pos = (rand() * rand()) % 10000;
     Log("pos1=%d", pos);
     spin_lock(&lk[pos]);
+    Log("pos2=%d", pos);
+    Log("alloc[pos] = %p", alloc[pos]);
     if (alloc[pos] == 0)
     {
       int size = rand() % 20;

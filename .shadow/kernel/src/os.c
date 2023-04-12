@@ -47,11 +47,11 @@ static void os_run()
         for (int i = 0; i < size / 4; i++)
         {
           int *check = (int *)(alloc[pos] + 4 * i);
-          if (*check == MAGIC)
+          if (*check == MAGIC + 1)
             panic("double alloc");
         }
         num[pos] = size;
-        memset((void *)alloc[pos], MAGIC, size);
+        memset((void *)alloc[pos], MAGIC + 1, size);
       }
     }
     else

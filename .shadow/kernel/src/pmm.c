@@ -192,7 +192,6 @@ static void *kmalloc_slab(size_t size)
   int cpu = cpu_current(), slab_index = match_slab_type(size);
   spin_lock(&kmem[cpu].lk);
   slab_t *page = kmem[cpu].available_page[slab_index];
-  Log("countewr = %d", page->object_counter);
   if (page->object_counter < page->object_capacity)
     ret = object_from_slab(page);
   else

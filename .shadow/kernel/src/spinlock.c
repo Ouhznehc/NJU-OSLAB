@@ -21,7 +21,6 @@ void spin_lock(spinlock_t *lk)
     ;
   __sync_synchronize();
   lk->cpu = cpu_current();
-  printf("lock\n");
 }
 
 void spin_unlock(spinlock_t *lk)
@@ -30,6 +29,5 @@ void spin_unlock(spinlock_t *lk)
     kernal_panic("spin_unlock: %s", lk->name);
   lk->cpu = -1;
   __sync_synchronize();
-  printf("unlock\n");
   atomic_xchg(&lk->locked, 0);
 }

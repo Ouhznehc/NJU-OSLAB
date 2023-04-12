@@ -46,6 +46,7 @@ static void os_run()
       else
       {
         assert(size >= 4);
+        Log("CPU #%d alloc at %07p with pos = %d, size = %d", now, alloc[pos], pos, size);
         for (int i = 0; i < size / 4; i++)
         {
           int *check = (int *)(alloc[pos] + 4 * i);
@@ -59,7 +60,6 @@ static void os_run()
         }
         num[pos] = size;
         memset((void *)alloc[pos], -1, size);
-        Log("CPU #%d alloc at %07p with pos = %d, size = %d", now, alloc[pos], pos, size);
       }
     }
     else

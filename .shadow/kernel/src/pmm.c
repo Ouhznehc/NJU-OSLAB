@@ -51,7 +51,6 @@ static void *object_from_slab(slab_t *page)
       }
     }
   }
-  Log("immposible");
   panic("object_from_slab: should not reach here");
   return NULL;
 }

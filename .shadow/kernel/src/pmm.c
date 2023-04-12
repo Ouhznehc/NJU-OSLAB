@@ -253,6 +253,8 @@ static void *kalloc_slab(size_t size)
       {
         assert(new_page->object_size == slab_type[slab_index]);
         assert(new_page->object_counter == 0);
+        for (int i = 0; i < 64; i++)
+          assert(new_page->bitset[i] == 0);
         ret = object_from_slab(new_page);
       }
     }

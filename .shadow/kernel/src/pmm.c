@@ -155,6 +155,17 @@ static memory_t *page_from_slab_pool()
   {
     ret = slab_pool.next;
     slab_pool.next = ret->next;
+    for (uintptr_t i = 0; i < ret->memory_size; i++)
+    {
+      uintptr_t *check = (uintptr_t *)(ret->memory_start + i);
+      if (*check == MAGIC)
+        panic("double alloc");
+    }
+    for (uintptr_t i = 0; i < ret->memory_size; i++)
+    {
+      uintptr_t *check = (uintptr_t *)(ret->memory_start + i);
+      *check = MAGIC;
+    }
     spin_unlock(&slab_lock);
   }
   else

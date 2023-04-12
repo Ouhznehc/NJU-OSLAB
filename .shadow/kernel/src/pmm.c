@@ -318,8 +318,7 @@ static void pmm_init()
 
   heap_pool.next = heap_start;
   slab_pool.next = NULL;
-  Log("end initial");
-  assert(0);
+
   slab_init();
 }
 

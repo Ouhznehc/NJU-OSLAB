@@ -262,6 +262,8 @@ static slab_t *fetch_page_to_slab(int slab_index, int cpu)
 static void *kalloc_large(size_t size)
 {
   memory_t *ret = memory_from_heap(size);
+  if (ret == NULL)
+    return NULL;
   assert(ret != NULL);
   return ret->memory_start;
 }
@@ -269,6 +271,8 @@ static void *kalloc_large(size_t size)
 static void *kalloc_page()
 {
   memory_t *ret = page_from_slab_pool();
+  if (ret == NULL)
+    return NULL;
   assert(ret != NULL);
   return ret->memory_start;
 }

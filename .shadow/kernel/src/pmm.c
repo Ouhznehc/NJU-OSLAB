@@ -114,6 +114,7 @@ static memory_t *memory_from_heap(size_t size)
       uintptr_t *header = (uintptr_t *)(memory_start - 2 * sizeof(intptr_t));
       *magic = MAGIC, *header = (uintptr_t)cur;
 #ifdef DOUBLE_PMM
+      assert((uintptr_t)cur->memory_start + cur->memory_size < (uintptr_t)heap.end);
       for (uintptr_t i = 0; i < cur->memory_size; i++)
       {
         uintptr_t *check = (uintptr_t *)(cur->memory_start + i);

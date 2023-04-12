@@ -197,6 +197,7 @@ static void *kmalloc_slab(size_t size)
   else
   {
     Assert(cpu_current() == 0, "cpu = %d", cpu);
+    Assert(kmem[cpu].available_page[slab_index] != NULL, "kmem[cpu].slab_list[slab_index] == NULL: cpu=%d, slab=%d", cpu, slab_type[slab_index]);
     Assert(kmem[cpu].slab_list[slab_index] != NULL, "kmem[cpu].slab_list[slab_index] == NULL: cpu=%d, slab=%d", cpu, slab_type[slab_index]);
     page = kmem[cpu].slab_list[slab_index]->next;
     assert(page->object_counter <= page->object_capacity);

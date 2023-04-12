@@ -46,6 +46,7 @@ static void os_run()
       }
       else
       {
+        assert(size > 4);
         for (int i = 0; i < size / 4; i++)
         {
           int *check = (int *)(alloc[pos] + 4 * i);
@@ -59,6 +60,7 @@ static void os_run()
     }
     else
     {
+      assert(num[pos] > 4);
       pmm->free((void *)alloc[pos]);
       for (int i = 0; i < num[pos] / 4; i++)
       {

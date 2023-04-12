@@ -350,7 +350,6 @@ static void kfree(void *ptr)
   if (magic == MAGIC)
   {
     memory_t *memory = fetch_header(ptr, magic);
-    Log("ptr=%07p", ptr);
     return kfree_large(memory);
   }
   else

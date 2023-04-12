@@ -402,7 +402,9 @@ static void pmm_init()
 
   uintptr_t pmsize = ((uintptr_t)heap.end - (uintptr_t)heap.start);
   printf("Got %d MiB heap: [%p, %p)\n", pmsize >> 20, heap.start, heap.end);
-
+#ifndef DOUBLE_PMM
+  memset(heap.start, 0, pmsize);
+#endif
   memory_t *heap_start = (memory_t *)(heap.start);
   heap_start->next = NULL;
   heap_start->memory_start = (void *)((uintptr_t)heap_start + MEMORY_CONFIG);

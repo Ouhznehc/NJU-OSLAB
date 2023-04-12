@@ -35,10 +35,8 @@ static void *object_from_slab(slab_t *page)
 {
   void *ret = NULL;
   assert(page != NULL);
-  Log("shit");
   for (int i = 0; i < 32; i++)
   {
-
     if (page->bitset[i] == (int)(-1))
       continue;
     for (int j = 0; j < 32; j++)
@@ -48,6 +46,7 @@ static void *object_from_slab(slab_t *page)
         setbit(page->bitset[i], j);
         page->object_counter++;
         ret = page->object_start + (32 * i + j) * page->object_size;
+        Log("shit");
         return ret;
       }
     }

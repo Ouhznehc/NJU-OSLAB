@@ -12,15 +12,10 @@ static void os_init()
   pmm->init();
 }
 
-spinlock_t lk[100005], plock;
+spinlock_t lk[100005];
 uintptr_t alloc[100005];
 static void os_run()
 {
-  for (int i = 0; i < 100005; i++)
-  {
-    init_lock(&lk[i], "lk");
-  }
-  init_lock(&plock, "plock");
   int now = cpu_current();
   while (1)
   {
@@ -36,22 +31,16 @@ static void os_run()
       alloc[pos] = (uintptr_t)pmm->alloc(size);
       if (alloc[pos] == 0)
       {
-        spin_lock(&plock);
         Log("no more space\n");
-        spin_unlock(&plock);
         spin_unlock(&lk[pos]);
         continue;
       }
-      spin_lock(&plock);
       Log("cpu %d alloc at %p with %dB\n", now, alloc[pos], size);
-      spin_unlock(&plock);
     }
     else
     {
       pmm->free((void *)alloc[pos]);
-      spin_lock(&plock);
       Log("cpu %d free time %d at %p\n", now, pos, alloc[pos]);
-      spin_unlock(&plock);
       alloc[pos] = 0;
     }
     spin_unlock(&lk[pos]);

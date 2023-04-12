@@ -84,10 +84,9 @@ static void os_run()
   {
     pmm->free((void *)al[i]);
     Log("%p\n", (uintptr_t)pmm->alloc(1024));
-    // }
-    while (1)
-      ;
   }
+  while (1)
+    ;
 }
 
 MODULE_DEF(os) = {

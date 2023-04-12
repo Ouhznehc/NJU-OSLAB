@@ -166,7 +166,7 @@ static void page_to_slab_pool(memory_t *page)
   for (uintptr_t i = 0; i < page->memory_size; i++)
   {
     uintptr_t *check = (uintptr_t *)(page->memory_start + i);
-    assert(*check == MAGIC);
+    Assert(*check == MAGIC, "check=%07p", *check);
     if (*check == 0)
       panic("double free");
   }

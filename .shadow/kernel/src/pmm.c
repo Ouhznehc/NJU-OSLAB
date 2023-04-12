@@ -305,15 +305,21 @@ static void *kalloc(size_t size)
   size = align_size(size);
   if (size > 4 KB)
   {
+    Log("1");
     ret = kalloc_large(size);
+    Log("1");
   }
   else if (size == 4 KB)
   {
+    Log("2");
     ret = kalloc_page();
+    Log("2");
   }
   else
   {
+    Log("3");
     ret = kalloc_slab(size);
+    Log("3");
   }
   return ret;
 }

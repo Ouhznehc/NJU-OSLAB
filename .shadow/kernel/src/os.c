@@ -22,12 +22,9 @@ static void os_run()
     init_lock(&lk[i], "lk");
   }
   int now = cpu_current();
-  int pos = 0;
   while (1)
   {
-    pos = (pos + 1);
-    if (pos == 100005)
-      halt(0);
+    int pos = (rand() * rand()) % 10000;
     Log("");
     Log("pos %d", pos);
     spin_lock(&lk[pos]);

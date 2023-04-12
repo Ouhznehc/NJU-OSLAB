@@ -108,6 +108,7 @@ static memory_t *memory_from_heap(size_t size)
       for (uintptr_t i = 0; i < cur->memory_size; i++)
       {
         uintptr_t *check = (uintptr_t *)(cur->memory_start + i);
+        assert(*check == 0);
         if (*check == MAGIC)
           panic("double alloc");
       }

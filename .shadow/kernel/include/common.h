@@ -43,11 +43,11 @@ extern spinlock_t debug_lk;
         spin_unlock(&debug_lk);                    \
     } while (0)
 
-#define panic(format, ...)                                    \
-    do                                                        \
-    {                                                         \
-        Log("\33[1;31msystem panic: " format, ##__VA_ARGS__); \
-        halt(1);                                              \
+#define panic(format, ...)                           \
+    do                                               \
+    {                                                \
+        Log("system panic: " format, ##__VA_ARGS__); \
+        halt(1);                                     \
     } while (0)
 
 #define panic_on(cond, format, ...) \
@@ -92,3 +92,5 @@ extern spinlock_t debug_lk;
 
 // printf("\33[1;35m[%s: %d] " format "\33[0m\n",
 //         __func__, __LINE__, ##__VA_ARGS__);
+
+// Log("\33[1;31msystem panic: " format, ##__VA_ARGS__);

@@ -221,7 +221,6 @@ static void *kalloc_page()
 
 static void *kalloc_slab(size_t size)
 {
-  Log("begin");
   void *ret = NULL;
   int cpu = cpu_current(), slab_index = match_slab_type(size);
 #ifdef DEAD_LOCK
@@ -233,12 +232,10 @@ static void *kalloc_slab(size_t size)
   assert(page != NULL);
   if (page->object_counter < page->object_capacity)
   {
-    Log("if");
     ret = object_from_slab(page);
   }
   else
   {
-    Log("else");
     page = kmem[cpu].slab_list[slab_index].next;
     assert(page->object_counter <= page->object_capacity);
     while (page->object_counter == page->object_capacity && page->next != NULL)
@@ -271,13 +268,11 @@ static void *kalloc_slab(size_t size)
   Log("spin_unlock CPU#%d", cpu);
 #endif
   spin_unlock(&kmem[cpu].lk);
-  Log("end");
   return ret;
 }
 
 static void kfree_large(memory_t *memory)
 {
-  Log("mem = %p", memory);
   assert(memory != NULL);
 
   if (memory->memory_size == 4 KB)
@@ -306,7 +301,6 @@ static void kfree_slab(slab_t *page, void *ptr)
 
 static void *kalloc(size_t size)
 {
-  Log("begin alloc");
   if (size > 16 MB)
     return NULL;
   void *ret = NULL;
@@ -314,24 +308,17 @@ static void *kalloc(size_t size)
   Log("try alloc size=%d", size);
   if (size > 4 KB)
   {
-    Log("1");
     ret = kalloc_large(size);
-    Log("1");
   }
   else if (size == 4 KB)
   {
-    Log("2");
     ret = kalloc_page();
-    Log("2");
   }
   else
   {
-    Log("3");
     ret = kalloc_slab(size);
-    Log("3");
-    Log("ret = %07p", ret);
   }
-  Log("end alloc");
+  Log("success alloc from %07p to %07p", ret, ret + size);
   return ret;
 }
 

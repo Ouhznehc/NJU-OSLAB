@@ -398,16 +398,19 @@ static void pmm_init()
   uintptr_t pmsize = ((uintptr_t)heap.end - (uintptr_t)heap.start);
   printf("Got %d MiB heap: [%p, %p)\n", pmsize >> 20, heap.start, heap.end);
 
+  spin_lock(&heap_lock);
   memory_t *heap_start = (memory_t *)(heap.start);
   assert(heap_start != NULL);
   heap_start->next = NULL;
   heap_start->memory_start = (void *)((uintptr_t)heap_start + MEMORY_CONFIG);
   heap_start->memory_size = pmsize - MEMORY_CONFIG;
-
   heap_pool.next = heap_start;
-  slab_pool.next = NULL;
+  spin_unlock(&heap_lock);
 
+  spin_lock(&slab_lock);
+  slab_pool.next = NULL;
   slab_init();
+  spin_unlock(&slab_lock);
 }
 
 MODULE_DEF(pmm) = {

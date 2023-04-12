@@ -16,6 +16,11 @@ spinlock_t lk[100005], plock;
 uintptr_t alloc[100005];
 static void os_run()
 {
+  for (int i = 0; i < 100005; i++)
+  {
+    init_lock(&lk[i], "lk");
+  }
+  init_lock(&plock, "plock");
   int now = cpu_current();
   while (1)
   {

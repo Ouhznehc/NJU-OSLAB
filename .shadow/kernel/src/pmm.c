@@ -1,7 +1,7 @@
 #include <common.h>
 
-#define DEAD_LOCK
-// #define DOUBLE_PMM
+// #define DEAD_LOCK
+#define DOUBLE_PMM
 static spinlock_t heap_lock;
 static spinlock_t slab_lock;
 static memory_t heap_pool;
@@ -107,13 +107,13 @@ static memory_t *memory_from_heap(size_t size)
 #ifdef DOUBLE_PMM
       for (uintptr_t i = 0; i < cur->memory_size; i++)
       {
-        uintptr_t *check = (uintptr_t *)(memory_start + i);
+        uintptr_t *check = (uintptr_t *)(cur->memory_start + i);
         if (*check == MAGIC)
           panic("double alloc");
       }
       for (uintptr_t i = 0; i < cur->memory_size; i++)
       {
-        uintptr_t *check = (uintptr_t *)(memory_start + i);
+        uintptr_t *check = (uintptr_t *)(cur->memory_start + i);
         *check = MAGIC;
       }
 #endif

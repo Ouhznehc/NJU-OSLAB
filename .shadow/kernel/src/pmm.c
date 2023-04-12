@@ -137,6 +137,8 @@ static void memory_to_heap(memory_t *memory)
 {
   spin_lock(&heap_lock);
   assert(memory != NULL);
+  assert(*(uintptr_t *)(memory->memory_start - sizeof(uintptr_t)) == MAGIC);
+  assert(*(uintptr_t *)(memory->memory_start - 2 * sizeof(uintptr_t)) == (uintptr_t)memory);
   memory->memory_size = (uintptr_t)memory->memory_start + memory->memory_size - (uintptr_t)memory - MEMORY_CONFIG;
   memory->memory_start = (void *)(uintptr_t)memory + MEMORY_CONFIG;
   memory->next = heap_pool.next;
@@ -150,6 +152,8 @@ static memory_t *page_from_heap_pool()
   void *ret = memory_from_heap(4 KB);
   if (ret == NULL)
     return NULL;
+  assert(*(uintptr_t *)(((memory_t *)ret)->memory_start - sizeof(uintptr_t)) == MAGIC);
+  assert(*(uintptr_t *)(((memory_t *)ret)->memory_start - 2 * sizeof(uintptr_t)) == (uintptr_t)ret);
   assert(ret != NULL);
   return ret;
 }
@@ -158,6 +162,8 @@ static void page_to_slab_pool(memory_t *page)
 {
   spin_lock(&slab_lock);
   assert(page != NULL);
+  assert(*(uintptr_t *)(page->memory_start - sizeof(uintptr_t)) == MAGIC);
+  assert(*(uintptr_t *)(page->memory_start - 2 * sizeof(uintptr_t)) == (uintptr_t)page);
   page->next = slab_pool.next;
   slab_pool.next = page;
   spin_unlock(&slab_lock);
@@ -180,6 +186,8 @@ static memory_t *page_from_slab_pool()
   {
     spin_unlock(&slab_lock);
     ret = page_from_heap_pool();
+    assert(*(uintptr_t *)(ret->memory_start - sizeof(uintptr_t)) == MAGIC);
+    assert(*(uintptr_t *)(ret->memory_start - 2 * sizeof(uintptr_t)) == (uintptr_t)ret);
   }
   return ret;
 }
@@ -216,6 +224,8 @@ static void *kalloc_large(size_t size)
   if (ret == NULL)
     return NULL;
   assert(ret != NULL);
+  assert(*(uintptr_t *)(ret->memory_start - sizeof(uintptr_t)) == MAGIC);
+  assert(*(uintptr_t *)(ret->memory_start - 2 * sizeof(uintptr_t)) == (uintptr_t)ret);
   return ret->memory_start;
 }
 
@@ -287,6 +297,8 @@ static void *kalloc_slab(size_t size)
 static void kfree_large(memory_t *memory)
 {
   assert(memory != NULL);
+  assert(*(uintptr_t *)(memory->memory_start - sizeof(uintptr_t)) == MAGIC);
+  assert(*(uintptr_t *)(memory->memory_start - 2 * sizeof(uintptr_t)) == (uintptr_t)memory);
   if (memory->memory_size == 4 KB)
     return page_to_slab_pool(memory);
   else

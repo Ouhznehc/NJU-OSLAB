@@ -25,7 +25,7 @@ static void os_run()
   int pos = 0;
   while (1)
   {
-    pos++;
+    pos = (pos + 1) % 200;
     Log("pos %d", pos);
     spin_lock(&lk[pos]);
     if (alloc[pos] == 0)

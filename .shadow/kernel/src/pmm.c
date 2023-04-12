@@ -251,8 +251,8 @@ static void *kalloc(size_t size)
   size = align_size(size);
   if (size > 4 KB)
   {
-    ret = kmalloc_large(size);
     assert(0);
+    ret = kmalloc_large(size);
   }
   else if (size == 4 KB)
     ret = kmalloc_page();

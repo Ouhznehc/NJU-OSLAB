@@ -1,6 +1,6 @@
 #include <common.h>
 
-#define DEAD_LOCK
+// #define DEAD_LOCK
 // #define DOUBLE_PMM
 static spinlock_t heap_lock;
 static spinlock_t slab_lock;

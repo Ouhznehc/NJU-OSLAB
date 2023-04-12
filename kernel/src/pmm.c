@@ -1,7 +1,6 @@
 #include <common.h>
 
 // #define DEAD_LOCK
-// #define DOUBLE_PMM
 static spinlock_t heap_lock;
 static spinlock_t slab_lock;
 static memory_t heap_pool;
@@ -36,7 +35,7 @@ static void *object_from_slab(slab_t *page)
 {
   void *ret = NULL;
   assert(page != NULL);
-  for (int i = 0; i < 32; i++)
+  for (int i = 0; i < 64; i++)
   {
     if (page->bitset[i] == (int)(-1))
       continue;
@@ -44,23 +43,10 @@ static void *object_from_slab(slab_t *page)
     {
       if (getbit(page->bitset[i], j) == 0)
       {
-        if (page->object_counter == 0)
-        {
-          int slab_index = match_slab_type(page->object_size);
-          kmem[page->cpu].free_slab[slab_index]--;
-        }
         setbit(page->bitset[i], j);
         page->object_counter++;
         ret = page->object_start + (32 * i + j) * page->object_size;
-#ifdef DOUBLE_PMM
-        uintptr_t *check = ret;
-        assert(((uintptr_t)page + 8 KB) < (uintptr_t)heap.end);
-        if (page->object_size >= 4)
-        {
-          assert(*check == 0);
-          *check = MAGIC;
-        }
-#endif
+        Log("shit");
         return ret;
       }
     }
@@ -95,6 +81,7 @@ static memory_t *memory_from_heap(size_t size)
       uintptr_t remain_space = (uintptr_t)cur->memory_start + cur->memory_size - size - memory_start;
       if (remain_space >= 8 KB)
       {
+        assert(remain_space % 8 KB == 0);
         memory_t *new_memory = (memory_t *)(memory_start + size);
         assert(new_memory != NULL);
         new_memory->memory_start = (void *)((uintptr_t)new_memory + MEMORY_CONFIG);
@@ -109,11 +96,13 @@ static memory_t *memory_from_heap(size_t size)
           assert(cur != NULL);
           new_memory->next = cur->next;
           prev->next = new_memory;
+          cur->next = NULL;
         }
       }
       else
       {
         prev->next = cur->next;
+        cur->next = NULL;
       }
       assert(cur != NULL);
       cur->memory_start = (void *)memory_start;
@@ -121,21 +110,6 @@ static memory_t *memory_from_heap(size_t size)
       uintptr_t *magic = (uintptr_t *)(memory_start - sizeof(intptr_t));
       uintptr_t *header = (uintptr_t *)(memory_start - 2 * sizeof(intptr_t));
       *magic = MAGIC, *header = (uintptr_t)cur;
-#ifdef DOUBLE_PMM
-      assert((uintptr_t)cur->memory_start + cur->memory_size < (uintptr_t)heap.end);
-      for (uintptr_t i = 0; i < cur->memory_size; i++)
-      {
-        uintptr_t *check = (uintptr_t *)(cur->memory_start + i);
-        assert(*check == 0);
-        if (*check == MAGIC)
-          panic("double alloc");
-      }
-      for (uintptr_t i = 0; i < cur->memory_size; i++)
-      {
-        uintptr_t *check = (uintptr_t *)(cur->memory_start + i);
-        *check = MAGIC;
-      }
-#endif
       ret = cur;
     }
   }
@@ -148,21 +122,6 @@ static void memory_to_heap(memory_t *memory)
 {
   spin_lock(&heap_lock);
   assert(memory != NULL);
-#ifdef DOUBLE_PMM
-  assert((uintptr_t)memory->memory_start + memory->memory_size < (uintptr_t)heap.end);
-  for (uintptr_t i = 0; i < memory->memory_size; i++)
-  {
-    uintptr_t *check = (uintptr_t *)(memory->memory_start + i);
-    assert(*check == MAGIC);
-    if (*check == 0)
-      panic("double free");
-  }
-  for (uintptr_t i = 0; i < memory->memory_size; i++)
-  {
-    uintptr_t *check = (uintptr_t *)(memory->memory_start + i);
-    *check = 0;
-  }
-#endif
   memory->memory_size = (uintptr_t)memory->memory_start + memory->memory_size - (uintptr_t)memory - MEMORY_CONFIG;
   memory->memory_start = (void *)(uintptr_t)memory + MEMORY_CONFIG;
   memory->next = heap_pool.next;
@@ -173,7 +132,11 @@ static void memory_to_heap(memory_t *memory)
 // get one page from heap_pool to slab_pool
 static memory_t *page_from_heap_pool()
 {
-  return memory_from_heap(4 KB);
+  void *ret = memory_from_heap(4 KB);
+  if (ret == NULL)
+    return NULL;
+  assert(ret != NULL);
+  return ret;
 }
 
 static void page_to_slab_pool(memory_t *page)
@@ -182,22 +145,6 @@ static void page_to_slab_pool(memory_t *page)
   assert(page != NULL);
   page->next = slab_pool.next;
   slab_pool.next = page;
-#ifdef DOUBLE_PMM
-  assert((uintptr_t)page->memory_start + 4 KB < (uintptr_t)heap.end);
-  for (uintptr_t i = 0; i < page->memory_size; i++)
-  {
-    uintptr_t *check = (uintptr_t *)(page->memory_start + i);
-    assert(page->memory_size = 4 KB);
-    Assert(*check == MAGIC, "check=%07p, start=%07p", *check, page->memory_start);
-    if (*check == 0)
-      panic("double free");
-  }
-  for (uintptr_t i = 0; i < page->memory_size; i++)
-  {
-    uintptr_t *check = (uintptr_t *)(page->memory_start + i);
-    *check = 0;
-  }
-#endif
   spin_unlock(&slab_lock);
 }
 
@@ -211,21 +158,7 @@ static memory_t *page_from_slab_pool()
     ret = slab_pool.next;
     assert(ret != NULL);
     slab_pool.next = ret->next;
-#ifdef DOUBLE_PMM
-    assert((uintptr_t)ret->memory_start + ret->memory_size < (uintptr_t)heap.end);
-    for (uintptr_t i = 0; i < ret->memory_size; i++)
-    {
-      uintptr_t *check = (uintptr_t *)(ret->memory_start + i);
-      assert(*check == 0);
-      if (*check == MAGIC)
-        panic("double alloc");
-    }
-    for (uintptr_t i = 0; i < ret->memory_size; i++)
-    {
-      uintptr_t *check = (uintptr_t *)(ret->memory_start + i);
-      *check = MAGIC;
-    }
-#endif
+    ret->next = NULL;
     spin_unlock(&slab_lock);
   }
   else
@@ -251,10 +184,10 @@ static slab_t *fetch_page_to_slab(int slab_index, int cpu)
   // spin_unlock(&kmem[cpu].lk);
   page->object_size = slab_type[slab_index];
   page->cpu = cpu;
-  page->object_capacity = 4 KB / page->object_size;
-  page->object_start = (void *)page + 4 KB;
+  page->object_capacity = (SLAB_SIZE - SLAB_CONFIG) / page->object_size;
+  page->object_start = (page->object_size < SLAB_CONFIG) ? (void *)page + SLAB_CONFIG : (void *)page + page->object_size;
   assert(page->object_counter == 0);
-  for (int i = 0; i < 32; i++)
+  for (int i = 0; i < 64; i++)
     assert(page->bitset[i] == 0);
   return page;
 }
@@ -274,11 +207,13 @@ static void *kalloc_page()
   if (ret == NULL)
     return NULL;
   assert(ret != NULL);
+  assert((uintptr_t)ret->memory_start + ret->memory_size - (uintptr_t)ret == 8 KB);
   return ret->memory_start;
 }
 
 static void *kalloc_slab(size_t size)
 {
+  Log("begin");
   void *ret = NULL;
   int cpu = cpu_current(), slab_index = match_slab_type(size);
 #ifdef DEAD_LOCK
@@ -288,9 +223,13 @@ static void *kalloc_slab(size_t size)
   slab_t *page = kmem[cpu].available_page[slab_index];
   assert(page != NULL);
   if (page->object_counter < page->object_capacity)
+  {
+    Log("if");
     ret = object_from_slab(page);
+  }
   else
   {
+    Log("else");
     page = kmem[cpu].slab_list[slab_index].next;
     assert(page->object_counter <= page->object_capacity);
     while (page->object_counter == page->object_capacity && page->next != NULL)
@@ -321,12 +260,15 @@ static void *kalloc_slab(size_t size)
   Log("spin_unlock CPU#%d", cpu);
 #endif
   spin_unlock(&kmem[cpu].lk);
+  Log("end");
   return ret;
 }
 
 static void kfree_large(memory_t *memory)
 {
+  Log("mem = %p", memory);
   assert(memory != NULL);
+
   if (memory->memory_size == 4 KB)
     return page_to_slab_pool(memory);
   else
@@ -344,16 +286,6 @@ static void kfree_slab(slab_t *page, void *ptr)
   int i = offset / 32, j = offset % 32;
   assert(getbit(page->bitset[i], j) == 1);
   clrbit(page->bitset[i], j);
-#ifdef DOUBLE_PMM
-  uintptr_t *check = (page->object_start + (32 * i + j) * page->object_size);
-  assert(*check == MAGIC);
-  *check = 0;
-#endif
-  if (page->object_counter == 0)
-  {
-    int slab_index = match_slab_type(page->object_size);
-    kmem[page->cpu].free_slab[slab_index]++;
-  }
 // Log("success free %07p", ptr);
 #ifdef DEAD_LOCK
   Log("spin_unlock CPU#%d", page->cpu);
@@ -363,22 +295,32 @@ static void kfree_slab(slab_t *page, void *ptr)
 
 static void *kalloc(size_t size)
 {
+  Log("begin alloc");
+  Log("try alloc size=%d", size);
   if (size > 16 MB)
     return NULL;
   void *ret = NULL;
   size = align_size(size);
   if (size > 4 KB)
   {
+    Log("1");
     ret = kalloc_large(size);
+    Log("1");
   }
   else if (size == 4 KB)
   {
+    Log("2");
     ret = kalloc_page();
+    Log("2");
   }
   else
   {
+    Log("3");
     ret = kalloc_slab(size);
+    Log("3");
+    Log("ret = %07p", ret);
   }
+  Log("end alloc");
   return ret;
 }
 
@@ -390,7 +332,7 @@ static inline int fetch_magic(void *ptr)
 static inline void *fetch_header(void *ptr, int magic)
 {
   if (magic == MAGIC)
-    return (void *)(*(size_t *)((uintptr_t)ptr - 2 * sizeof(intptr_t)));
+    return (void *)(*(uintptr_t *)((uintptr_t)ptr - 2 * sizeof(intptr_t)));
   else
     return (void *)((uintptr_t)ptr & SLAB_MASK);
 }
@@ -405,6 +347,7 @@ static void kfree(void *ptr)
   }
   else
   {
+
     slab_t *page = fetch_header(ptr, magic);
     return kfree_slab(page, ptr);
   }
@@ -418,7 +361,6 @@ static void slab_init()
     for (int slab = 0; slab < SLAB_TYPE; slab++)
     {
       fetch_page_to_slab(slab, cpu);
-      kmem[cpu].free_slab[slab] = SLAB_MIN;
     }
   }
 }
@@ -430,9 +372,6 @@ static void pmm_init()
 
   uintptr_t pmsize = ((uintptr_t)heap.end - (uintptr_t)heap.start);
   printf("Got %d MiB heap: [%p, %p)\n", pmsize >> 20, heap.start, heap.end);
-#ifdef DOUBLE_PMM
-  memset(heap.start, 0, pmsize);
-#endif
   memory_t *heap_start = (memory_t *)(heap.start);
   assert(heap_start != NULL);
   heap_start->next = NULL;

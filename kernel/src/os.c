@@ -14,6 +14,7 @@ static void os_init()
 
 // spinlock_t lk[100005];
 // uintptr_t alloc[100005];
+// size_t num[100005];
 static void os_run()
 {
   // for (int i = 0; i < 100005; i++)
@@ -21,13 +22,15 @@ static void os_run()
   //   init_lock(&lk[i], "lk");
   // }
   // int now = cpu_current();
+  // int pos = 0;
   // while (1)
   // {
-  //   int pos = (rand() * rand()) % 10000;
+  //   pos = (pos + 1);
+  //   Log("pos %d", pos);
   //   spin_lock(&lk[pos]);
   //   if (alloc[pos] == 0)
   //   {
-  //     int size = rand() % 20;
+  //     int size = rand() % 20 + 4;
   //     if (size < 16)
   //       size = 1 << (size % 10);
   //     else if (size != 19)
@@ -39,11 +42,30 @@ static void os_run()
   //       spin_unlock(&lk[pos]);
   //       continue;
   //     }
+  //     else
+  //     {
+  //       for (int i = 0; i < size / 4; i++)
+  //       {
+  //         int *check = (int *)(alloc[pos] + 4 * i);
+  //         if (*check == -1)
+  //           panic("double alloc");
+  //       }
+  //       num[pos] = size;
+  //       memset((void *)alloc[pos], 0x1, size);
+  //     }
+
   //     Log("cpu %d alloc at %p with %dB\n", now, alloc[pos], size);
   //   }
   //   else
   //   {
   //     pmm->free((void *)alloc[pos]);
+  //     for (int i = 0; i < num[pos] / 4; i++)
+  //     {
+  //       int *check = (int *)(alloc[pos] + 4 * i);
+  //       if (*check == 0)
+  //         panic("double free");
+  //     }
+  //     memset((void *)alloc[pos], 0x1, num[pos]);
   //     Log("cpu %d free time %d at %p\n", now, pos, alloc[pos]);
   //     alloc[pos] = 0;
   //   }

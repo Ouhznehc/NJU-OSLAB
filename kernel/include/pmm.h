@@ -4,7 +4,7 @@
 #define KB *1024
 #define MB KB * 1024
 #define SLAB_SIZE (8 KB)
-#define SLAB_CONFIG (256)
+#define SLAB_CONFIG (512)
 #define MEMORY_CONFIG (32)
 #define MAX_CPU (8)
 #define SLAB_TYPE (11)
@@ -34,7 +34,7 @@ typedef union slab_t
     int object_counter;
     int object_capacity;
     void *object_start;
-    int bitset[32]; // each bit stand for the existence of object
+    int bitset[64]; // each bit stand for the existence of object
   };
   uint8_t data[SLAB_SIZE];
 } slab_t;
@@ -44,7 +44,6 @@ typedef struct kmem_cache
   spinlock_t lk;
   slab_t *available_page[SLAB_TYPE];
   slab_t slab_list[SLAB_TYPE]; // the head of slab_list
-  size_t free_slab[SLAB_TYPE]; // the number of freepage in each slab
 } kmem_cache;
 
 typedef struct memory_t

@@ -409,8 +409,9 @@ static void pmm_init()
 
   spin_lock(&slab_lock);
   slab_pool.next = NULL;
-  slab_init();
   spin_unlock(&slab_lock);
+
+  slab_init();
 }
 
 MODULE_DEF(pmm) = {

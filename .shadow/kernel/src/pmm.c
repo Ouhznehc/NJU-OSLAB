@@ -346,6 +346,7 @@ static void kfree_slab(slab_t *page, void *ptr)
   clrbit(page->bitset[i], j);
 #ifdef DOUBLE_PMM
   uintptr_t *check = (uintptr_t *)((uintptr_t)page->object_start + (32 * i + j) * page->object_size);
+  assert((uintptr_t)check < (uintptr_t)heap.end);
   assert(*check == MAGIC);
   *check = 0;
 #endif

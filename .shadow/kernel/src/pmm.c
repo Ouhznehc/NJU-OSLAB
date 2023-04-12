@@ -2,8 +2,8 @@
 
 static spinlock_t heap_lock;
 static spinlock_t slab_lock;
-static memory_t *heap_pool;
-static memory_t *slab_pool;
+static memory_t heap_pool;
+static memory_t slab_pool;
 static kmem_cache kmem[MAX_CPU];
 int slab_type[SLAB_TYPE] = {2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048};
 
@@ -62,11 +62,11 @@ static memory_t *memory_from_heap(size_t size)
 {
   memory_t *ret = NULL;
   spin_lock(&heap_lock);
-  if (heap_pool->next == NULL)
+  if (heap_pool.next == NULL)
     ret = NULL;
   else
   {
-    memory_t *cur = heap_pool->next, *prev = NULL;
+    memory_t *cur = heap_pool.next, *prev = NULL;
     while (((uintptr_t)cur->memory_start + cur->memory_size < align_address(cur->memory_start, size) + size) && cur->next != NULL)
     {
       prev = cur;
@@ -108,8 +108,8 @@ static void memory_to_heap(memory_t *memory)
   spin_lock(&heap_lock);
   memory->memory_size = (uintptr_t)memory->memory_start + memory->memory_size - (uintptr_t)memory - MEMORY_CONFIG;
   memory->memory_start = (void *)(uintptr_t)memory + MEMORY_CONFIG;
-  memory->next = heap_pool->next;
-  heap_pool->next = memory;
+  memory->next = heap_pool.next;
+  heap_pool.next = memory;
   spin_unlock(&heap_lock);
 }
 
@@ -122,8 +122,8 @@ static memory_t *page_from_heap_pool()
 static void page_to_slab_pool(memory_t *page)
 {
   spin_lock(&slab_lock);
-  page->next = slab_pool->next;
-  slab_pool->next = page;
+  page->next = slab_pool.next;
+  slab_pool.next = page;
   spin_unlock(&slab_lock);
 }
 
@@ -132,10 +132,10 @@ static memory_t *page_from_slab_pool()
 {
   memory_t *ret = NULL;
   spin_lock(&slab_lock);
-  if (slab_pool->next != NULL)
+  if (slab_pool.next != NULL)
   {
-    ret = slab_pool->next;
-    slab_pool->next = ret->next;
+    ret = slab_pool.next;
+    slab_pool.next = ret->next;
     spin_unlock(&slab_lock);
   }
   else
@@ -316,8 +316,8 @@ static void pmm_init()
   heap_start->memory_start = (void *)((uintptr_t)heap_start + MEMORY_CONFIG);
   heap_start->memory_size = pmsize - MEMORY_CONFIG;
 
-  heap_pool->next = heap_start;
-  slab_pool->next = NULL;
+  heap_pool.next = heap_start;
+  slab_pool.next = NULL;
   Log("end initial");
   assert(0);
   slab_init();

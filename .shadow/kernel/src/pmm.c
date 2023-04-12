@@ -76,11 +76,11 @@ static memory_t *memory_from_heap(size_t size)
       ret = NULL;
     else
     {
-      assert(0);
       uintptr_t memory_start = align_address(cur->memory_start, size);
       uintptr_t remain_space = (uintptr_t)cur->memory_start + cur->memory_size - size - memory_start;
       if (remain_space >= 8 KB)
       {
+        assert(0);
         memory_t *new_memory = (memory_t *)(memory_start + size);
         new_memory->memory_start = (void *)((uintptr_t)new_memory + MEMORY_CONFIG);
         new_memory->memory_size = remain_space - MEMORY_CONFIG;

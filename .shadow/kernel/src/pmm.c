@@ -174,7 +174,6 @@ static void page_to_slab_pool(memory_t *page)
 // get one page from slab_pool
 static memory_t *page_from_slab_pool()
 {
-  Log("5");
   memory_t *ret = NULL;
   spin_lock(&slab_lock);
   if (slab_pool.next != NULL)
@@ -187,16 +186,14 @@ static memory_t *page_from_slab_pool()
   }
   else
   {
-    Log("6");
     spin_unlock(&slab_lock);
     ret = page_from_heap_pool();
-    Log("6");
-    assert(ret != NULL);
-    Log("ret->memory_start = %07p", ret->memory_start);
-    assert(*(uintptr_t *)(ret->memory_start - sizeof(uintptr_t)) == MAGIC);
-    assert(*(uintptr_t *)(ret->memory_start - 2 * sizeof(uintptr_t)) == (uintptr_t)ret);
+    if (ret != NULL)
+    {
+      assert(*(uintptr_t *)(ret->memory_start - sizeof(uintptr_t)) == MAGIC);
+      assert(*(uintptr_t *)(ret->memory_start - 2 * sizeof(uintptr_t)) == (uintptr_t)ret);
+    }
   }
-  Log("5");
   return ret;
 }
 
@@ -239,7 +236,6 @@ static void *kalloc_large(size_t size)
 
 static void *kalloc_page()
 {
-  Log("4");
   memory_t *ret = page_from_slab_pool();
   if (ret == NULL)
     return NULL;
@@ -248,7 +244,6 @@ static void *kalloc_page()
   assert(*(uintptr_t *)(ret->memory_start - 2 * sizeof(uintptr_t)) == (uintptr_t)ret);
   assert((uintptr_t)ret->memory_start + ret->memory_size - (uintptr_t)ret == 8 KB);
   assert(ret->memory_size == 4 KB);
-  Log("4");
   return ret->memory_start;
 }
 
@@ -340,21 +335,15 @@ static void *kalloc(size_t size)
   size = align_size(size);
   if (size > 4 KB)
   {
-    Log("1");
     ret = kalloc_large(size);
-    Log("1");
   }
   else if (size == 4 KB)
   {
-    Log("2");
     ret = kalloc_page();
-    Log("2");
   }
   else
   {
-    Log("3");
     ret = kalloc_slab(size);
-    Log("3");
   }
   return ret;
 }

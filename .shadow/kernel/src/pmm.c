@@ -245,7 +245,7 @@ static void kfree_slab(slab_t *page, void *ptr)
 
 static void *kalloc(size_t size)
 {
-
+  assert(0);
   if (size > 16 MB)
     return NULL;
   void *ret = NULL;

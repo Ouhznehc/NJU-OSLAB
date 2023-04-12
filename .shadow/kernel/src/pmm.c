@@ -75,6 +75,7 @@ static memory_t *memory_from_heap(size_t size)
     assert(cur != NULL);
     while (cur != NULL && ((uintptr_t)cur->memory_start + cur->memory_size < align_address(cur->memory_start, size) + size))
     {
+      Log("find");
       assert(cur != NULL);
       prev = cur;
       cur = cur->next;

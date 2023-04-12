@@ -244,7 +244,7 @@ static slab_t *fetch_page_to_slab(int slab_index, int cpu)
     return NULL;
   // spin_lock(&kmem[cpu].lk);
   memset(page, 0, sizeof(slab_t));
-  assert(page->next);
+  assert(page != NULL);
   page->next = kmem[cpu].slab_list[slab_index].next;
   kmem[cpu].slab_list[slab_index].next = page;
   kmem[cpu].available_page[slab_index] = page;

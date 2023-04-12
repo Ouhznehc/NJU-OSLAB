@@ -205,7 +205,6 @@ static void *kmalloc_slab(size_t size)
     {
       page = page->next;
       assert(page->object_counter <= page->object_counter);
-      assert(page->next != NULL);
     }
     if (page->next == NULL)
     {

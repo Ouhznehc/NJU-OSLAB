@@ -35,6 +35,7 @@ static void *object_from_slab(slab_t *page)
 {
   void *ret = NULL;
   assert(page != NULL);
+  assert(page->object_counter < page->object_capacity);
   for (int i = 0; i < 64; i++)
   {
     if (page->bitset[i] == (int)(-1))

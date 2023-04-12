@@ -285,7 +285,6 @@ static void *kalloc_slab(size_t size)
 static void kfree_large(memory_t *memory)
 {
   assert(memory != NULL);
-
   if (memory->memory_size == 4 KB)
     return page_to_slab_pool(memory);
   else
@@ -353,6 +352,7 @@ static void kfree(void *ptr)
   if (magic == MAGIC)
   {
     memory_t *memory = fetch_header(ptr, magic);
+    Log("ptr=%07p", ptr);
     return kfree_large(memory);
   }
   else

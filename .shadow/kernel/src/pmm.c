@@ -194,6 +194,8 @@ static slab_t *fetch_page_to_slab(int slab_index, int cpu)
     return NULL;
   // spin_lock(&kmem[cpu].lk);
   memset(page, 0, sizeof(slab_t));
+  for (int i = 0; i < 64; i++)
+    assert(page->bitset[i] == 0);
   assert(page != NULL);
   page->next = kmem[cpu].slab_list[slab_index].next;
   kmem[cpu].slab_list[slab_index].next = page;
@@ -204,8 +206,6 @@ static slab_t *fetch_page_to_slab(int slab_index, int cpu)
   page->object_capacity = (SLAB_SIZE - SLAB_CONFIG) / page->object_size;
   page->object_start = (page->object_size < SLAB_CONFIG) ? (void *)page + SLAB_CONFIG : (void *)page + page->object_size;
   assert(page->object_counter == 0);
-  for (int i = 0; i < 64; i++)
-    assert(page->bitset[i] == 0);
   return page;
 }
 

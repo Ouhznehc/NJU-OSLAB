@@ -1,9 +1,11 @@
 #include <common.h>
 
 static spinlock_t heap_lock;
-static page_t *heap_start = NULL;
+static spinlock_t slab_lock;
+static memory_t *heap_pool = NULL;
+static memory_t *slab_pool = NULL;
 static kmem_cache kmem[MAX_CPU];
-int slab_type[SLAB_TYPE] = {2, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096};
+int slab_type[SLAB_TYPE] = {2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048};
 
 static inline int match_slab_type(size_t size)
 {
@@ -14,12 +16,7 @@ static inline int match_slab_type(size_t size)
   return 0;
 }
 
-static inline size_t size2page(size_t size)
-{
-  return size / PAGE_SIZE + 1;
-}
-
-static inline size_t align(size_t size)
+static inline size_t align_size(size_t size)
 {
   size_t msb = 31 - __builtin_clz(size);
   if (size == (1 << msb))
@@ -28,74 +25,30 @@ static inline size_t align(size_t size)
     return (1 << (msb + 1));
 }
 
-static bool address_align(size_t address, size_t size){
-  size_t lsb_address = __builtin_ctz(address);
-  size_t lsb_size = __builtin_ctz(size);
-  return lsb_address == lsb_size;
-}
-
-static int heap_valid(page_t *page, size_t size)
+static inline size_t align_address(size_t address, size_t size)
 {
-  //Log("test valid %07p", page);
-  size_t pages = size2page(size);
-  if ((void *)(page + pages) >= heap.end)
-    return 0;
-  //Log("page=%07p, add=%07p", page, (void *)page + 4 KB);
-  assert(((void *)page + 4 KB) <= heap.end);
-  if(size >= PAGE_SIZE && !address_align((size_t)((void *)page), size)) return 1;
-  for (int i = 0; i < pages; i++)
-  {
-    if ((page + i)->object_size)
-      return 1;
-  }
-  return 2;
+  return ROUNDUP(address, size);
 }
 
-static inline page_t *increase_by_page(page_t *page)
-{
-  return page + size2page(page->object_size);
-}
-
-static page_t *find_heap_space(size_t size)
-{
-  page_t *page = heap_start;
-  while (1)
-  {
-    switch (heap_valid(page, size))
-    {
-    case 0:
-      return NULL;
-    case 1:
-      page = increase_by_page(page);
-      break;
-    case 2:
-      return page;
-    default:
-      panic("find_heap_space: should not reach here");
-    }
-  };
-}
-
-static void *object_from_slab(page_t *page)
+static void *object_from_slab(slab_t *page)
 {
   void *ret = NULL;
-  for (int i = 0; i < 8; i++)
+  for (int i = 0; i < 32; i++)
   {
-    if (page->bitset[i] == (__int128_t)(-1))
+    if (page->bitset[i] == (int)(-1))
       continue;
-    for (int j = 0; j < 128; j++)
+    for (int j = 0; j < 32; j++)
     {
       if (getbit(page->bitset[i], j) == 0)
       {
         if (page->object_counter == 0)
         {
           int slab_index = match_slab_type(page->object_size);
-          kmem[page->cpu].free_page[slab_index]--;
+          kmem[page->cpu].free_slab[slab_index]--;
         }
         setbit(page->bitset[i], j);
-        assert(getbit(page->bitset[i], j) == 1);
         page->object_counter++;
-        ret = page->object_start + (128 * i + j) * page->object_size;
+        ret = page->object_start + (32 * i + j) * page->object_size;
         return ret;
       }
     }
@@ -104,173 +57,211 @@ static void *object_from_slab(page_t *page)
   return NULL;
 }
 
-static page_t *pages_from_heap(int cpu, int slab_type, int pages)
+// get memory from heap with size
+static memory_t *memory_from_heap(size_t size)
 {
-  spin_lock(&heap_lock);
-  page_t *ret = NULL;
-  while (pages--)
+  TODO();
+}
+
+// free memoru to heap
+static bool memory_to_heap(memory_t *memory)
+{
+  TODO();
+}
+
+// get one page from heap_pool to slab_pool
+static memory_t *page_from_heap_pool()
+{
+  return memory_from_heap(4 KB);
+}
+
+// get one page from slab_pool
+static memory_t *page_from_slab_pool()
+{
+  memory_t *ret = NULL;
+  spin_lock(&slab_lock);
+  if (slab_pool->next != NULL)
   {
-    page_t *page = find_heap_space(slab_type);
-    if (page == NULL)
-    {
-      spin_unlock(&heap_lock);
-      return NULL;
-    }
-    init_lock(&page->lk, "page");
-    page->cpu = cpu;
-    page->object_size = slab_type;
-    page->object_counter = 0;
-    page->object_capacity = (PAGE_SIZE - PAGE_CONFIG) / slab_type;
-    page->object_start = (slab_type <= PAGE_CONFIG) ? (void *)page + PAGE_CONFIG : (void*)page + slab_type;
-    page->node.next = NULL;
-    if (ret == NULL)
-      ret = page;
-    else
-    {
-      page->node.next = &ret->node;
-      ret = page;
-    }
+    ret = slab_pool->next;
+    slab_pool->next = ret->next;
+    spin_unlock(&slab_lock);
   }
-  spin_unlock(&heap_lock);
+  else
+  {
+    spin_unlock(&slab_lock);
+    ret = page_from_heap_pool();
+  }
   return ret;
 }
 
-static page_t *attach_page2slab(int slab_index, int cpu)
+// attach one page to slab_list
+static slab_t *fetch_page_to_slab(int slab_index, int cpu)
 {
-  page_t *page = pages_from_heap(cpu, slab_type[slab_index], 1);
+  slab_t *page = (slab_t *)page_from_slab_pool();
   if (page == NULL)
     return NULL;
-  list_t *next_node = kmem[cpu].free_list[slab_index].next->next;
-  kmem[cpu].free_list[slab_index].next->next = &page->node;
-  page->node.next = next_node;
-  kmem[cpu].free_list[slab_index].next = &page->node;
-  kmem[cpu].free_page[slab_index]++;
+  spin_lock(&kmem[cpu].lk);
+  memset(page, 0, sizeof(slab_t));
+  page->next = kmem[cpu].slab_list[slab_index]->next;
+  kmem[cpu].slab_list[slab_index]->next = page;
+  kmem[cpu].available_page[slab_index] = page;
+  spin_unlock(&kmem[cpu].lk);
+  page->object_size = slab_type[slab_index];
+  page->cpu = cpu;
+  page->object_capacity = (SLAB_SIZE - SLAB_CONFIG) / page->object_size;
+  page->object_start = (page->object_size <= SLAB_CONFIG) ? (void *)page + SLAB_CONFIG : (void *)page + page->object_size;
+  assert(page->object_counter == 0);
+  for (int i = 0; i < 32; i++)
+    assert(page->bitset[i] == 0);
   return page;
 }
 
 static void *kmalloc_large(size_t size)
 {
-  void *ret = NULL;
-  spin_lock(&heap_lock);
-  page_t *page = find_heap_space(size);
-  if (page == NULL){
-    spin_unlock(&heap_lock);
-    return NULL;
-  }
-  panic_on(page->object_size, "find_heap_size: page=%07p, size=%07p", page, page->object_size);
-  init_lock(&page->lk, "page");
-  spin_lock(&page->lk);
-  page->object_size = size;
-  ret = page->object_start = (void *)page + 4 KB;
-  //ret = page->object_start = (void *)page;
-  Log("success alloc %07p, size = %07p", ret, page->object_size);
-  spin_unlock(&page->lk);
-  spin_unlock(&heap_lock);
-  return ret;
+  return memory_from_heap(size)->memory_start;
 }
 
-static void kfree_large(page_t *page)
+static void *kmalloc_page()
 {
-  spin_lock(&heap_lock);
-  page->object_size = 0;
-  Log("success free %07p", page->object_start);
-  spin_unlock(&heap_lock);
+  return page_from_slab_pool()->memory_start;
 }
 
-static void *kalloc(size_t size)
+static void *kmalloc_slab(size_t size)
 {
-  
-  if (size > 16 MB)
-    return NULL;
   void *ret = NULL;
-  size = align(size);
-  // Log("try alloc %07p", size);
-  if (size >= PAGE_SIZE)
-    return kmalloc_large(size);
   int cpu = cpu_current(), slab_index = match_slab_type(size);
   spin_lock(&kmem[cpu].lk);
-  page_t *freepage = container_of(kmem[cpu].free_list[slab_index].next, page_t, node);
-  spin_lock(&freepage->lk);
-  if (freepage->object_counter < freepage->object_capacity)
-  {
-    ret = object_from_slab(freepage);
-    spin_unlock(&freepage->lk);
-  }
+  slab_t *page = kmem[cpu].available_page[slab_index];
+  if (page->object_counter < page->object_capacity)
+    ret = object_from_slab(page);
   else
   {
-    spin_unlock(&freepage->lk);
-    list_t *node = kmem[cpu].slab_list[slab_index].next;
-    freepage = container_of(node, page_t, node);
-    assert(freepage->object_counter <= freepage->object_capacity);
-    assert(freepage->cpu == cpu);
-    while (freepage->object_counter == freepage->object_capacity && node->next != NULL)
+    page = kmem[cpu].slab_list[slab_index]->next;
+    assert(page->object_counter <= page->object_capacity);
+    while (page->object_counter == page->object_capacity && page->next != NULL)
     {
-      node = node->next;
-      freepage = container_of(node, page_t, node);
-      assert(freepage->object_counter <= freepage->object_capacity);
-      assert(freepage->cpu == cpu);
+      page = page->next;
+      assert(page->object_counter <= page->object_counter);
+      assert(page->next != NULL);
     }
-    if (node->next != NULL)
+    if (page->next == NULL)
     {
-      spin_lock(&freepage->lk);
-      ret = object_from_slab(freepage);
-      spin_unlock(&freepage->lk);
+      slab_t *new_page = fetch_page_to_slab(slab_index, cpu);
+      if (new_page == NULL)
+        ret = NULL;
+      else
+      {
+        assert(new_page->object_size == slab_type[slab_index]);
+        assert(new_page->object_counter == 0);
+        ret = object_from_slab(new_page);
+      }
     }
     else
     {
-      assert(freepage->node.next == NULL);
-      page_t *page = attach_page2slab(slab_index, cpu);
-      if (page == NULL) ret = NULL;
-      else ret = object_from_slab(page);
+      assert(page->object_counter < page->object_capacity);
+      kmem[cpu].available_page[slab_index] = page;
+      ret = object_from_slab(page);
     }
   }
-  Log("success alloc %07p with %dB", ret, size);
   spin_unlock(&kmem[cpu].lk);
   return ret;
 }
 
-static void kfree(void *ptr)
+static void kfree_large(memory_t *memory)
 {
-  page_t *page = (page_t *)((size_t)ptr & PAGE_MASK);
+  return (void)memory_to_heap(memory);
+}
+
+static void kfree_slab(slab_t *page, void *ptr)
+{
   spin_lock(&kmem[page->cpu].lk);
-  spin_lock(&page->lk);
-  if (page->object_size >= PAGE_SIZE)
-  {
-    spin_unlock(&page->lk);
-    return kfree_large(page);
-  }
   int offset = (ptr - page->object_start) / page->object_size;
-  int i = offset / 128, j = offset % 128;
+  int i = offset / 32, j = offset % 32;
   assert(getbit(page->bitset[i], j) == 1);
   clrbit(page->bitset[i], j);
   if (page->object_counter == 0)
   {
-    int cpu = page->cpu, slab_index = match_slab_type(page->object_size);
-    kmem[cpu].free_page[slab_index]++;
+    int slab_index = match_slab_type(page->object_size);
+    kmem[page->cpu].free_slab[slab_index]++;
   }
-  Log("success free %07p", ptr);
-  spin_unlock(&page->lk);
+  // Log("success free %07p", ptr);
   spin_unlock(&kmem[page->cpu].lk);
+}
+
+static void *kalloc(size_t size)
+{
+
+  if (size > 16 MB)
+    return NULL;
+  void *ret = NULL;
+  size = align_size(size);
+  if (size > 4 KB)
+    ret = kmalloc_large(size);
+  else if (size == 4 KB)
+    ret = kmalloc_page();
+  else
+    ret = kmalloc_slab(size);
+  return ret;
+}
+
+static inline int fetch_magic(void *ptr)
+{
+  return *(int *)((uintptr_t)ptr - 4);
+}
+
+static inline void *fetch_header(void *ptr, int magic)
+{
+  if (magic == MAGIC)
+    return (void *)(*(size_t *)((uintptr_t)ptr - 8));
+  else
+    return (void *)((uintptr_t)ptr & SLAB_MASK);
+}
+
+static void kfree(void *ptr)
+{
+  int magic = fetch_magic(ptr);
+  if (magic == MAGIC)
+  {
+    memory_t *memory = fetch_header(ptr, magic);
+    return kfree_large(memory);
+  }
+  else
+  {
+    slab_t *page = fetch_header(ptr, magic);
+    return kfree_slab(page, ptr);
+  }
+}
+
+static void slab_init()
+{
+  for (int cpu = 0; cpu < cpu_count(); cpu++)
+  {
+    init_lock(&kmem[cpu].lk, "cpu");
+    for (int slab = 0; slab < SLAB_TYPE; slab++)
+    {
+      fetch_page_to_slab(slab, cpu);
+      kmem[cpu].free_slab[slab] = SLAB_MIN;
+    }
+  }
 }
 
 static void pmm_init()
 {
   init_lock(&heap_lock, "heap_lock");
-  heap_start = heap.start;
+  init_lock(&slab_lock, "slab_lock");
+
   uintptr_t pmsize = ((uintptr_t)heap.end - (uintptr_t)heap.start);
   printf("Got %d MiB heap: [%p, %p)\n", pmsize >> 20, heap.start, heap.end);
-  for (int i = 0; i < cpu_count(); i++)
-  {
-    kmem[i].cpu = i;
-    init_lock(&kmem[i].lk, "kmem");
-    for (int j = 0; j < SLAB_TYPE; j++)
-    {
-      page_t *pages = pages_from_heap(i, slab_type[j], SLAB_MIN);
-      kmem[i].slab_list[j].next = &pages->node;
-      kmem[i].free_list[j].next = &pages->node;
-      kmem[i].free_page[j] = SLAB_MIN;
-    }
-  }
+
+  memory_t *heap_start = (memory_t *)(heap.start);
+  heap_start->next = NULL;
+  heap_start->memory_start = (void *)((uintptr_t)heap_start + MEMORY_CONFIG);
+  heap_start->memory_size = pmsize - MEMORY_CONFIG;
+
+  heap_pool->next = heap_start;
+  slab_pool->next = NULL;
+
+  slab_init();
 }
 
 MODULE_DEF(pmm) = {

@@ -316,10 +316,12 @@ static void pmm_init()
   heap_start->memory_start = (void *)((uintptr_t)heap_start + MEMORY_CONFIG);
   heap_start->memory_size = pmsize - MEMORY_CONFIG;
 
-  heap_pool->next = heap_start;
-  slab_pool->next = NULL;
   Log("end initial");
   assert(0);
+
+  heap_pool->next = heap_start;
+  slab_pool->next = NULL;
+
   slab_init();
 }
 

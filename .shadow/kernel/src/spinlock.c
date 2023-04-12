@@ -15,8 +15,8 @@ void init_lock(spinlock_t *lk, char *name)
 
 void spin_lock(spinlock_t *lk)
 {
-  // if (holding(lk))
-  //   kernal_panic("spin_lock: %s at %07p", lk->name, &lk);
+  if (holding(lk))
+    kernal_panic("spin_lock: %s at %07p", lk->name, &lk);
   while (atomic_xchg(&lk->locked, 1) != 0)
     ;
   __sync_synchronize();

@@ -85,6 +85,8 @@ static void os_run()
   //   void *ret = pmm->alloc(4096);
   //   Log("%d times: %p\n", i, ret);
   // }
+  while (1)
+    ;
   halt(0);
 }
 

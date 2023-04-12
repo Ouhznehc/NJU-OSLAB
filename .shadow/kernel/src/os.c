@@ -22,13 +22,11 @@ static void os_run()
     init_lock(&lk[i], "lk");
   }
   int now = cpu_current();
+  int pos = 0;
   while (1)
   {
-    int pos = (rand() * rand()) % 10000;
-    Log("pos1=%d", pos);
+    pos++;
     spin_lock(&lk[pos]);
-    Log("pos2=%d", pos);
-    Log("alloc[pos] = %p", alloc[pos]);
     if (alloc[pos] == 0)
     {
       int size = rand() % 20 + 4;
@@ -41,7 +39,6 @@ static void os_run()
       {
         Log("no more space\n");
         spin_unlock(&lk[pos]);
-        Log("pos=%d", pos);
         continue;
       }
       else

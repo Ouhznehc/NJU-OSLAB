@@ -26,6 +26,8 @@ static void os_run()
   while (1)
   {
     pos = (pos + 1);
+    if (pos == 100005)
+      halt(0);
     Log("");
     Log("pos %d", pos);
     spin_lock(&lk[pos]);

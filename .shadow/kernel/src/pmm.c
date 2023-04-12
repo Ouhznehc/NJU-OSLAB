@@ -184,16 +184,17 @@ static memory_t *page_from_slab_pool()
     slab_pool.next = ret->next;
     ret->next = NULL;
     spin_unlock(&slab_lock);
-    Log("5");
   }
   else
   {
     Log("6");
     spin_unlock(&slab_lock);
     ret = page_from_heap_pool();
+    Log("6");
     assert(*(uintptr_t *)(ret->memory_start - sizeof(uintptr_t)) == MAGIC);
     assert(*(uintptr_t *)(ret->memory_start - 2 * sizeof(uintptr_t)) == (uintptr_t)ret);
   }
+  Log("5");
   return ret;
 }
 

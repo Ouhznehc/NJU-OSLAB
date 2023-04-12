@@ -24,6 +24,7 @@ static void os_run()
   while (1)
   {
     int pos = (rand() * rand()) % 10000;
+    Log("pos=%d", pos);
     spin_lock(&lk[pos]);
     if (alloc[pos] == 0)
     {

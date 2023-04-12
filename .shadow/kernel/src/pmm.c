@@ -222,7 +222,10 @@ static void *kalloc_slab(size_t size)
   slab_t *page = kmem[cpu].available_page[slab_index];
   assert(page != NULL);
   if (page->object_counter < page->object_capacity)
+  {
+    Log("if");
     ret = object_from_slab(page);
+  }
   else
   {
     Log("else");

@@ -309,6 +309,11 @@ static void kfree_slab(slab_t *page, void *ptr)
   int i = offset / 32, j = offset % 32;
   assert(getbit(page->bitset[i], j) == 1);
   clrbit(page->bitset[i], j);
+#ifdef DOUBLE_PMM
+  uintptr_t *check = (page->object_start + (32 * i + j) * page->object_size);
+  assert(*check == MAGIC);
+
+#endif
   if (page->object_counter == 0)
   {
     int slab_index = match_slab_type(page->object_size);

@@ -140,6 +140,7 @@ static void memory_to_heap(memory_t *memory)
 {
   spin_lock(&heap_lock);
 #ifdef DOUBLE_PMM
+  assert((uintptr_t)memory->memory_start + memory->memory_size < (uintptr_t)heap.end);
   for (uintptr_t i = 0; i < memory->memory_size; i++)
   {
     uintptr_t *check = (uintptr_t *)(memory->memory_start + i);
@@ -172,6 +173,7 @@ static void page_to_slab_pool(memory_t *page)
   page->next = slab_pool.next;
   slab_pool.next = page;
 #ifdef DOUBLE_PMM
+  assert((uintptr_t)page->memory_start + 4 KB < (uintptr_t)heap.end);
   for (uintptr_t i = 0; i < page->memory_size; i++)
   {
     uintptr_t *check = (uintptr_t *)(page->memory_start + i);
@@ -199,6 +201,7 @@ static memory_t *page_from_slab_pool()
     ret = slab_pool.next;
     slab_pool.next = ret->next;
 #ifdef DOUBLE_PMM
+    assert((uintptr_t)ret->memory_start + ret->memory_size < (uintptr_t)heap.end);
     for (uintptr_t i = 0; i < ret->memory_size; i++)
     {
       uintptr_t *check = (uintptr_t *)(ret->memory_start + i);

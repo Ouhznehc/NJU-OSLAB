@@ -79,7 +79,7 @@ static void os_run()
     al[i] = (uintptr_t)pmm->alloc(2);
     Log("%d times: %p\n", i, al[i]);
   }
-  Log("\n");
+  Log("");
   for (int i = 1; i <= 9; i++)
   {
     pmm->free((void *)al[i]);

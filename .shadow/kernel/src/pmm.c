@@ -108,9 +108,16 @@ static memory_t *memory_from_heap(size_t size)
       }
       else
       {
-        assert(prev != NULL);
-        prev->next = cur->next;
-        cur->next = NULL;
+        if (cur == heap_pool.next)
+        {
+          heap_pool.next = NULL;
+        }
+        else
+        {
+          assert(prev != NULL);
+          prev->next = cur->next;
+          cur->next = NULL;
+        }
       }
       assert(cur != NULL);
       cur->memory_start = (void *)memory_start;

@@ -219,6 +219,7 @@ static void *kalloc_slab(size_t size)
 #ifdef DEAD_LOCK
   Log("spin_lock CPU#%d", cpu);
 #endif
+  assert(cpu == 0);
   spin_lock(&kmem[cpu].lk);
   slab_t *page = kmem[cpu].available_page[slab_index];
   assert(page != NULL);

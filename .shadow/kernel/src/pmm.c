@@ -57,6 +57,8 @@ static void *object_from_slab(slab_t *page)
       }
     }
   }
+  for (int i = 0; i < 64; i++)
+    assert(page->bitset[i] == (int)(-1));
   panic("object_from_slab: should not reach here");
   return NULL;
 }

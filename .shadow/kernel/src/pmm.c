@@ -308,11 +308,15 @@ static void pmm_init()
   uintptr_t pmsize = ((uintptr_t)heap.end - (uintptr_t)heap.start);
   printf("Got %d MiB heap: [%p, %p)\n", pmsize >> 20, heap.start, heap.end);
 
+  Log("begin initial");
+
   memory_t *heap_start = (memory_t *)(heap.start);
   heap_start->next = NULL;
   heap_start->memory_start = (void *)((uintptr_t)heap_start + MEMORY_CONFIG);
   heap_start->memory_size = pmsize - MEMORY_CONFIG;
 
+  Log("end initial");
+  assert(0);
   heap_pool->next = heap_start;
   slab_pool->next = NULL;
 

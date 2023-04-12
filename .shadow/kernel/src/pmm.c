@@ -51,19 +51,6 @@ static void *object_from_slab(slab_t *page)
         setbit(page->bitset[i], j);
         page->object_counter++;
         ret = page->object_start + (32 * i + j) * page->object_size;
-#ifdef DOUBLE_PMM
-        uintptr_t *check = ret;
-        assert(page != NULL);
-        assert((uintptr_t)check < (uintptr_t)heap.end && (uintptr_t)check > (uintptr_t)heap.start);
-        assert(((uintptr_t)page + 8 KB) < (uintptr_t)heap.end);
-        if (page->object_size >= 4)
-        {
-          assert((uintptr_t)check < (uintptr_t)heap.end && (uintptr_t)check > (uintptr_t)heap.start);
-          assert(*check == 0);
-          Log("check=%07p, real=%07p", check, page);
-          *check = MAGIC + 1;
-        }
-#endif
         return ret;
       }
     }
@@ -127,21 +114,6 @@ static memory_t *memory_from_heap(size_t size)
       uintptr_t *magic = (uintptr_t *)(memory_start - sizeof(intptr_t));
       uintptr_t *header = (uintptr_t *)(memory_start - 2 * sizeof(intptr_t));
       *magic = MAGIC, *header = (uintptr_t)cur;
-#ifdef DOUBLE_PMM
-      // assert((uintptr_t)cur->memory_start + cur->memory_size < (uintptr_t)heap.end);
-      // for (uintptr_t i = 0; i < cur->memory_size; i++)
-      // {
-      //   uintptr_t *check = (uintptr_t *)(cur->memory_start + i);
-      //   assert(*check == 0);
-      //   if (*check == MAGIC)
-      //     panic("double alloc");
-      // }
-      // for (uintptr_t i = 0; i < cur->memory_size; i++)
-      // {
-      //   uintptr_t *check = (uintptr_t *)(cur->memory_start + i);
-      //   *check = MAGIC;
-      // }
-#endif
       ret = cur;
     }
   }
@@ -154,21 +126,6 @@ static void memory_to_heap(memory_t *memory)
 {
   spin_lock(&heap_lock);
   assert(memory != NULL);
-#ifdef DOUBLE_PMM
-  // assert((uintptr_t)memory->memory_start + memory->memory_size < (uintptr_t)heap.end);
-  // for (uintptr_t i = 0; i < memory->memory_size; i++)
-  // {
-  //   uintptr_t *check = (uintptr_t *)(memory->memory_start + i);
-  //   assert(*check == MAGIC);
-  //   if (*check == 0)
-  //     panic("double free");
-  // }
-  // for (uintptr_t i = 0; i < memory->memory_size; i++)
-  // {
-  //   uintptr_t *check = (uintptr_t *)(memory->memory_start + i);
-  //   *check = 0;
-  // }
-#endif
   memory->memory_size = (uintptr_t)memory->memory_start + memory->memory_size - (uintptr_t)memory - MEMORY_CONFIG;
   memory->memory_start = (void *)(uintptr_t)memory + MEMORY_CONFIG;
   memory->next = heap_pool.next;
@@ -192,22 +149,6 @@ static void page_to_slab_pool(memory_t *page)
   assert(page != NULL);
   page->next = slab_pool.next;
   slab_pool.next = page;
-#ifdef DOUBLE_PMM
-  // assert((uintptr_t)page->memory_start + 4 KB < (uintptr_t)heap.end);
-  // for (uintptr_t i = 0; i < page->memory_size; i++)
-  // {
-  //   uintptr_t *check = (uintptr_t *)(page->memory_start + i);
-  //   assert(page->memory_size = 4 KB);
-  //   Assert(*check == MAGIC, "check=%07p, start=%07p", *check, page->memory_start);
-  //   if (*check == 0)
-  //     panic("double free");
-  // }
-  // for (uintptr_t i = 0; i < page->memory_size; i++)
-  // {
-  //   uintptr_t *check = (uintptr_t *)(page->memory_start + i);
-  //   *check = 0;
-  // }
-#endif
   spin_unlock(&slab_lock);
 }
 
@@ -222,21 +163,6 @@ static memory_t *page_from_slab_pool()
     assert(ret != NULL);
     slab_pool.next = ret->next;
     ret->next = NULL;
-#ifdef DOUBLE_PMM
-    // assert((uintptr_t)ret->memory_start + ret->memory_size < (uintptr_t)heap.end);
-    // for (uintptr_t i = 0; i < ret->memory_size; i++)
-    // {
-    //   uintptr_t *check = (uintptr_t *)(ret->memory_start + i);
-    //   assert(*check == 0);
-    //   if (*check == MAGIC)
-    //     panic("double alloc");
-    // }
-    // for (uintptr_t i = 0; i < ret->memory_size; i++)
-    // {
-    //   uintptr_t *check = (uintptr_t *)(ret->memory_start + i);
-    //   *check = MAGIC;
-    // }
-#endif
     spin_unlock(&slab_lock);
   }
   else
@@ -358,12 +284,6 @@ static void kfree_slab(slab_t *page, void *ptr)
   int i = offset / 32, j = offset % 32;
   assert(getbit(page->bitset[i], j) == 1);
   clrbit(page->bitset[i], j);
-#ifdef DOUBLE_PMM
-  uintptr_t *check = (uintptr_t *)((uintptr_t)page->object_start + (32 * i + j) * page->object_size);
-  // assert((uintptr_t)check < (uintptr_t)heap.end && (uintptr_t)check > (uintptr_t)heap.start);
-  // assert(*check == MAGIC);
-  *check = 0;
-#endif
   if (page->object_counter == 0)
   {
     int slab_index = match_slab_type(page->object_size);
@@ -447,9 +367,6 @@ static void pmm_init()
 
   uintptr_t pmsize = ((uintptr_t)heap.end - (uintptr_t)heap.start);
   printf("Got %d MiB heap: [%p, %p)\n", pmsize >> 20, heap.start, heap.end);
-#ifdef DOUBLE_PMM
-  memset(heap.start, 0, pmsize);
-#endif
   memory_t *heap_start = (memory_t *)(heap.start);
   assert(heap_start != NULL);
   heap_start->next = NULL;

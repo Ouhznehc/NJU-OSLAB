@@ -190,9 +190,9 @@ static memory_t *page_from_slab_pool()
     Log("6");
     spin_unlock(&slab_lock);
     ret = page_from_heap_pool();
-    Log("6");
     assert(*(uintptr_t *)(ret->memory_start - sizeof(uintptr_t)) == MAGIC);
     assert(*(uintptr_t *)(ret->memory_start - 2 * sizeof(uintptr_t)) == (uintptr_t)ret);
+    Log("6");
   }
   Log("5");
   return ret;

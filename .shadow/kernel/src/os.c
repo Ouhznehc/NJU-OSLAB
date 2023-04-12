@@ -35,6 +35,7 @@ static void os_run()
         size = 1 << (size % 10);
       else if (size != 19)
         size = 4096;
+      Log("os : alloc %dB", size);
       alloc[pos] = (uintptr_t)pmm->alloc(size);
       if (alloc[pos] == 0)
       {

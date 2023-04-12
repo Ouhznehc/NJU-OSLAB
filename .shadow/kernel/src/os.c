@@ -83,6 +83,7 @@ static void os_run()
   for (int i = 1; i <= 9; i++)
   {
     pmm->free((void *)al[i]);
+    Log("try");
     Log("%d times: %p\n", i, (uintptr_t)pmm->alloc(1024));
   }
   while (1)

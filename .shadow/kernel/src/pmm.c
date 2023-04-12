@@ -190,13 +190,13 @@ static void *kmalloc_slab(size_t size)
 {
   void *ret = NULL;
   int cpu = cpu_current(), slab_index = match_slab_type(size);
-  Assert(cpu == 0, "cpu = %d", cpu);
   spin_lock(&kmem[cpu].lk);
   slab_t *page = kmem[cpu].available_page[slab_index];
   if (page->object_counter < page->object_capacity)
     ret = object_from_slab(page);
   else
   {
+    Assert(cpu == 0, "cpu = %d", cpu);
     Assert(kmem[cpu].slab_list[slab_index] != NULL, "kmem[cpu].slab_list[slab_index] == NULL: cpu=%d, slab=%d", cpu, slab_type[slab_index]);
     page = kmem[cpu].slab_list[slab_index]->next;
     assert(page->object_counter <= page->object_capacity);

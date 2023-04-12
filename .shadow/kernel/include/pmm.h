@@ -34,7 +34,7 @@ typedef union slab_t
     int object_counter;
     int object_capacity;
     void *object_start;
-    int bitset[64]; // each bit stand for the existence of object
+    int bitset[88]; // each bit stand for the existence of object
   };
   uint8_t data[SLAB_SIZE];
 } slab_t;

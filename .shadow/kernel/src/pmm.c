@@ -67,12 +67,12 @@ static memory_t *memory_from_heap(size_t size)
   else
   {
     memory_t *cur = heap_pool.next, *prev = NULL;
-    while (((uintptr_t)cur->memory_start + cur->memory_size < align_address(cur->memory_start, size) + size) && cur->next != NULL)
+    while (cur != NULL && ((uintptr_t)cur->memory_start + cur->memory_size < align_address(cur->memory_start, size) + size))
     {
       prev = cur;
       cur = cur->next;
     }
-    if (cur->next == NULL)
+    if (cur == NULL)
       ret = NULL;
     else
     {
@@ -142,7 +142,6 @@ static memory_t *page_from_slab_pool()
   {
     spin_unlock(&slab_lock);
     ret = page_from_heap_pool();
-    assert(ret != NULL);
   }
   return ret;
 }

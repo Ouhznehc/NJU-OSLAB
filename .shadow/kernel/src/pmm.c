@@ -191,6 +191,7 @@ static memory_t *page_from_slab_pool()
     spin_unlock(&slab_lock);
     ret = page_from_heap_pool();
     Log("6");
+    assert(ret != NULL);
     Log("ret->memory_start = %07p", ret->memory_start);
     assert(*(uintptr_t *)(ret->memory_start - sizeof(uintptr_t)) == MAGIC);
     assert(*(uintptr_t *)(ret->memory_start - 2 * sizeof(uintptr_t)) == (uintptr_t)ret);

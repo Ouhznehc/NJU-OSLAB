@@ -162,6 +162,7 @@ static memory_t *page_from_slab_pool()
   spin_lock(&slab_lock);
   if (slab_pool.next != NULL)
   {
+    Log("slab alloc");
     ret = slab_pool.next;
     assert(ret != NULL);
     slab_pool.next = ret->next;
@@ -170,6 +171,7 @@ static memory_t *page_from_slab_pool()
   }
   else
   {
+    Log("heap alloc");
     spin_unlock(&slab_lock);
     ret = page_from_heap_pool();
   }

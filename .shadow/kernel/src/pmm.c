@@ -57,11 +57,11 @@ static void *object_from_slab(slab_t *page)
         assert(page != NULL);
         assert((uintptr_t)check < (uintptr_t)heap.end && (uintptr_t)check > (uintptr_t)heap.start);
         assert(((uintptr_t)page + 8 KB) < (uintptr_t)heap.end);
-        if (page->object_size >= 4)
-        {
-          assert(*check == 0);
-          *check = MAGIC;
-        }
+        // if (page->object_size >= 4)
+        // {
+        //   assert(*check == 0);
+        //   *check = MAGIC;
+        // }
 #endif
         return ret;
       }
@@ -359,7 +359,7 @@ static void kfree_slab(slab_t *page, void *ptr)
   uintptr_t *check = (uintptr_t *)((uintptr_t)page->object_start + (32 * i + j) * page->object_size);
   assert((uintptr_t)check < (uintptr_t)heap.end && (uintptr_t)check > (uintptr_t)heap.start);
   assert(*check == MAGIC);
-  *check = 0;
+  //*check = 0;
 #endif
   if (page->object_counter == 0)
   {

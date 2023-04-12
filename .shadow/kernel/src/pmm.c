@@ -293,9 +293,6 @@ static void slab_init()
   {
     init_lock(&kmem[cpu].lk, "cpu");
 
-    Log("end initial");
-    assert(0);
-
     for (int slab = 0; slab < SLAB_TYPE; slab++)
     {
       fetch_page_to_slab(slab, cpu);
@@ -321,7 +318,8 @@ static void pmm_init()
 
   heap_pool->next = heap_start;
   slab_pool->next = NULL;
-
+  Log("end initial");
+  assert(0);
   slab_init();
 }
 

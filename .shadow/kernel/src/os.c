@@ -16,6 +16,7 @@ spinlock_t lk[100005], plock;
 uintptr_t alloc[100005];
 static void os_run()
 {
+  int now = cpu_current();
   while (1)
   {
     int pos = (rand() * rand()) % 10000;

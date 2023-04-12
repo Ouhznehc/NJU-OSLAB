@@ -18,7 +18,7 @@
      (type *)( (char *)__mptr - offsetof(type,member) );})
 #define setbit(x,pos)  ((x) |=  (1<<(pos)))     
 #define clrbit(x,pos)  ((x) &= ~(1<<(pos)))   
-#define getbit(x,pos)  ((x) >> (pos) & 1) 
+#define getbit(x,pos)  (((x) >> (pos)) & 1) 
 
 typedef struct list_t
 {

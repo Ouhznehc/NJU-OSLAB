@@ -97,6 +97,7 @@ static memory_t *memory_from_heap(size_t size)
       uintptr_t remain_space = (uintptr_t)cur->memory_start + cur->memory_size - size - memory_start;
       if (remain_space >= 8 KB)
       {
+        assert(remain_space % 8 KB == 0);
         memory_t *new_memory = (memory_t *)(memory_start + size);
         assert(new_memory != NULL);
         new_memory->memory_start = (void *)((uintptr_t)new_memory + MEMORY_CONFIG);

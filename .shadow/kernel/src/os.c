@@ -28,7 +28,6 @@ static void os_run()
   {
     int pos = (rand() * rand()) % 10000;
     Log("");
-    Log("pos %d", pos);
     spin_lock(&lk[pos]);
     if (alloc[pos] == 0)
     {
@@ -56,7 +55,7 @@ static void os_run()
         }
         num[pos] = size;
         memset((void *)alloc[pos], -1, size);
-        Log("CPU #%d alloc at %07p", now, alloc[pos]);
+        Log("CPU #%d alloc at %07p with pos = %d", now, alloc[pos], pos);
       }
     }
     else
@@ -71,7 +70,7 @@ static void os_run()
           panic("double free");
       }
       memset((void *)alloc[pos], 0, num[pos]);
-      Log("CPU #%d free at %p", now, alloc[pos]);
+      Log("CPU #%d free at %p with pos = %d", now, alloc[pos], pos);
       alloc[pos] = 0;
       num[pos] = 0;
     }

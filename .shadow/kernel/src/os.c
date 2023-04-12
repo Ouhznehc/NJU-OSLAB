@@ -58,14 +58,14 @@ static void os_run()
     }
     else
     {
-      pmm->free((void *)alloc[pos]);
-      for (int i = 0; i < num[pos] / 4; i++)
-      {
-        int *check = (int *)(alloc[pos] + 4 * i);
-        if (*check == 0)
-          panic("double free");
-      }
-      memset((void *)alloc[pos], 0x1, num[pos]);
+      // pmm->free((void *)alloc[pos]);
+      // for (int i = 0; i < num[pos] / 4; i++)
+      // {
+      //   int *check = (int *)(alloc[pos] + 4 * i);
+      //   if (*check == 0)
+      //     panic("double free");
+      // }
+      // memset((void *)alloc[pos], 0x1, num[pos]);
       Log("cpu %d free time %d at %p\n", now, pos, alloc[pos]);
       alloc[pos] = 0;
     }

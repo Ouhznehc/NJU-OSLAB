@@ -315,7 +315,7 @@ static void *kalloc(size_t size)
     return NULL;
   void *ret = NULL;
   size = align_size(size);
-  Log("try alloc size=%d", size);
+  Log("CPU #%d try alloc size=%d", size, cpu_current());
   if (size > 4 KB)
   {
     ret = kalloc_large(size);
@@ -329,7 +329,7 @@ static void *kalloc(size_t size)
     ret = kalloc_slab(size);
   }
   if (ret != NULL)
-    Log("success alloc from %07p to %07p", ret, ret + size);
+    Log("CPU #%d success alloc from %07p to %07p", cpu_current(), ret, ret + size);
   return ret;
 }
 

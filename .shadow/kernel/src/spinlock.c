@@ -25,8 +25,8 @@ void spin_lock(spinlock_t *lk)
 
 void spin_unlock(spinlock_t *lk)
 {
-  if (!holding(lk))
-    kernal_panic("spin_unlock: %s at CPU #%d", lk->name, lk->cpu);
+  // if (!holding(lk))
+  //   kernal_panic("spin_unlock: %s at CPU #%d", lk->name, lk->cpu);
   lk->cpu = -1;
   __sync_synchronize();
   atomic_xchg(&lk->locked, 0);

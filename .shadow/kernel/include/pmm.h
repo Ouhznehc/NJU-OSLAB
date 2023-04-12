@@ -47,11 +47,15 @@ typedef struct kmem_cache
   size_t free_slab[SLAB_TYPE]; // the number of freepage in each slab
 } kmem_cache;
 
-typedef struct memory_t
+typedef union memory_t
 {
-  struct memory_t *next;
-  void *memory_start;
-  size_t memory_size;
+  struct
+  {
+    union memory_t *next;
+    void *memory_start;
+    size_t memory_size;
+  };
+  uint8_t junk[SLAB_CONFIG];
 } memory_t;
 
 #endif

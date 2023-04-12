@@ -323,6 +323,7 @@ static void *kalloc(size_t size)
     Log("3");
     ret = kalloc_slab(size);
     Log("3");
+    Log("fuck");
   }
   Log("end alloc");
   return ret;

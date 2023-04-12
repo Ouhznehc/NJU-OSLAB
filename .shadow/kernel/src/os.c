@@ -43,17 +43,17 @@ static void os_run()
         spin_unlock(&lk[pos]);
         continue;
       }
-      // else
-      // {
-      //   for (int i = 0; i < size / 4; i++)
-      //   {
-      //     int *check = (int *)(alloc[pos] + 4 * i);
-      //     if (*check == MAGIC)
-      //       panic("double alloc");
-      //   }
-      //   num[pos] = size;
-      //   memset((void *)alloc[pos], MAGIC, size);
-      // }
+      else
+      {
+        for (int i = 0; i < size / 4; i++)
+        {
+          int *check = (int *)(alloc[pos] + 4 * i);
+          if (*check == MAGIC)
+            panic("double alloc");
+        }
+        num[pos] = size;
+        memset((void *)alloc[pos], MAGIC, size);
+      }
     }
     else
     {

@@ -160,13 +160,11 @@ static slab_t *fetch_page_to_slab(int slab_index, int cpu)
   slab_t *page = (slab_t *)page_from_slab_pool();
   if (page == NULL)
     return NULL;
-  Log("lock");
   // spin_lock(&kmem[cpu].lk);
   memset(page, 0, sizeof(slab_t));
   page->next = kmem[cpu].slab_list[slab_index].next;
   kmem[cpu].slab_list[slab_index].next = page;
   kmem[cpu].available_page[slab_index] = page;
-  Log("unlock");
   // spin_unlock(&kmem[cpu].lk);
   page->object_size = slab_type[slab_index];
   page->cpu = cpu;
@@ -192,7 +190,6 @@ static void *kmalloc_slab(size_t size)
 {
   void *ret = NULL;
   int cpu = cpu_current(), slab_index = match_slab_type(size);
-  Log("lock");
   spin_lock(&kmem[cpu].lk);
   slab_t *page = kmem[cpu].available_page[slab_index];
   if (page->object_counter < page->object_capacity)
@@ -225,7 +222,6 @@ static void *kmalloc_slab(size_t size)
       ret = object_from_slab(page);
     }
   }
-  Log("unlock");
   spin_unlock(&kmem[cpu].lk);
   return ret;
 }
@@ -240,7 +236,6 @@ static void kfree_large(memory_t *memory)
 
 static void kfree_slab(slab_t *page, void *ptr)
 {
-  Log("lock");
   spin_lock(&kmem[page->cpu].lk);
   int offset = (ptr - page->object_start) / page->object_size;
   int i = offset / 32, j = offset % 32;
@@ -252,7 +247,6 @@ static void kfree_slab(slab_t *page, void *ptr)
     kmem[page->cpu].free_slab[slab_index]++;
   }
   // Log("success free %07p", ptr);
-  Log("unlock");
   spin_unlock(&kmem[page->cpu].lk);
 }
 
@@ -325,8 +319,6 @@ static void pmm_init()
 
   uintptr_t pmsize = ((uintptr_t)heap.end - (uintptr_t)heap.start);
   printf("Got %d MiB heap: [%p, %p)\n", pmsize >> 20, heap.start, heap.end);
-
-  Log("begin initial");
 
   memory_t *heap_start = (memory_t *)(heap.start);
   heap_start->next = NULL;

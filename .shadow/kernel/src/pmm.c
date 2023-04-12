@@ -1,5 +1,7 @@
 #include <common.h>
 
+#define DEAD_LOCK
+#define DOUBLE_PMM
 static spinlock_t heap_lock;
 static spinlock_t slab_lock;
 static memory_t heap_pool;
@@ -102,7 +104,7 @@ static memory_t *memory_from_heap(size_t size)
       uintptr_t *magic = (uintptr_t *)(memory_start - sizeof(intptr_t));
       uintptr_t *header = (uintptr_t *)(memory_start - 2 * sizeof(intptr_t));
       *magic = MAGIC, *header = (uintptr_t)cur;
-#ifdef __DEBUG_MODE__
+#ifdef DOUBLE_PMM
       for (uintptr_t i = 0; i < cur->memory_size; i++)
       {
         uintptr_t *check = (uintptr_t *)(memory_start + i);
@@ -127,7 +129,7 @@ static memory_t *memory_from_heap(size_t size)
 static void memory_to_heap(memory_t *memory)
 {
   spin_lock(&heap_lock);
-#ifdef __DEBUG_MODE__
+#ifdef DOUBLE_PMM
   for (uintptr_t i = 0; i < memory->memory_size; i++)
   {
     uintptr_t *check = (uintptr_t *)(memory->memory_start + i);
@@ -158,7 +160,7 @@ static void page_to_slab_pool(memory_t *page)
   spin_lock(&slab_lock);
   page->next = slab_pool.next;
   slab_pool.next = page;
-#ifdef __DEBUG_MODE__
+#ifdef DOUBLE_PMM
   for (uintptr_t i = 0; i < page->memory_size; i++)
   {
     uintptr_t *check = (uintptr_t *)(page->memory_start + i);
@@ -183,7 +185,7 @@ static memory_t *page_from_slab_pool()
   {
     ret = slab_pool.next;
     slab_pool.next = ret->next;
-#ifdef __DEBUG_MODE__
+#ifdef DOUBLE_PMM
     for (uintptr_t i = 0; i < ret->memory_size; i++)
     {
       uintptr_t *check = (uintptr_t *)(ret->memory_start + i);
@@ -242,7 +244,9 @@ static void *kmalloc_slab(size_t size)
 {
   void *ret = NULL;
   int cpu = cpu_current(), slab_index = match_slab_type(size);
+#ifdef DEAD_LOCK
   Log("spin_lock CPU#%d", cpu);
+#endif
   spin_lock(&kmem[cpu].lk);
   slab_t *page = kmem[cpu].available_page[slab_index];
   if (page->object_counter < page->object_capacity)
@@ -275,7 +279,9 @@ static void *kmalloc_slab(size_t size)
       ret = object_from_slab(page);
     }
   }
+#ifdef DEAD_LOCK
   Log("spin_unlock CPU#%d", cpu);
+#endif
   spin_unlock(&kmem[cpu].lk);
   return ret;
 }
@@ -290,7 +296,9 @@ static void kfree_large(memory_t *memory)
 
 static void kfree_slab(slab_t *page, void *ptr)
 {
-  Log("spin_lock CPU#%d", page->cpu);
+#ifdef DEAD_LOCK
+  Log("spin_unlock CPU#%d", page->cpu);
+#endif
   spin_lock(&kmem[page->cpu].lk);
   int offset = (ptr - page->object_start) / page->object_size;
   int i = offset / 32, j = offset % 32;
@@ -301,8 +309,10 @@ static void kfree_slab(slab_t *page, void *ptr)
     int slab_index = match_slab_type(page->object_size);
     kmem[page->cpu].free_slab[slab_index]++;
   }
-  // Log("success free %07p", ptr);
+// Log("success free %07p", ptr);
+#ifdef DEAD_LOCK
   Log("spin_unlock CPU#%d", page->cpu);
+#endif
   spin_unlock(&kmem[page->cpu].lk);
 }
 

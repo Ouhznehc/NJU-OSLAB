@@ -49,6 +49,7 @@ static void os_run()
         for (int i = 0; i < size / 4; i++)
         {
           int *check = (int *)(alloc[pos] + 4 * i);
+          assert(*check == 0);
           Assert(*check == 0, "check alloc=%07p", *check);
           if (*check == -1)
             panic("double alloc");

@@ -4,18 +4,19 @@
 spinlock_t debug_lk;
 #endif
 
-
-static void os_init() {
-  #ifdef __DEBUG_MODE__
+static void os_init()
+{
+#ifdef __DEBUG_MODE__
   init_lock(&debug_lk, "debug_lk");
-  #endif
+#endif
   pmm->init();
-}    
+}
 
 spinlock_t lk[100005], plock;
 uintptr_t alloc[100005];
-static void os_run() {
-  int now = cpu_current();
+static void os_run()
+{
+  // int now = cpu_current();
   // int s = 0, maxx = 0;
   while (1)
   {
@@ -80,12 +81,13 @@ static void os_run() {
   {
     pmm->free((void *)al[i]);
     Log("%p\n", (uintptr_t)pmm->alloc(1024));
-  // }
-  while(1);
+    // }
+    while (1)
+      ;
   }
-}                    
-        
+}
+
 MODULE_DEF(os) = {
-  .init = os_init,
-  .run  = os_run,
+    .init = os_init,
+    .run = os_run,
 };

@@ -51,11 +51,11 @@ static void os_run()
         {
           int *check = (int *)(alloc[pos] + 4 * i);
           Assert(*check == 0, "check alloc=%07p", *check);
-          if (*check == MAGIC + 1)
+          if (*check == -1)
             panic("double alloc");
         }
         num[pos] = size;
-        memset((void *)alloc[pos], MAGIC + 1, size);
+        memset((void *)alloc[pos], -1, size);
       }
     }
     else
@@ -65,7 +65,7 @@ static void os_run()
       for (int i = 0; i < num[pos] / 4; i++)
       {
         int *check = (int *)(alloc[pos] + 4 * i);
-        Assert(*check == MAGIC + 1, "check free=%07p, %07p", *check, MAGIC + 1);
+        Assert(*check == -1, "check free=%07p, %07p", *check, MAGIC + 1);
         if (*check == 0)
           panic("double free");
       }

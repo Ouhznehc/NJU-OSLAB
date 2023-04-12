@@ -242,6 +242,7 @@ static void *kmalloc_slab(size_t size)
 {
   void *ret = NULL;
   int cpu = cpu_current(), slab_index = match_slab_type(size);
+  Log("spin_lock CPU#%d", cpu);
   spin_lock(&kmem[cpu].lk);
   slab_t *page = kmem[cpu].available_page[slab_index];
   if (page->object_counter < page->object_capacity)
@@ -274,6 +275,7 @@ static void *kmalloc_slab(size_t size)
       ret = object_from_slab(page);
     }
   }
+  Log("spin_unlock CPU#%d", cpu);
   spin_unlock(&kmem[cpu].lk);
   return ret;
 }
@@ -288,6 +290,7 @@ static void kfree_large(memory_t *memory)
 
 static void kfree_slab(slab_t *page, void *ptr)
 {
+  Log("spin_lock CPU#%d", page->cpu);
   spin_lock(&kmem[page->cpu].lk);
   int offset = (ptr - page->object_start) / page->object_size;
   int i = offset / 32, j = offset % 32;
@@ -299,6 +302,7 @@ static void kfree_slab(slab_t *page, void *ptr)
     kmem[page->cpu].free_slab[slab_index]++;
   }
   // Log("success free %07p", ptr);
+  Log("spin_unlock CPU#%d", page->cpu);
   spin_unlock(&kmem[page->cpu].lk);
 }
 

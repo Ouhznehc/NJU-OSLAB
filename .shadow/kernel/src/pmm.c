@@ -162,8 +162,8 @@ static slab_t *fetch_page_to_slab(int slab_index, int cpu)
     return NULL;
   spin_lock(&kmem[cpu].lk);
   memset(page, 0, sizeof(slab_t));
-  page->next = kmem[cpu].slab_list[slab_index]->next;
-  kmem[cpu].slab_list[slab_index]->next = page;
+  page->next = kmem[cpu].slab_list[slab_index].next;
+  kmem[cpu].slab_list[slab_index].next = page;
   kmem[cpu].available_page[slab_index] = page;
   spin_unlock(&kmem[cpu].lk);
   page->object_size = slab_type[slab_index];
@@ -190,7 +190,6 @@ static void *kmalloc_slab(size_t size)
 {
   void *ret = NULL;
   int cpu = cpu_current(), slab_index = match_slab_type(size);
-  Log("address = %07p %d %d", kmem[cpu].slab_list[slab_index], cpu, slab_index);
   spin_lock(&kmem[cpu].lk);
   slab_t *page = kmem[cpu].available_page[slab_index];
   Log("countewr = %d", page->object_counter);
@@ -198,11 +197,7 @@ static void *kmalloc_slab(size_t size)
     ret = object_from_slab(page);
   else
   {
-    Assert(cpu == 0, "cpu = %d", cpu);
-    Log("cpu = %d, slab=%d", cpu, slab_index);
-    // Log("address = %07p", kmem[cpu].slab_list[slab_index]);
-    Assert(kmem[cpu].slab_list[slab_index] != NULL, "kmem[cpu].slab_list[slab_index] == NULL: cpu=%d, slab=%d", cpu_current(), slab_index);
-    page = kmem[cpu].slab_list[slab_index]->next;
+    page = kmem[cpu].slab_list[slab_index].next;
     assert(page->object_counter <= page->object_capacity);
     while (page->object_counter == page->object_capacity && page->next != NULL)
     {

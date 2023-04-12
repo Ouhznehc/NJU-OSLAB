@@ -166,6 +166,7 @@ static void page_to_slab_pool(memory_t *page)
   for (uintptr_t i = 0; i < page->memory_size; i++)
   {
     uintptr_t *check = (uintptr_t *)(page->memory_start + i);
+    assert(*check == MAGIC);
     if (*check == 0)
       panic("double free");
   }
@@ -191,6 +192,7 @@ static memory_t *page_from_slab_pool()
     for (uintptr_t i = 0; i < ret->memory_size; i++)
     {
       uintptr_t *check = (uintptr_t *)(ret->memory_start + i);
+      assert(*check == 0);
       if (*check == MAGIC)
         panic("double alloc");
     }

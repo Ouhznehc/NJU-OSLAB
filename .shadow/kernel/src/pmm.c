@@ -102,6 +102,15 @@ static memory_t *memory_from_heap(size_t size)
       uintptr_t *magic = (uintptr_t *)(memory_start - sizeof(intptr_t));
       uintptr_t *header = (uintptr_t *)(memory_start - 2 * sizeof(intptr_t));
       *magic = MAGIC, *header = (uintptr_t)cur;
+      for (uintptr_t i = 0; i < cur->memory_size; i++)
+      {
+        if (*(int *)(cur->memory_start + i) == MAGIC)
+          panic("double alloc");
+      }
+      for (uintptr_t i = 0; i < cur->memory_size; i++)
+      {
+        *(int *)(cur->memory_start + i) = MAGIC;
+      }
       ret = cur;
     }
   }

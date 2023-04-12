@@ -32,12 +32,12 @@ static void os_run()
         size = 1 << (size % 10);
       else if (size != 19)
         size = 4096;
-      Log("pos=%d", pos);
       alloc[pos] = (uintptr_t)pmm->alloc(size);
       if (alloc[pos] == 0)
       {
         Log("no more space\n");
         spin_unlock(&lk[pos]);
+        Log("pos=%d", pos);
         continue;
       }
       Log("cpu %d alloc at %p with %dB\n", now, alloc[pos], size);

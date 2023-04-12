@@ -312,7 +312,7 @@ static void kfree_slab(slab_t *page, void *ptr)
 #ifdef DOUBLE_PMM
   uintptr_t *check = (page->object_start + (32 * i + j) * page->object_size);
   assert(*check == MAGIC);
-
+  *check = 0;
 #endif
   if (page->object_counter == 0)
   {

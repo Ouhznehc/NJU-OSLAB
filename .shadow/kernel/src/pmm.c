@@ -1,6 +1,6 @@
 #include <common.h>
 
-#define DEAD_LOCK
+// #define DEAD_LOCK
 static spinlock_t heap_lock;
 static spinlock_t slab_lock;
 static memory_t heap_pool;
@@ -304,7 +304,6 @@ static void kfree_slab(slab_t *page, void *ptr)
   int i = offset / 32, j = offset % 32;
   assert(getbit(page->bitset[i], j) == 1);
   clrbit(page->bitset[i], j);
-// Log("success free %07p", ptr);
 #ifdef DEAD_LOCK
   Log("spin_unlock CPU#%d", page->cpu);
 #endif

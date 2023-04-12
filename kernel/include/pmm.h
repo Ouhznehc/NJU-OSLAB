@@ -12,13 +12,28 @@
 // #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
 
 // get struct entry
-// #define  container_of(ptr, type, member) ({    \
-//      const typeof( ((type *)0)->member ) *__mptr = (ptr); \
-//      (type *)( (char *)__mptr - offsetof(type,member) );})
+#define  container_of(ptr, type, member) ({    \
+     const typeof( ((type *)0)->member ) *__mptr = (ptr); \
+     (type *)( (char *)__mptr - offsetof(type,member) );})
 
 #define setbit(x, pos) ((x) |= (1 << (pos)))
 #define clrbit(x, pos) ((x) &= ~(1 << (pos)))
 #define getbit(x, pos) (((x) >> (pos)) & 1)
+
+typedef union slab_t
+{
+  struct
+  {
+    int cpu;
+    union slab_t *next;
+    size_t object_size; // "0" means free page
+    int object_counter;
+    int object_capacity;
+    void *object_start;
+    int bitset[32]; // each bit stand for the existence of object
+  };
+  uint8_t data[SLAB_SIZE];
+} slab_t;
 
 typedef struct kmem_cache
 {
@@ -29,29 +44,14 @@ typedef struct kmem_cache
   size_t free_slab[SLAB_TYPE]; // the number of freepage in each slab
 } kmem_cache;
 
-typedef union slab_t
-{
-  struct
-  {
-    int cpu;
-    slab_t *next;
-    size_t object_size; // "0" means free page
-    int object_counter;
-    int object_capacity;
-    void *object_start;
-    int bitset[32]; // each bit stand for the existence of object
-  };
-  uint8_t data[SLAB_SIZE];
-} slab_t;
-
 typedef struct page_t
 {
-  page_t *next;
+  struct page_t *next;
 }page_t;
 
 typedef struct memory_t
 {
-  memory_t *next;
+  struct memory_t *next;
   void *memory_start;
   size_t memory_size;
 

@@ -25,9 +25,9 @@ static inline size_t align_size(size_t size)
     return (1 << (msb + 1));
 }
 
-static inline size_t align_address(size_t address, size_t size)
+static inline uintptr_t align_address(void *address, size_t size)
 {
-  return ROUNDUP(address, size);
+  return ROUNDUP((uintptr_t)address, size);
 }
 
 static void *object_from_slab(slab_t *page)
@@ -60,11 +60,50 @@ static void *object_from_slab(slab_t *page)
 // get memory from heap with size
 static memory_t *memory_from_heap(size_t size)
 {
-  TODO();
+  memory_t *ret = NULL;
+  spin_lock(&heap_lock);
+  if (heap_pool->next == NULL)
+    ret = NULL;
+  else
+  {
+    memory_t *cur = heap_pool->next, *prev = NULL;
+    while (((uintptr_t)cur->memory_start + cur->memory_size < align_address(cur->memory_start, size) + size) && cur->next != NULL)
+    {
+      prev = cur;
+      cur = cur->next;
+    }
+    if (cur->next == NULL)
+      ret = NULL;
+    else
+    {
+      uintptr_t memory_start = align_address(cur->memory_start, size);
+      uintptr_t remain_space = (uintptr_t)cur->memory_start + cur->memory_size - size - memory_start;
+      if (remain_space >= 8 KB)
+      {
+        memory_t *new_memory = (memory_t *)(memory_start + size);
+        new_memory->memory_start = (void *)((uintptr_t)new_memory + MEMORY_CONFIG);
+        new_memory->memory_size = remain_space - MEMORY_CONFIG;
+        new_memory->next = cur->next;
+        prev->next = new_memory;
+      }
+      else
+      {
+        prev->next = cur->next;
+      }
+      cur->memory_start = (void *)memory_start;
+      cur->memory_size = size;
+      uintptr_t *magic = (uintptr_t *)(memory_start - sizeof(intptr_t));
+      uintptr_t *header = (uintptr_t *)(memory_start - 2 * sizeof(intptr_t));
+      *magic = MAGIC, *header = (uintptr_t)cur;
+      ret = cur;
+    }
+  }
+  spin_unlock(&heap_lock);
+  return ret;
 }
 
 // free memoru to heap
-static bool memory_to_heap(memory_t *memory)
+static void memory_to_heap(memory_t *memory)
 {
   TODO();
 }
@@ -73,6 +112,11 @@ static bool memory_to_heap(memory_t *memory)
 static memory_t *page_from_heap_pool()
 {
   return memory_from_heap(4 KB);
+}
+
+static void page_to_slab_pool()
+{
+  TODO();
 }
 
 // get one page from slab_pool
@@ -169,7 +213,10 @@ static void *kmalloc_slab(size_t size)
 
 static void kfree_large(memory_t *memory)
 {
-  return (void)memory_to_heap(memory);
+  if (memory->memory_size == 4 KB)
+    return page_to_slab_pool(memory);
+  else
+    return memory_to_heap(memory);
 }
 
 static void kfree_slab(slab_t *page, void *ptr)
@@ -206,13 +253,13 @@ static void *kalloc(size_t size)
 
 static inline int fetch_magic(void *ptr)
 {
-  return *(int *)((uintptr_t)ptr - 4);
+  return *(int *)((uintptr_t)ptr - sizeof(intptr_t));
 }
 
 static inline void *fetch_header(void *ptr, int magic)
 {
   if (magic == MAGIC)
-    return (void *)(*(size_t *)((uintptr_t)ptr - 8));
+    return (void *)(*(size_t *)((uintptr_t)ptr - 2 * sizeof(intptr_t)));
   else
     return (void *)((uintptr_t)ptr & SLAB_MASK);
 }

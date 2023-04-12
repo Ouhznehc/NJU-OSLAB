@@ -70,7 +70,7 @@ static void os_run()
           panic("double free");
       }
       memset((void *)alloc[pos], 0, num[pos]);
-      Log("cpu %d free time %d at %p\n", now, pos, alloc[pos]);
+      Log("cpu %d free time %d at %p", now, pos, alloc[pos]);
       alloc[pos] = 0;
       num[pos] = 0;
     }

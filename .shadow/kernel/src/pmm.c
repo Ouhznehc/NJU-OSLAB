@@ -60,7 +60,7 @@ static void *object_from_slab(slab_t *page)
         if (page->object_size >= 4)
         {
           // assert(*check == 0);
-          *check = MAGIC;
+          // *check = MAGIC;
         }
 #endif
         return ret;

@@ -6,7 +6,7 @@ static spinlock_t slab_lock;
 static memory_t heap_pool;
 static memory_t slab_pool;
 static kmem_cache kmem[MAX_CPU];
-int slab_type[SLAB_TYPE] = {8, 16, 32, 64, 128, 256, 512, 1024, 2048};
+int slab_type[SLAB_TYPE] = {2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048};
 
 static inline int match_slab_type(size_t size)
 {
@@ -35,7 +35,7 @@ static void *object_from_slab(slab_t *page)
 {
   void *ret = NULL;
   assert(page != NULL);
-  for (int i = 0; i < 32; i++)
+  for (int i = 0; i < 64; i++)
   {
     if (page->bitset[i] == (int)(-1))
       continue;
@@ -187,7 +187,7 @@ static slab_t *fetch_page_to_slab(int slab_index, int cpu)
   page->object_capacity = (SLAB_SIZE - SLAB_CONFIG) / page->object_size;
   page->object_start = (page->object_size < SLAB_CONFIG) ? (void *)page + SLAB_CONFIG : (void *)page + page->object_size;
   assert(page->object_counter == 0);
-  for (int i = 0; i < 32; i++)
+  for (int i = 0; i < 64; i++)
     assert(page->bitset[i] == 0);
   return page;
 }

@@ -33,7 +33,7 @@ static void os_run()
     {
       int size = rand() % 20;
       if (size < 16)
-        size = 1 << (size % 10 + 2);
+        size = 1 << (size % 10 + 13);
       else if (size != 19)
         size = 4096;
       alloc[pos] = (uintptr_t)pmm->alloc(size);

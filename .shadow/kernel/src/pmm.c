@@ -316,7 +316,7 @@ static void pmm_init()
   heap_start->memory_size = pmsize - MEMORY_CONFIG;
 
   Log("end initial");
-  assert(0);
+  // assert(0);
   heap_pool->next = heap_start;
   slab_pool->next = NULL;
 

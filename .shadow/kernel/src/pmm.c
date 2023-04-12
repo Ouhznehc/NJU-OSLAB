@@ -105,7 +105,12 @@ static memory_t *memory_from_heap(size_t size)
 // free memoru to heap
 static void memory_to_heap(memory_t *memory)
 {
-  TODO();
+  spin_lock(&heap_lock);
+  memory->memory_size = (uintptr_t)memory->memory_start + memory->memory_size - (uintptr_t)memory - MEMORY_CONFIG;
+  memory->memory_start = (void *)(uintptr_t)memory + MEMORY_CONFIG;
+  memory->next = heap_pool->next;
+  heap_pool->next = memory;
+  spin_unlock(&heap_lock);
 }
 
 // get one page from heap_pool to slab_pool
@@ -114,9 +119,12 @@ static memory_t *page_from_heap_pool()
   return memory_from_heap(4 KB);
 }
 
-static void page_to_slab_pool()
+static void page_to_slab_pool(memory_t *page)
 {
-  TODO();
+  spin_lock(&slab_lock);
+  page->next = slab_pool->next;
+  slab_pool->next = page;
+  spin_unlock(&slab_lock);
 }
 
 // get one page from slab_pool

@@ -24,7 +24,6 @@ static void os_run()
   while (1)
   {
     int pos = (rand() * rand()) % 10000;
-    Log("pos=%d", pos);
     spin_lock(&lk[pos]);
     if (alloc[pos] == 0)
     {
@@ -33,6 +32,7 @@ static void os_run()
         size = 1 << (size % 10);
       else if (size != 19)
         size = 4096;
+      Log("pos=%d", pos);
       alloc[pos] = (uintptr_t)pmm->alloc(size);
       if (alloc[pos] == 0)
       {

@@ -367,10 +367,12 @@ static void slab_init()
   for (int cpu = 0; cpu < cpu_count(); cpu++)
   {
     init_lock(&kmem[cpu].lk, "cpu");
+    spin_lock(&kmem[cpu].lk);
     for (int slab = 0; slab < SLAB_TYPE; slab++)
     {
       fetch_page_to_slab(slab, cpu);
     }
+    spin_unlock(&kmem[cpu].lk);
   }
 }
 

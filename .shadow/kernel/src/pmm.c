@@ -161,13 +161,13 @@ static slab_t *fetch_page_to_slab(int slab_index, int cpu)
   if (page == NULL)
     return NULL;
   Log("lock");
-  spin_lock(&kmem[cpu].lk);
+  // spin_lock(&kmem[cpu].lk);
   memset(page, 0, sizeof(slab_t));
   page->next = kmem[cpu].slab_list[slab_index].next;
   kmem[cpu].slab_list[slab_index].next = page;
   kmem[cpu].available_page[slab_index] = page;
   Log("unlock");
-  spin_unlock(&kmem[cpu].lk);
+  // spin_unlock(&kmem[cpu].lk);
   page->object_size = slab_type[slab_index];
   page->cpu = cpu;
   page->object_capacity = (SLAB_SIZE - SLAB_CONFIG) / page->object_size;

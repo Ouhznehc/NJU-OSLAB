@@ -307,11 +307,11 @@ static void kfree_slab(slab_t *page, void *ptr)
 static void *kalloc(size_t size)
 {
   Log("begin alloc");
-  Log("try alloc size=%d", size);
   if (size > 16 MB)
     return NULL;
   void *ret = NULL;
   size = align_size(size);
+  Log("try alloc size=%d", size);
   if (size > 4 KB)
   {
     Log("1");

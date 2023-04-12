@@ -62,7 +62,7 @@ static void *object_from_slab(slab_t *page)
           assert((uintptr_t)check < (uintptr_t)heap.end && (uintptr_t)check > (uintptr_t)heap.start);
           assert(*check == 0);
           Log("check=%07p, real=%07p", check, page);
-          //*check = MAGIC;
+          *check = MAGIC;
         }
 #endif
         return ret;

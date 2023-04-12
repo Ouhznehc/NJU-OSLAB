@@ -65,7 +65,7 @@ static void os_run()
       for (int i = 0; i < num[pos] / 4; i++)
       {
         int *check = (int *)(alloc[pos] + 4 * i);
-        Assert(*check == MAGIC + 1, "check free=%07p", *check);
+        Assert(*check == MAGIC + 1, "check free=%07p, %07p", *check, MAGIC + 1);
         if (*check == 0)
           panic("double free");
       }

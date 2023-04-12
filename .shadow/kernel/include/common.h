@@ -7,7 +7,7 @@
 #include "spinlock.h"
 #include "pmm.h"
 
-#define __DEBUG_MODE__
+// #define __DEBUG_MODE__
 
 #ifdef assert
 #undef assert

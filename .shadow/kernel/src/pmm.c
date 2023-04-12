@@ -230,6 +230,7 @@ static void *kalloc_slab(size_t size)
     ret = object_from_slab(page);
   else
   {
+    Log("else");
     page = kmem[cpu].slab_list[slab_index].next;
     assert(page->object_counter <= page->object_capacity);
     while (page->object_counter == page->object_capacity && page->next != NULL)

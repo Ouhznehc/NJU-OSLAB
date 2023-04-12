@@ -418,11 +418,12 @@ static void kfree(void *ptr)
   {
     Log("2");
     memory_t *memory = fetch_header(ptr, magic);
+    Log("3");
     return kfree_large(memory);
   }
   else
   {
-    Log("3");
+
     slab_t *page = fetch_header(ptr, magic);
     return kfree_slab(page, ptr);
   }

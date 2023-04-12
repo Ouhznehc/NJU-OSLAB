@@ -179,6 +179,8 @@ static void memory_to_heap(memory_t *memory)
 static memory_t *page_from_heap_pool()
 {
   void *ret = memory_from_heap(4 KB);
+  if (ret == NULL)
+    return NULL;
   assert(ret != NULL);
   return ret;
 }

@@ -261,8 +261,9 @@ static void *kalloc(size_t size)
   }
   else
   {
-    assert(0);
+
     ret = kmalloc_slab(size);
+    assert(0);
   }
   return ret;
 }

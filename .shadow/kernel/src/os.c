@@ -48,7 +48,8 @@ static void os_run()
         {
           int *check = (int *)(alloc[pos] + 4 * i);
           if (*check == -1)
-            panic("double alloc");
+            assert(0);
+          panic("double alloc");
         }
         num[pos] = size;
         memset((void *)alloc[pos], 0x1, size);

@@ -291,19 +291,13 @@ static void slab_init()
 {
   for (int cpu = 0; cpu < cpu_count(); cpu++)
   {
-
     init_lock(&kmem[cpu].lk, "cpu");
-
     for (int slab = 0; slab < SLAB_TYPE; slab++)
     {
-
       fetch_page_to_slab(slab, cpu);
-
       kmem[cpu].free_slab[slab] = SLAB_MIN;
     }
   }
-  Log("end initial");
-  assert(0);
 }
 
 static void pmm_init()

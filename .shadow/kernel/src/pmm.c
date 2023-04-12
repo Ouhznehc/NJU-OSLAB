@@ -339,8 +339,9 @@ static void *kalloc_slab(size_t size)
 
 static void kfree_large(memory_t *memory)
 {
+  Log("mem = %p", memory);
   assert(memory != NULL);
-  Log("%d", memory->memory_size);
+
   if (memory->memory_size == 4 KB)
     return page_to_slab_pool(memory);
   else

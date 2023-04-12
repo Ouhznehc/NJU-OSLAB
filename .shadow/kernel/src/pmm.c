@@ -174,6 +174,7 @@ static void page_to_slab_pool(memory_t *page)
 // get one page from slab_pool
 static memory_t *page_from_slab_pool()
 {
+  Log("5");
   memory_t *ret = NULL;
   spin_lock(&slab_lock);
   if (slab_pool.next != NULL)
@@ -191,6 +192,7 @@ static memory_t *page_from_slab_pool()
     assert(*(uintptr_t *)(ret->memory_start - sizeof(uintptr_t)) == MAGIC);
     assert(*(uintptr_t *)(ret->memory_start - 2 * sizeof(uintptr_t)) == (uintptr_t)ret);
   }
+  Log("5");
   return ret;
 }
 

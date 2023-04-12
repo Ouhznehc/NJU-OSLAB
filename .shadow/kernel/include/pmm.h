@@ -7,7 +7,7 @@
 #define SLAB_CONFIG (256)
 #define MEMORY_CONFIG (32)
 #define MAX_CPU (8)
-#define SLAB_TYPE (11)
+#define SLAB_TYPE (9)
 #define SLAB_MIN (1)
 #define SLAB_MAX (16)
 #define SLAB_MASK (0xffffe000)

@@ -2,8 +2,8 @@
 
 static spinlock_t heap_lock;
 static spinlock_t slab_lock;
-static memory_t *heap_pool = NULL;
-static memory_t *slab_pool = NULL;
+static memory_t *heap_pool;
+static memory_t *slab_pool;
 static kmem_cache kmem[MAX_CPU];
 int slab_type[SLAB_TYPE] = {2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048};
 

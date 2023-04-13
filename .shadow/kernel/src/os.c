@@ -60,7 +60,7 @@ static void os_run()
     }
     else
     {
-      assert(num[pos] >= 4);
+      Assert(num[pos] >= 4, "num[pos] = %d", num[pos]);
       pmm->free((void *)alloc[pos]);
       // for (int i = 0; i < num[pos] / 4; i++)
       // {

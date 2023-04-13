@@ -78,7 +78,7 @@ static void os_run()
   void *test;
   while (1)
   {
-    test = pmm->alloc(2);
+    test = pmm->alloc(4096);
     if (test == NULL)
       break;
     else

@@ -12,9 +12,9 @@ static void os_init()
   pmm->init();
 }
 #ifdef __DEBUG_MODE__
-spinlock_t lk[100005];
-uintptr_t alloc[100005];
-size_t num[100005];
+// spinlock_t lk[100005];
+// uintptr_t alloc[100005];
+// size_t num[100005];
 #endif
 static void os_run()
 {

@@ -1,6 +1,7 @@
 #include <common.h>
 
 // #define DEAD_LOCK
+static spinlock_t test_lock;
 static spinlock_t heap_lock;
 static spinlock_t slab_lock;
 static memory_t heap_pool;
@@ -131,8 +132,6 @@ static memory_t *memory_from_heap(size_t size)
       ret = cur;
     }
   }
-  if (ret != NULL)
-    memset(ret->memory_start, 0, ret->memory_size);
   spin_unlock(&heap_lock);
   return ret;
 }
@@ -197,8 +196,6 @@ static memory_t *page_from_slab_pool()
       assert(*(uintptr_t *)(ret->memory_start - 2 * sizeof(uintptr_t)) == (uintptr_t)ret);
     }
   }
-  if (ret != NULL)
-    memset(ret->memory_start, 0, ret->memory_size);
   return ret;
 }
 
@@ -334,6 +331,7 @@ static void kfree_slab(slab_t *page, void *ptr)
 
 static void *kalloc(size_t size)
 {
+  spin_lock(&test_lock);
   if (size > 16 MB)
     return NULL;
   void *ret = NULL;
@@ -350,6 +348,7 @@ static void *kalloc(size_t size)
   {
     ret = kalloc_slab(size);
   }
+  spin_unlock(&test_lock);
   // Log("success alloc with size=%dB at %07p", size, ret);
   return ret;
 }
@@ -400,6 +399,7 @@ static void pmm_init()
 {
   init_lock(&heap_lock, "heap_lock");
   init_lock(&slab_lock, "slab_lock");
+  init_lock(&test_lock, "test_lock");
 
   uintptr_t pmsize = ((uintptr_t)heap.end - (uintptr_t)heap.start);
   printf("Got %d MiB heap: [%p, %p)\n", pmsize >> 20, heap.start, heap.end);

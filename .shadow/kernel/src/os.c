@@ -86,7 +86,7 @@ static void os_run()
     for (int i = 0; i < 100; i++)
     {
       // Log("\nos try alloc %dB", 8);
-      test[i] = pmm->alloc(8);
+      test[i] = pmm->alloc(4096);
       if (test[i] == NULL)
         while (1)
           ;

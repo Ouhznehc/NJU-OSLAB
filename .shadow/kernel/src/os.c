@@ -82,7 +82,7 @@ static void os_run()
     {
       Log("\nos try alloc %dB", 8 MB);
       test[i] = pmm->alloc(8 MB);
-      if (test == NULL)
+      if (test[i] == NULL)
         while (1)
           ;
       cnt++;

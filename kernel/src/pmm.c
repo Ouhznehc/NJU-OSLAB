@@ -100,6 +100,7 @@ static memory_t *memory_from_heap(size_t size)
         if (cur == heap_pool.next)
         {
           heap_pool.next = new_memory;
+          new_memory->next = cur->next;
           cur->next = NULL;
         }
         else

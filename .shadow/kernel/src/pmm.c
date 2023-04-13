@@ -39,12 +39,7 @@ static void *object_from_slab(slab_t *page)
   for (int i = 0; i < 64; i++)
   {
     if (page->bitset[i] == (int)(-1))
-    {
-      for (int j = 0; j < 32; j++)
-        assert(getbit(page->bitset[i], j) == 1);
       continue;
-    }
-
     for (int j = 0; j < 32; j++)
     {
       if (getbit(page->bitset[i], j) == 0)
@@ -56,8 +51,6 @@ static void *object_from_slab(slab_t *page)
       }
     }
   }
-  for (int i = 0; i < 64; i++)
-    assert(page->bitset[i] == (int)(-1));
   panic("object_from_slab: should not reach here");
   return NULL;
 }
@@ -220,8 +213,6 @@ static slab_t *fetch_page_to_slab(int slab_index, int cpu)
     return NULL;
   // spin_lock(&kmem[cpu].lk);
   memset(page, 0, sizeof(slab_t));
-  for (int i = 0; i < 64; i++)
-    assert(page->bitset[i] == 0);
   assert(page != NULL);
   page->next = kmem[cpu].slab_list[slab_index].next;
   kmem[cpu].slab_list[slab_index].next = page;
@@ -294,8 +285,6 @@ static void *kalloc_slab(size_t size)
       {
         assert(new_page->object_size == slab_type[slab_index]);
         assert(new_page->object_counter == 0);
-        for (int i = 0; i < 64; i++)
-          assert(new_page->bitset[i] == 0);
         ret = object_from_slab(new_page);
       }
     }

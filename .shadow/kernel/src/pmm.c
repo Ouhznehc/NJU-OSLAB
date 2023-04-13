@@ -169,6 +169,7 @@ static void page_to_slab_pool(memory_t *page)
   assert(page->memory_size == 4 KB);
   assert(*(uintptr_t *)(page->memory_start - sizeof(uintptr_t)) == MAGIC);
   assert(*(uintptr_t *)(page->memory_start - 2 * sizeof(uintptr_t)) == (uintptr_t)page);
+  assert(page->next == NULL);
   page->next = slab_pool.next;
   slab_pool.next = page;
   spin_unlock(&slab_lock);

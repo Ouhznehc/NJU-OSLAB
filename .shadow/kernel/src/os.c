@@ -38,6 +38,7 @@ static void os_run()
         size = 4096;
       size = 4096;
       alloc[pos] = (uintptr_t)pmm->alloc(size);
+
       if (alloc[pos] == 0)
       {
         Log("no more space\n");
@@ -46,6 +47,7 @@ static void os_run()
       }
       else
       {
+        num[pos] = size;
         assert(size >= 4);
         Log("CPU #%d alloc at %07p with pos = %d, size = %d", now, alloc[pos], pos, size);
         // for (int i = 0; i < size / 4; i++)

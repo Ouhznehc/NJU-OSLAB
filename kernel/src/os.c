@@ -86,20 +86,23 @@ static void os_run()
     for (int i = 0; i < 100; i++)
     {
       // Log("\nos try alloc %dB", 8);
-      Log("begin alloc %d", i);
-      test[i] = pmm->alloc(8 KB);
+      // Log("begin alloc %d", i);
+      test[i] = pmm->alloc(2);
       if (test[i] == NULL)
+      {
+        Log("cnt=%d", cnt);
         while (1)
           ;
+      }
       cnt++;
     }
-    Log("alloc finish");
-    Log("cnt = %d", cnt);
-    for (int i = 0; i < 100; i++)
-    {
-      pmm->free(test[i]);
-    }
-    Log("free finish");
+    // Log("alloc finish");
+
+    // for (int i = 0; i < 100; i++)
+    // {
+    //   pmm->free(test[i]);
+    // }
+    // Log("free finish");
   }
 
 // uintptr_t al[4005];

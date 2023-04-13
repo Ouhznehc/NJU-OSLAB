@@ -46,6 +46,13 @@ static void *object_from_slab(slab_t *page)
       {
         setbit(page->bitset[i], j);
         page->object_counter++;
+        if (page->object_counter == page->object_size)
+        {
+          int cpu = page->cpu, slab_index = match_slab_type(page->object_size);
+          assert(kmem[cpu].slab_list[slab_index].next = page);
+          kmem[cpu].slab_list[slab_index].next = page->next;
+          page->next = NULL;
+        }
         ret = page->object_start + (32 * i + j) * page->object_size;
         return ret;
       }
@@ -140,8 +147,6 @@ static void memory_to_heap(memory_t *memory)
   assert(*(uintptr_t *)(memory->memory_start - 2 * sizeof(uintptr_t)) == (uintptr_t)memory);
   memory->memory_size = (uintptr_t)memory->memory_start + memory->memory_size - (uintptr_t)memory - MEMORY_CONFIG;
   memory->memory_start = (void *)memory + MEMORY_CONFIG;
-  // Log("size=%d", memory->memory_size);
-  // Log("start=%d", memory->memory_start);
   memory->next = heap_pool.next;
   heap_pool.next = memory;
   spin_unlock(&heap_lock);
@@ -193,11 +198,6 @@ static memory_t *page_from_slab_pool()
   {
     spin_unlock(&slab_lock);
     ret = page_from_heap_pool();
-    if (ret != NULL)
-    {
-      assert(*(uintptr_t *)(ret->memory_start - sizeof(uintptr_t)) == MAGIC);
-      assert(*(uintptr_t *)(ret->memory_start - 2 * sizeof(uintptr_t)) == (uintptr_t)ret);
-    }
   }
   return ret;
 }
@@ -209,17 +209,12 @@ static slab_t *fetch_page_to_slab(int slab_index, int cpu)
   slab_t *page = (slab_t *)page_from_slab_pool();
   if (page == NULL)
     return NULL;
-  // spin_lock(&kmem[cpu].lk);
-  memset(page, 0, sizeof(slab_t));
+  // memset(page, 0, sizeof(slab_t));
   assert(page != NULL);
   page->next = kmem[cpu].slab_list[slab_index].next;
   kmem[cpu].slab_list[slab_index].next = page;
-  kmem[cpu].available_page[slab_index] = page;
-  // spin_unlock(&kmem[cpu].lk);
   page->object_size = slab_type[slab_index];
   page->cpu = cpu;
-  // page->object_capacity = (SLAB_SIZE - SLAB_CONFIG) / page->object_size;
-  // page->object_start = (page->object_size < SLAB_CONFIG) ? (void *)page + SLAB_CONFIG : (void *)page + page->object_size;
   page->object_capacity = 4 KB / page->object_size;
   page->object_start = (void *)page + 4 KB;
   assert(page->object_counter == 0);
@@ -259,7 +254,7 @@ static void *kalloc_slab(size_t size)
   Log("spin_lock CPU#%d", cpu);
 #endif
   spin_lock(&kmem[cpu].lk);
-  slab_t *page = kmem[cpu].available_page[slab_index];
+  slab_t *page = kmem[cpu].slab_list[slab_index].next;
   assert(page != NULL);
   if (page->object_counter < page->object_capacity)
   {
@@ -267,30 +262,14 @@ static void *kalloc_slab(size_t size)
   }
   else
   {
-    page = kmem[cpu].slab_list[slab_index].next;
-    assert(page->object_counter <= page->object_capacity);
-    while (page->object_counter == page->object_capacity && page->next != NULL)
-    {
-      page = page->next;
-      assert(page->object_counter <= page->object_counter);
-    }
-    if (page->next == NULL)
-    {
-      slab_t *new_page = fetch_page_to_slab(slab_index, cpu);
-      if (new_page == NULL)
-        ret = NULL;
-      else
-      {
-        assert(new_page->object_size == slab_type[slab_index]);
-        assert(new_page->object_counter == 0);
-        ret = object_from_slab(new_page);
-      }
-    }
+    slab_t *new_page = fetch_page_to_slab(slab_index, cpu);
+    if (new_page == NULL)
+      ret = NULL;
     else
     {
-      assert(page->object_counter < page->object_capacity);
-      kmem[cpu].available_page[slab_index] = page;
-      ret = object_from_slab(page);
+      assert(new_page->object_size == slab_type[slab_index]);
+      assert(new_page->object_counter == 0);
+      ret = object_from_slab(new_page);
     }
   }
 #ifdef DEAD_LOCK
@@ -322,6 +301,12 @@ static void kfree_slab(slab_t *page, void *ptr)
 #endif
   assert(page != NULL);
   spin_lock(&kmem[page->cpu].lk);
+  if (page->object_counter == page->object_capacity)
+  {
+    int cpu = page->cpu, slab_index = match_slab_type(page->object_size);
+    page->next = kmem[cpu].slab_list[slab_index].next;
+    kmem[cpu].slab_list[slab_index].next = page;
+  }
   int offset = (ptr - page->object_start) / page->object_size;
   int i = offset / 32, j = offset % 32;
   assert(getbit(page->bitset[i], j) == 1);
@@ -404,19 +389,14 @@ static void pmm_init()
   uintptr_t pmsize = ((uintptr_t)heap.end - (uintptr_t)heap.start);
   printf("Got %d MiB heap: [%p, %p)\n", pmsize >> 20, heap.start, heap.end);
 
-  spin_lock(&heap_lock);
   memory_t *heap_start = (memory_t *)(heap.start);
   assert(heap_start != NULL);
   heap_start->next = NULL;
   heap_start->memory_start = (void *)((uintptr_t)heap_start + MEMORY_CONFIG);
   heap_start->memory_size = pmsize - MEMORY_CONFIG;
   heap_pool.next = heap_start;
-  spin_unlock(&heap_lock);
 
-  spin_lock(&slab_lock);
   slab_pool.next = NULL;
-  spin_unlock(&slab_lock);
-
   slab_init();
 }
 

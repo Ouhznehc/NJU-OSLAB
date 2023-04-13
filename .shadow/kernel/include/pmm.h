@@ -42,7 +42,6 @@ typedef union slab_t
 typedef struct kmem_cache
 {
   spinlock_t lk;
-  slab_t *available_page[SLAB_TYPE];
   slab_t slab_list[SLAB_TYPE]; // the head of slab_list
 } kmem_cache;
 

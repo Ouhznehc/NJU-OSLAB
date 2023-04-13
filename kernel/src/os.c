@@ -23,77 +23,93 @@ static void os_run()
   {
     init_lock(&lk[i], "lk");
   }
-  // int now = cpu_current();
+  int now = cpu_current();
+  while (1)
+  {
+    int pos = (rand() * rand()) % 10000;
+    Log("");
+    spin_lock(&lk[pos]);
+    if (alloc[pos] == 0)
+    {
+      int size = rand() % 20;
+      if (size < 16)
+        size = 1 << (size % 10 + 13);
+      else if (size != 19)
+        size = 4096;
+      size = 4096;
+      alloc[pos] = (uintptr_t)pmm->alloc(size);
+      if (alloc[pos] == 0)
+      {
+        Log("no more space\n");
+        spin_unlock(&lk[pos]);
+        continue;
+      }
+      else
+      {
+        assert(size >= 4);
+        Log("CPU #%d alloc at %07p with pos = %d, size = %d", now, alloc[pos], pos, size);
+        for (int i = 0; i < size / 4; i++)
+        {
+          int *check = (int *)(alloc[pos] + 4 * i);
+          if (*check == -1)
+            panic("double alloc at %07p", check);
+        }
+        num[pos] = size;
+        memset((void *)alloc[pos], -1, size);
+      }
+    }
+    else
+    {
+      assert(num[pos] >= 4);
+      pmm->free((void *)alloc[pos]);
+      for (int i = 0; i < num[pos] / 4; i++)
+      {
+        int *check = (int *)(alloc[pos] + 4 * i);
+        if (*check == 0)
+          panic("double free at %07p", check);
+      }
+      memset((void *)alloc[pos], 0, num[pos]);
+      Log("CPU #%d free at %p with pos = %d, size = %d", now, alloc[pos], pos, num[pos]);
+      alloc[pos] = 0;
+      num[pos] = 0;
+    }
+    spin_unlock(&lk[pos]);
+  }
+
+  // int cnt = 1;
+  // void *test[100];
   // while (1)
   // {
-  //   int pos = (rand() * rand()) % 10000;
-  //   Log("");
-  //   spin_lock(&lk[pos]);
-  //   if (alloc[pos] == 0)
+  //   for (int i = 0; i < 100; i++)
   //   {
-  //     int size = rand() % 20;
-  //     if (size < 16)
-  //       size = 1 << (size % 10 + 13);
-  //     else if (size != 19)
-  //       size = 4096;
-  //     alloc[pos] = (uintptr_t)pmm->alloc(size);
-  //     if (alloc[pos] == 0)
-  //     {
-  //       Log("no more space\n");
-  //       spin_unlock(&lk[pos]);
-  //       continue;
-  //     }
-  //     else
-  //     {
-  //       assert(size >= 4);
-  //       Log("CPU #%d alloc at %07p with pos = %d, size = %d", now, alloc[pos], pos, size);
-  //       for (int i = 0; i < size / 4; i++)
-  //       {
-  //         int *check = (int *)(alloc[pos] + 4 * i);
-  //         if (*check == -1)
-  //           panic("double alloc");
-  //       }
-  //       num[pos] = size;
-  //       memset((void *)alloc[pos], -1, size);
-  //     }
+  //     Log("\nos try alloc %dB", 8 MB);
+  //     test[i] = pmm->alloc(8 MB);
+  //     if (test[i] == NULL)
+  //       while (1)
+  //         ;
+  //     cnt++;
   //   }
-  //   else
+  //   for (int i = 0; i < 100; i++)
   //   {
-  //     assert(num[pos] >= 4);
-  //     pmm->free((void *)alloc[pos]);
-  //     for (int i = 0; i < num[pos] / 4; i++)
-  //     {
-  //       int *check = (int *)(alloc[pos] + 4 * i);
-  //       if (*check == 0)
-  //         panic("double free");
-  //     }
-  //     memset((void *)alloc[pos], 0, num[pos]);
-  //     Log("CPU #%d free at %p with pos = %d, size = %d", now, alloc[pos], pos, num[pos]);
-  //     alloc[pos] = 0;
-  //     num[pos] = 0;
+  //     pmm->free(test[i]);
   //   }
-  //   spin_unlock(&lk[pos]);
-  // }
-  int cnt = 1;
-  while (pmm->alloc(4096) != NULL)
-  {
-    cnt++;
-  }
-  Log("cnt = %d", cnt);
-  // uintptr_t al[4005];
-  // for (int i = 1; i <= 4000; i++)
-  // {
-  //   al[i] = (uintptr_t)pmm->alloc(2);
-  //   Log("%d times: %p\n", i, al[i]);
-  // }
-  // for (int i = 1; i <= 1000; i++)
-  // {
-  //   pmm->free((void *)al[i]);
-  //   void *ret = pmm->alloc(4096);
-  //   Log("%d times: %p\n", i, ret);
-  // }
-#endif
 
+  //   Log("cnt = %d", cnt);
+  // }
+
+// uintptr_t al[4005];
+// for (int i = 1; i <= 4000; i++)
+// {
+//   al[i] = (uintptr_t)pmm->alloc(2);
+//   Log("%d times: %p\n", i, al[i]);
+// }
+// for (int i = 1; i <= 1000; i++)
+// {
+//   pmm->free((void *)al[i]);
+//   void *ret = pmm->alloc(4096);
+//   Log("%d times: %p\n", i, ret);
+// }
+#endif
   while (1)
     ;
   halt(0);

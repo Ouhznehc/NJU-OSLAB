@@ -368,6 +368,7 @@ static inline void *fetch_header(void *ptr, int magic)
 
 static void kfree(void *ptr)
 {
+  spin_lock(&test_lock);
   int magic = fetch_magic(ptr);
   if (magic == MAGIC)
   {
@@ -379,6 +380,7 @@ static void kfree(void *ptr)
     slab_t *page = fetch_header(ptr, magic);
     return kfree_slab(page, ptr);
   }
+  spin_unlock(&test_lock);
 }
 
 static void slab_init()

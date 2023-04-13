@@ -66,10 +66,8 @@ static memory_t *memory_from_heap(size_t size)
   {
     memory_t *cur = heap_pool.next, *prev = NULL;
     assert(cur != NULL);
-    Log("size=", cur->memory_size);
     while (cur != NULL && ((uintptr_t)cur->memory_start + cur->memory_size < align_address(cur->memory_start, size) + size))
     {
-      Log("size=%d", cur->memory_size);
       assert(cur != NULL);
       prev = cur;
       cur = cur->next;

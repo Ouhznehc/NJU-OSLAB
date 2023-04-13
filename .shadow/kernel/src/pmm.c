@@ -347,7 +347,7 @@ static void *kalloc(size_t size)
   {
     ret = kalloc_slab(size);
   }
-  Log("success alloc with size=%dB", size);
+  Log("success alloc with size=%dB at %07p", size, ret);
   return ret;
 }
 

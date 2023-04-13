@@ -317,6 +317,7 @@ static void kfree_large(memory_t *memory)
   }
   else
   {
+    assert(memory->memory_size == 8 KB);
     return memory_to_heap(memory);
   }
 }

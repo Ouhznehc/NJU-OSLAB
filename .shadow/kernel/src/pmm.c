@@ -261,10 +261,11 @@ static void *kalloc_slab(size_t size)
   }
   else
   {
+    Log("alloc slab");
     slab_t *new_page = fetch_page_to_slab(slab_index, cpu);
     if (new_page == NULL)
     {
-      Log("can't alloc slab");
+
       ret = NULL;
     }
     else

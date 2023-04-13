@@ -6,7 +6,7 @@ static spinlock_t slab_lock;
 static memory_t heap_pool;
 static memory_t slab_pool;
 static kmem_cache kmem[MAX_CPU];
-int slab_type[SLAB_TYPE] = {8, 16, 32, 64, 128, 256, 512, 1024, 2048};
+int slab_type[SLAB_TYPE] = {2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048};
 
 static inline int match_slab_type(size_t size)
 {
@@ -36,7 +36,7 @@ static void *object_from_slab(slab_t *page)
   void *ret = NULL;
   assert(page != NULL);
   assert(page->object_counter < page->object_capacity);
-  for (int i = 0; i < 32; i++)
+  for (int i = 0; i < 64; i++)
   {
     if (page->bitset[i] == (int)(-1))
     {
@@ -56,7 +56,7 @@ static void *object_from_slab(slab_t *page)
       }
     }
   }
-  for (int i = 0; i < 32; i++)
+  for (int i = 0; i < 64; i++)
     assert(page->bitset[i] == (int)(-1));
   panic("object_from_slab: should not reach here");
   return NULL;
@@ -131,6 +131,8 @@ static memory_t *memory_from_heap(size_t size)
       ret = cur;
     }
   }
+  if (ret != NULL)
+    memset(ret->memory_start, 0, ret->memory_size);
   spin_unlock(&heap_lock);
   return ret;
 }
@@ -195,6 +197,8 @@ static memory_t *page_from_slab_pool()
       assert(*(uintptr_t *)(ret->memory_start - 2 * sizeof(uintptr_t)) == (uintptr_t)ret);
     }
   }
+  if (ret != NULL)
+    memset(ret->memory_start, 0, ret->memory_size);
   return ret;
 }
 
@@ -207,7 +211,7 @@ static slab_t *fetch_page_to_slab(int slab_index, int cpu)
     return NULL;
   // spin_lock(&kmem[cpu].lk);
   memset(page, 0, sizeof(slab_t));
-  for (int i = 0; i < 32; i++)
+  for (int i = 0; i < 64; i++)
     assert(page->bitset[i] == 0);
   assert(page != NULL);
   page->next = kmem[cpu].slab_list[slab_index].next;
@@ -216,10 +220,10 @@ static slab_t *fetch_page_to_slab(int slab_index, int cpu)
   // spin_unlock(&kmem[cpu].lk);
   page->object_size = slab_type[slab_index];
   page->cpu = cpu;
-  page->object_capacity = (SLAB_SIZE - SLAB_CONFIG) / page->object_size;
-  page->object_start = (page->object_size < SLAB_CONFIG) ? (void *)page + SLAB_CONFIG : (void *)page + page->object_size;
-  // page->object_capacity = 4 KB / page->object_size;
-  // page->object_start = (void *)page + 4 KB;
+  // page->object_capacity = (SLAB_SIZE - SLAB_CONFIG) / page->object_size;
+  // page->object_start = (page->object_size < SLAB_CONFIG) ? (void *)page + SLAB_CONFIG : (void *)page + page->object_size;
+  page->object_capacity = 4 KB / page->object_size;
+  page->object_start = (void *)page + 4 KB;
   assert(page->object_counter == 0);
   return page;
 }

@@ -261,7 +261,7 @@ static void *kalloc_slab(size_t size)
   }
   else
   {
-    Log("alloc slab");
+    // Log("alloc slab");
     slab_t *new_page = fetch_page_to_slab(slab_index, cpu);
     if (new_page == NULL)
     {

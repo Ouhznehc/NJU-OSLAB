@@ -209,7 +209,7 @@ static slab_t *fetch_page_to_slab(int slab_index, int cpu)
   slab_t *page = (slab_t *)page_from_slab_pool();
   if (page == NULL)
     return NULL;
-  // memset(page, 0, sizeof(slab_t));
+  memset(page, 0, sizeof(slab_t));
   assert(page != NULL);
   page->next = kmem[cpu].slab_list[slab_index].next;
   kmem[cpu].slab_list[slab_index].next = page;
@@ -217,6 +217,7 @@ static slab_t *fetch_page_to_slab(int slab_index, int cpu)
   page->cpu = cpu;
   page->object_capacity = 4 KB / page->object_size;
   page->object_start = (void *)page + 4 KB;
+  assert(page->object_counter == 0);
   return page;
 }
 

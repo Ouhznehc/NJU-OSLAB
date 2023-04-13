@@ -83,7 +83,7 @@ static void os_run()
       Log("\nos try alloc %dB", 8 MB);
       test[i] = pmm->alloc(8 MB);
       if (test == NULL)
-        break;
+        goto the_end;
       cnt++;
     }
     for (int i = 0; i < 100; i++)
@@ -94,20 +94,20 @@ static void os_run()
     Log("cnt = %d", cnt);
   }
 
-  // uintptr_t al[4005];
-  // for (int i = 1; i <= 4000; i++)
-  // {
-  //   al[i] = (uintptr_t)pmm->alloc(2);
-  //   Log("%d times: %p\n", i, al[i]);
-  // }
-  // for (int i = 1; i <= 1000; i++)
-  // {
-  //   pmm->free((void *)al[i]);
-  //   void *ret = pmm->alloc(4096);
-  //   Log("%d times: %p\n", i, ret);
-  // }
+// uintptr_t al[4005];
+// for (int i = 1; i <= 4000; i++)
+// {
+//   al[i] = (uintptr_t)pmm->alloc(2);
+//   Log("%d times: %p\n", i, al[i]);
+// }
+// for (int i = 1; i <= 1000; i++)
+// {
+//   pmm->free((void *)al[i]);
+//   void *ret = pmm->alloc(4096);
+//   Log("%d times: %p\n", i, ret);
+// }
+the_end:
 #endif
-
   while (1)
     ;
   halt(0);

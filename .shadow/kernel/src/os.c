@@ -53,7 +53,7 @@ static void os_run()
         {
           int *check = (int *)(alloc[pos] + 4 * i);
           if (*check != 0)
-            panic("double alloc at %07p", check);
+            panic("double alloc at %07p", alloc[pos]);
         }
         memset((void *)alloc[pos], -1, size);
         Log("CPU #%d alloc at %07p with pos = %d, size = %d", now, alloc[pos], pos, size);

@@ -376,6 +376,7 @@ static void kfree(void *ptr)
   if (magic == MAGIC)
   {
     memory_t *memory = fetch_header(ptr, magic);
+    assert((uintptr_t)memory + 4 KB == (uintptr_t)ptr);
     return kfree_large(memory);
   }
   else

@@ -84,8 +84,9 @@ static void os_run()
     else
       pmm->free(test);
     cnt++;
+    Log("cnt = %d", cnt);
   }
-  Log("cnt = %d", cnt);
+
   // uintptr_t al[4005];
   // for (int i = 1; i <= 4000; i++)
   // {

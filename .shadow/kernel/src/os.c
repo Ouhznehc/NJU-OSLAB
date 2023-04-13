@@ -85,17 +85,17 @@ static void os_run()
   {
     for (int i = 0; i < 100; i++)
     {
-      Log("\nos try alloc %dB", 8 MB);
-      test[i] = pmm->alloc(8 MB);
+      Log("\nos try alloc %dB", 8);
+      test[i] = pmm->alloc(8);
       if (test[i] == NULL)
         while (1)
           ;
       cnt++;
     }
-    for (int i = 0; i < 100; i++)
-    {
-      pmm->free(test[i]);
-    }
+    // for (int i = 0; i < 100; i++)
+    // {
+    //   pmm->free(test[i]);
+    // }
 
     Log("cnt = %d", cnt);
   }

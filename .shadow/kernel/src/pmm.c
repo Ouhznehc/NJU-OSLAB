@@ -335,7 +335,9 @@ static void *kalloc(size_t size)
   size = align_size(size);
   if (size > 4 KB)
   {
+    Log("1");
     ret = kalloc_large(size);
+    Log("1");
   }
   else if (size == 4 KB)
   {

@@ -255,8 +255,7 @@ static void *kalloc_slab(size_t size)
 #endif
   spin_lock(&kmem[cpu].lk);
   slab_t *page = kmem[cpu].slab_list[slab_index].next;
-  assert(page != NULL);
-  if (page->object_counter < page->object_capacity)
+  if (page != NULL)
   {
     ret = object_from_slab(page);
   }

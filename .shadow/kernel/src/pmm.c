@@ -56,7 +56,7 @@ static void *object_from_slab(slab_t *page)
       }
     }
   }
-  for (int i = 0; i < 64; i++)
+  for (int i = 0; i < 32; i++)
     assert(page->bitset[i] == (int)(-1));
   panic("object_from_slab: should not reach here");
   return NULL;
@@ -207,7 +207,7 @@ static slab_t *fetch_page_to_slab(int slab_index, int cpu)
     return NULL;
   // spin_lock(&kmem[cpu].lk);
   memset(page, 0, sizeof(slab_t));
-  for (int i = 0; i < 64; i++)
+  for (int i = 0; i < 32; i++)
     assert(page->bitset[i] == 0);
   assert(page != NULL);
   page->next = kmem[cpu].slab_list[slab_index].next;
@@ -216,10 +216,10 @@ static slab_t *fetch_page_to_slab(int slab_index, int cpu)
   // spin_unlock(&kmem[cpu].lk);
   page->object_size = slab_type[slab_index];
   page->cpu = cpu;
-  // page->object_capacity = (SLAB_SIZE - SLAB_CONFIG) / page->object_size;
-  // page->object_start = (page->object_size < SLAB_CONFIG) ? (void *)page + SLAB_CONFIG : (void *)page + page->object_size;
-  page->object_capacity = 4 KB / page->object_size;
-  page->object_start = (void *)page + 4 KB;
+  page->object_capacity = (SLAB_SIZE - SLAB_CONFIG) / page->object_size;
+  page->object_start = (page->object_size < SLAB_CONFIG) ? (void *)page + SLAB_CONFIG : (void *)page + page->object_size;
+  // page->object_capacity = 4 KB / page->object_size;
+  // page->object_start = (void *)page + 4 KB;
   assert(page->object_counter == 0);
   return page;
 }

@@ -308,7 +308,10 @@ static void kfree_large(memory_t *memory)
   if (memory->memory_size == 4 KB)
     return page_to_slab_pool(memory);
   else
+  {
+    assert(0);
     return memory_to_heap(memory);
+  }
 }
 
 static void kfree_slab(slab_t *page, void *ptr)
@@ -373,6 +376,7 @@ static void kfree(void *ptr)
   }
   else
   {
+    assert(0);
     slab_t *page = fetch_header(ptr, magic);
     return kfree_slab(page, ptr);
   }

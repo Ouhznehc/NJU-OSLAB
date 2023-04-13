@@ -6,7 +6,7 @@ static spinlock_t slab_lock;
 static memory_t heap_pool;
 static memory_t slab_pool;
 static kmem_cache kmem[MAX_CPU];
-int slab_type[SLAB_TYPE] = {8, 16, 32, 64, 128, 256, 512, 1024, 2048};
+int slab_type[SLAB_TYPE] = {2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048};
 
 static inline int match_slab_type(size_t size)
 {
@@ -36,7 +36,7 @@ static void *object_from_slab(slab_t *page)
   void *ret = NULL;
   assert(page != NULL);
   assert(page->object_counter < page->object_capacity);
-  for (int i = 0; i < 32; i++)
+  for (int i = 0; i < 64; i++)
   {
     if (page->bitset[i] == (int)(-1))
     {
@@ -56,7 +56,7 @@ static void *object_from_slab(slab_t *page)
       }
     }
   }
-  for (int i = 0; i < 32; i++)
+  for (int i = 0; i < 64; i++)
     assert(page->bitset[i] == (int)(-1));
   panic("object_from_slab: should not reach here");
   return NULL;
@@ -165,8 +165,11 @@ static void page_to_slab_pool(memory_t *page)
 {
   spin_lock(&slab_lock);
   assert(page != NULL);
+  assert((uintptr_t)page->memory_start + page->memory_size - (uintptr_t)page == 8 KB);
+  assert(page->memory_size == 4 KB);
   assert(*(uintptr_t *)(page->memory_start - sizeof(uintptr_t)) == MAGIC);
   assert(*(uintptr_t *)(page->memory_start - 2 * sizeof(uintptr_t)) == (uintptr_t)page);
+  assert(page->next == NULL);
   page->next = slab_pool.next;
   slab_pool.next = page;
   spin_unlock(&slab_lock);
@@ -183,6 +186,9 @@ static memory_t *page_from_slab_pool()
     assert(ret != NULL);
     slab_pool.next = ret->next;
     ret->next = NULL;
+    assert(ret->memory_size == 4 KB);
+    assert(*(uintptr_t *)(ret->memory_start - sizeof(uintptr_t)) == MAGIC);
+    assert(*(uintptr_t *)(ret->memory_start - 2 * sizeof(uintptr_t)) == (uintptr_t)ret);
     spin_unlock(&slab_lock);
   }
   else
@@ -207,7 +213,7 @@ static slab_t *fetch_page_to_slab(int slab_index, int cpu)
     return NULL;
   // spin_lock(&kmem[cpu].lk);
   memset(page, 0, sizeof(slab_t));
-  for (int i = 0; i < 32; i++)
+  for (int i = 0; i < 64; i++)
     assert(page->bitset[i] == 0);
   assert(page != NULL);
   page->next = kmem[cpu].slab_list[slab_index].next;
@@ -216,10 +222,10 @@ static slab_t *fetch_page_to_slab(int slab_index, int cpu)
   // spin_unlock(&kmem[cpu].lk);
   page->object_size = slab_type[slab_index];
   page->cpu = cpu;
-  page->object_capacity = (SLAB_SIZE - SLAB_CONFIG) / page->object_size;
-  page->object_start = (page->object_size < SLAB_CONFIG) ? (void *)page + SLAB_CONFIG : (void *)page + page->object_size;
-  // page->object_capacity = 4 KB / page->object_size;
-  // page->object_start = (void *)page + 4 KB;
+  // page->object_capacity = (SLAB_SIZE - SLAB_CONFIG) / page->object_size;
+  // page->object_start = (page->object_size < SLAB_CONFIG) ? (void *)page + SLAB_CONFIG : (void *)page + page->object_size;
+  page->object_capacity = 4 KB / page->object_size;
+  page->object_start = (void *)page + 4 KB;
   assert(page->object_counter == 0);
   return page;
 }
@@ -306,9 +312,14 @@ static void kfree_large(memory_t *memory)
   assert(*(uintptr_t *)(memory->memory_start - sizeof(uintptr_t)) == MAGIC);
   assert(*(uintptr_t *)(memory->memory_start - 2 * sizeof(uintptr_t)) == (uintptr_t)memory);
   if (memory->memory_size == 4 KB)
+  {
     return page_to_slab_pool(memory);
+  }
   else
+  {
+    assert(0);
     return memory_to_heap(memory);
+  }
 }
 
 static void kfree_slab(slab_t *page, void *ptr)
@@ -336,6 +347,7 @@ static void *kalloc(size_t size)
   size = align_size(size);
   if (size > 4 KB)
   {
+    assert(0);
     ret = kalloc_large(size);
   }
   else if (size == 4 KB)
@@ -344,6 +356,7 @@ static void *kalloc(size_t size)
   }
   else
   {
+    assert(0);
     ret = kalloc_slab(size);
   }
   // Log("success alloc with size=%dB at %07p", size, ret);
@@ -369,10 +382,12 @@ static void kfree(void *ptr)
   if (magic == MAGIC)
   {
     memory_t *memory = fetch_header(ptr, magic);
+    assert((uintptr_t)memory + 4 KB == (uintptr_t)ptr);
     return kfree_large(memory);
   }
   else
   {
+    assert(0);
     slab_t *page = fetch_header(ptr, magic);
     return kfree_slab(page, ptr);
   }

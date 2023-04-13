@@ -38,6 +38,7 @@ static void os_run()
         size = 4096;
       size = 4096;
       alloc[pos] = (uintptr_t)pmm->alloc(size);
+
       if (alloc[pos] == 0)
       {
         Log("no more space\n");
@@ -46,21 +47,23 @@ static void os_run()
       }
       else
       {
+        num[pos] = size;
         assert(size >= 4);
         Log("CPU #%d alloc at %07p with pos = %d, size = %d", now, alloc[pos], pos, size);
         for (int i = 0; i < size / 4; i++)
         {
           int *check = (int *)(alloc[pos] + 4 * i);
-          if (*check == -1)
+          if (*check != 0)
             panic("double alloc at %07p", check);
         }
-        num[pos] = size;
         memset((void *)alloc[pos], -1, size);
       }
     }
     else
     {
-      assert(num[pos] >= 4);
+      // spin_unlock(&lk[pos]);
+      // continue;
+      Assert(num[pos] >= 4, "num[pos] = %d", num[pos]);
       pmm->free((void *)alloc[pos]);
       for (int i = 0; i < num[pos] / 4; i++)
       {

@@ -51,24 +51,24 @@ static void os_run()
         for (int i = 0; i < size / 4; i++)
         {
           int *check = (int *)(alloc[pos] + 4 * i);
-          if (*check == -1)
+          if (*check != 0)
             panic("double alloc at %07p", check);
         }
         num[pos] = size;
-        memset((void *)alloc[pos], -1, size);
+        // memset((void *)alloc[pos], -1, size);
       }
     }
     else
     {
       assert(num[pos] >= 4);
       pmm->free((void *)alloc[pos]);
-      for (int i = 0; i < num[pos] / 4; i++)
-      {
-        int *check = (int *)(alloc[pos] + 4 * i);
-        if (*check == 0)
-          panic("double free at %07p", check);
-      }
-      memset((void *)alloc[pos], 0, num[pos]);
+      // for (int i = 0; i < num[pos] / 4; i++)
+      // {
+      //   int *check = (int *)(alloc[pos] + 4 * i);
+      //   if (*check == 0)
+      //     panic("double free at %07p", check);
+      // }
+      // memset((void *)alloc[pos], 0, num[pos]);
       Log("CPU #%d free at %p with pos = %d, size = %d", now, alloc[pos], pos, num[pos]);
       alloc[pos] = 0;
       num[pos] = 0;

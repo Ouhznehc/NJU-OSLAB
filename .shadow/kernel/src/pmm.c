@@ -165,6 +165,7 @@ static void page_to_slab_pool(memory_t *page)
 {
   spin_lock(&slab_lock);
   assert(page != NULL);
+  assert(page->memory_size == 4 KB);
   assert(*(uintptr_t *)(page->memory_start - sizeof(uintptr_t)) == MAGIC);
   assert(*(uintptr_t *)(page->memory_start - 2 * sizeof(uintptr_t)) == (uintptr_t)page);
   page->next = slab_pool.next;
@@ -306,7 +307,9 @@ static void kfree_large(memory_t *memory)
   assert(*(uintptr_t *)(memory->memory_start - sizeof(uintptr_t)) == MAGIC);
   assert(*(uintptr_t *)(memory->memory_start - 2 * sizeof(uintptr_t)) == (uintptr_t)memory);
   if (memory->memory_size == 4 KB)
+  {
     return page_to_slab_pool(memory);
+  }
   else
   {
     assert(0);

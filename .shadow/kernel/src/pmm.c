@@ -187,6 +187,8 @@ static memory_t *page_from_slab_pool()
     slab_pool.next = ret->next;
     ret->next = NULL;
     assert(ret->memory_size == 4 KB);
+    assert(*(uintptr_t *)(ret->memory_start - sizeof(uintptr_t)) == MAGIC);
+    assert(*(uintptr_t *)(ret->memory_start - 2 * sizeof(uintptr_t)) == (uintptr_t)ret);
     spin_unlock(&slab_lock);
   }
   else

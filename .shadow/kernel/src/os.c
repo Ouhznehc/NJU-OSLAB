@@ -80,7 +80,7 @@ static void os_run()
   {
     for (int i = 0; i < 100; i++)
     {
-      test[i] = pmm->alloc(16 MB);
+      test[i] = pmm->alloc(8 MB);
       if (test == NULL)
         break;
       cnt++;

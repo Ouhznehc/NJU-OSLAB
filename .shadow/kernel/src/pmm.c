@@ -305,6 +305,7 @@ static void kfree_slab(slab_t *page, void *ptr)
     int cpu = page->cpu, slab_index = match_slab_type(page->object_size);
     page->next = kmem[cpu].slab_list[slab_index].next;
     kmem[cpu].slab_list[slab_index].next = page;
+    page->object_counter--;
   }
   int offset = (ptr - page->object_start) / page->object_size;
   int i = offset / 32, j = offset % 32;

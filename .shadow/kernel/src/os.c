@@ -79,7 +79,7 @@ static void os_run()
   //   spin_unlock(&lk[pos]);
   // }
 
-  int cnt = 1;
+  int cnt = 0;
   void *test[100];
   while (1)
   {

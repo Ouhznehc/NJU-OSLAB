@@ -98,10 +98,10 @@ static void os_run()
     }
     // Log("alloc finish");
 
-    for (int i = 0; i < 100; i++)
-    {
-      pmm->free(test[i]);
-    }
+    // for (int i = 0; i < 100; i++)
+    // {
+    //   pmm->free(test[i]);
+    // }
     // Log("free finish");
   }
 

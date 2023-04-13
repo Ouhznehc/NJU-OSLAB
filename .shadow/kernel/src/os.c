@@ -61,8 +61,8 @@ static void os_run()
     }
     else
     {
-      spin_unlock(&lk[pos]);
-      continue;
+      // spin_unlock(&lk[pos]);
+      // continue;
       Assert(num[pos] >= 4, "num[pos] = %d", num[pos]);
       pmm->free((void *)alloc[pos]);
       for (int i = 0; i < num[pos] / 4; i++)

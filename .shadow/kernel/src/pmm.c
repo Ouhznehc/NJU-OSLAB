@@ -46,7 +46,7 @@ static void *object_from_slab(slab_t *page)
       {
         setbit(page->bitset[i], j);
         page->object_counter++;
-        if (page->object_counter == page->object_size)
+        if (page->object_counter == page->object_capacity)
         {
           int cpu = page->cpu, slab_index = match_slab_type(page->object_size);
           assert(kmem[cpu].slab_list[slab_index].next = page);

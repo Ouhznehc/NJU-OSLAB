@@ -73,14 +73,18 @@ static memory_t *memory_from_heap(size_t size)
   {
     memory_t *cur = heap_pool.next, *prev = NULL;
     assert(cur != NULL);
+    Log("size=", cur->memory_size);
     while (cur != NULL && ((uintptr_t)cur->memory_start + cur->memory_size < align_address(cur->memory_start, size) + size))
     {
+      Log("size=%d", cur->memory_size);
       assert(cur != NULL);
       prev = cur;
       cur = cur->next;
     }
     if (cur == NULL)
+    {
       ret = NULL;
+    }
     else
     {
       assert(cur != NULL);
@@ -111,7 +115,7 @@ static memory_t *memory_from_heap(size_t size)
       {
         if (cur == heap_pool.next)
         {
-          heap_pool.next = NULL;
+          heap_pool.next = cur->next;
           cur->next = NULL;
         }
         else
@@ -143,7 +147,9 @@ static void memory_to_heap(memory_t *memory)
   assert(*(uintptr_t *)(memory->memory_start - sizeof(uintptr_t)) == MAGIC);
   assert(*(uintptr_t *)(memory->memory_start - 2 * sizeof(uintptr_t)) == (uintptr_t)memory);
   memory->memory_size = (uintptr_t)memory->memory_start + memory->memory_size - (uintptr_t)memory - MEMORY_CONFIG;
-  memory->memory_start = (void *)(uintptr_t)memory + MEMORY_CONFIG;
+  memory->memory_start = (void *)memory + MEMORY_CONFIG;
+  // Log("size=%d", memory->memory_size);
+  // Log("start=%d", memory->memory_start);
   memory->next = heap_pool.next;
   heap_pool.next = memory;
   spin_unlock(&heap_lock);
@@ -317,7 +323,6 @@ static void kfree_large(memory_t *memory)
   }
   else
   {
-    assert(0);
     return memory_to_heap(memory);
   }
 }
@@ -347,7 +352,6 @@ static void *kalloc(size_t size)
   size = align_size(size);
   if (size > 4 KB)
   {
-    assert(0);
     ret = kalloc_large(size);
   }
   else if (size == 4 KB)
@@ -356,7 +360,6 @@ static void *kalloc(size_t size)
   }
   else
   {
-    assert(0);
     ret = kalloc_slab(size);
   }
   // Log("success alloc with size=%dB at %07p", size, ret);
@@ -382,12 +385,10 @@ static void kfree(void *ptr)
   if (magic == MAGIC)
   {
     memory_t *memory = fetch_header(ptr, magic);
-    assert((uintptr_t)memory + 4 KB == (uintptr_t)ptr);
     return kfree_large(memory);
   }
   else
   {
-    assert(0);
     slab_t *page = fetch_header(ptr, magic);
     return kfree_slab(page, ptr);
   }

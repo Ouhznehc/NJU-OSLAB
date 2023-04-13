@@ -172,6 +172,7 @@ static void page_to_slab_pool(memory_t *page)
   assert(page->next == NULL);
   page->next = slab_pool.next;
   slab_pool.next = page;
+  Log("free %07p", page->memory_start);
   spin_unlock(&slab_lock);
 }
 

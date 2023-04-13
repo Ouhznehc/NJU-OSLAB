@@ -75,8 +75,14 @@ static void os_run()
   //   spin_unlock(&lk[pos]);
   // }
   int cnt = 1;
-  while (pmm->alloc(4096) != NULL)
+  void *test;
+  while (1)
   {
+    test = pmm->alloc(2);
+    if (test == NULL)
+      break;
+    else
+      pmm->free(test);
     cnt++;
   }
   Log("cnt = %d", cnt);

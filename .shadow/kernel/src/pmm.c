@@ -263,7 +263,10 @@ static void *kalloc_slab(size_t size)
   {
     slab_t *new_page = fetch_page_to_slab(slab_index, cpu);
     if (new_page == NULL)
+    {
+      Log("can't alloc slab");
       ret = NULL;
+    }
     else
     {
       assert(new_page->object_size == slab_type[slab_index]);

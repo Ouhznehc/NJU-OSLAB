@@ -143,7 +143,7 @@ static void memory_to_heap(memory_t *memory)
   assert(*(uintptr_t *)(memory->memory_start - sizeof(uintptr_t)) == MAGIC);
   assert(*(uintptr_t *)(memory->memory_start - 2 * sizeof(uintptr_t)) == (uintptr_t)memory);
   memory->memory_size = (uintptr_t)memory->memory_start + memory->memory_size - (uintptr_t)memory - MEMORY_CONFIG;
-  memory->memory_start = (void *)((uintptr_t)memory + MEMORY_CONFIG);
+  memory->memory_start = (void *)memory + MEMORY_CONFIG;
   memory->next = heap_pool.next;
   heap_pool.next = memory;
   spin_unlock(&heap_lock);

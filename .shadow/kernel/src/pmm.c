@@ -75,12 +75,15 @@ static memory_t *memory_from_heap(size_t size)
     assert(cur != NULL);
     while (cur != NULL && ((uintptr_t)cur->memory_start + cur->memory_size < align_address(cur->memory_start, size) + size))
     {
+      Log("size=%d", cur->memory_size);
       assert(cur != NULL);
       prev = cur;
       cur = cur->next;
     }
     if (cur == NULL)
+    {
       ret = NULL;
+    }
     else
     {
       assert(cur != NULL);
@@ -144,8 +147,8 @@ static void memory_to_heap(memory_t *memory)
   assert(*(uintptr_t *)(memory->memory_start - 2 * sizeof(uintptr_t)) == (uintptr_t)memory);
   memory->memory_size = (uintptr_t)memory->memory_start + memory->memory_size - (uintptr_t)memory - MEMORY_CONFIG;
   memory->memory_start = (void *)memory + MEMORY_CONFIG;
-  Log("size=%d", memory->memory_size);
-  Log("start=%d", memory->memory_start);
+  // Log("size=%d", memory->memory_size);
+  // Log("start=%d", memory->memory_start);
   memory->next = heap_pool.next;
   heap_pool.next = memory;
   spin_unlock(&heap_lock);

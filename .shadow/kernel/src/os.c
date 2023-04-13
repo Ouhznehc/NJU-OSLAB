@@ -92,11 +92,13 @@ static void os_run()
           ;
       cnt++;
     }
+    Log("alloc finish");
     Log("cnt = %d", cnt);
     for (int i = 0; i < 100; i++)
     {
       pmm->free(test[i]);
     }
+    Log("free finish");
   }
 
 // uintptr_t al[4005];

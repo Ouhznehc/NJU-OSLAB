@@ -83,7 +83,8 @@ static void os_run()
       Log("\nos try alloc %dB", 8 MB);
       test[i] = pmm->alloc(8 MB);
       if (test == NULL)
-        goto the_end;
+        while (1)
+          ;
       cnt++;
     }
     for (int i = 0; i < 100; i++)
@@ -106,7 +107,6 @@ static void os_run()
 //   void *ret = pmm->alloc(4096);
 //   Log("%d times: %p\n", i, ret);
 // }
-the_end:
 #endif
   while (1)
     ;

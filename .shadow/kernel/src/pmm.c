@@ -126,6 +126,7 @@ static memory_t *memory_from_heap(size_t size)
       cur->memory_size = size;
       uintptr_t *magic = (uintptr_t *)(memory_start - sizeof(intptr_t));
       uintptr_t *header = (uintptr_t *)(memory_start - 2 * sizeof(intptr_t));
+      assert((uintptr_t)header > (uintptr_t)cur + MEMORY_CONFIG);
       *magic = MAGIC, *header = (uintptr_t)cur;
       ret = cur;
     }

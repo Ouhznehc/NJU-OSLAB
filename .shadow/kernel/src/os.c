@@ -77,9 +77,9 @@ static void os_run()
   int cnt = 1;
   while (pmm->alloc(2) != NULL)
   {
-    Log("cnt = %d", cnt++);
+    cnt++;
   }
-
+  Log("cnt = %d", cnt);
   // uintptr_t al[4005];
   // for (int i = 1; i <= 4000; i++)
   // {

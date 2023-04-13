@@ -92,12 +92,11 @@ static void os_run()
           ;
       cnt++;
     }
+    Log("cnt = %d", cnt);
     for (int i = 0; i < 100; i++)
     {
       pmm->free(test[i]);
     }
-
-    Log("cnt = %d", cnt);
   }
 
 // uintptr_t al[4005];

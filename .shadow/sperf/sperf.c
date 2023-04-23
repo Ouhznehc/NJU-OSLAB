@@ -47,9 +47,7 @@ void fetch_path_env() {
 void fetch_strace_info(int fd) {
   char buffer[MAX_BUFFER];
   FILE* pipe_stream = fdopen(fd, "r");
-  if (pipe_stream == NULL) printf("error.\n");
   while (fgets(buffer, MAX_BUFFER, pipe_stream) != NULL) {
-    printf("%s\n", buffer);
     char syscall_name[64];
     double time;
     if (sscanf(buffer, "%63[^'(]%*[^(](%*[^<]<%lf>)", syscall_name, &time) == 2) {
@@ -113,7 +111,6 @@ int main(int argc, char* argv[]) {
     }
     close(pipefd[1]);
     fetch_strace_argv(argc, argv);
-    execve("strace", exec_argv, exec_envp);
     execve(args[0], args, envp);
     perror("execve");
     exit(EXIT_FAILURE);
@@ -123,7 +120,7 @@ int main(int argc, char* argv[]) {
     close(pipefd[1]);
     waitpid(pid, &status, 0);
     printf("strace exit with %d\n", WIFEXITED(status));
-    fetch_strace_info(pipefd[0]);
+    fetch_strace_info(pipefd[1]);
     close(pipefd[0]);
     display_sperf();
   }

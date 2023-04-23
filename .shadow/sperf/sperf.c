@@ -19,7 +19,7 @@ void get_path_env() {
   paths[path_count] = NULL;
 }
 
-int main(int argc, char argv[]) {
+int main(int argc, char* argv[]) {
   char* exec_argv[] = { "strace", "ls", NULL, };
   char* exec_envp[] = { "PATH=/bin", NULL, };
   // execve("strace", exec_argv, exec_envp);

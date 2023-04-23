@@ -115,11 +115,11 @@ int main(int argc, char* argv[]) {
     // fetch_strace_argv(argc, argv);
     printf("execve\n");
     // fflush(stdout);
-    execl("/bin/ls", "ls", "-l", NULL);
+    // execl("/bin/ls", "ls", "-l", NULL);
     // perror("ls");
     // exit(EXIT_FAILURE);
     // execve("/bin/strace", exec_argv, exec_envp);
-    // execve(args[0], args, envp);
+    execve(args[0], args, envp);
     // perror("execve");
     // exit(EXIT_FAILURE);
   }

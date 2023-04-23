@@ -18,12 +18,12 @@ void fetch_path_env() {
   }
   paths[path_count] = NULL;
 }
-void try() {
+int try() {
   int a[100];
   for (int i = 0; i < 100; i++) {
     a[i] = 1;
   }
-  return;
+  return a[99];
 }
 
 int main(int argc, char* argv[]) {

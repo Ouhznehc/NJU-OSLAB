@@ -106,10 +106,10 @@ int main(int argc, char* argv[]) {
   pid_t pid = fork();
   if (pid == 0) {
     // close(pipefd[0]);
-    if (dup2(pipefd[1], STDOUT_FILENO) == -1) {
-      perror("dup2");
-      exit(EXIT_FAILURE);
-    }
+    // if (dup2(pipefd[1], STDOUT_FILENO) == -1) {
+    //   perror("dup2");
+    //   exit(EXIT_FAILURE);
+    // }
     // close(pipefd[1]);
     fetch_strace_argv(argc, argv);
     execve("strace", exec_argv, envp);
@@ -118,17 +118,17 @@ int main(int argc, char* argv[]) {
     exit(EXIT_FAILURE);
   }
   else {
-    int status;
-    waitpid(pid, &status, 0);
-    if (WIFEXITED(status)) {
-      printf("strace exit with %d\n", WIFEXITED(status));
-    }
-    else {
-      printf("strace exit with some error.\n");
-    }
-    // close(pipefd[1]);
-    fetch_strace_info(pipefd[0]);
-    // close(pipefd[0]);
-    display_sperf();
+    // int status;
+    // waitpid(pid, &status, 0);
+    // if (WIFEXITED(status)) {
+    //   printf("strace exit with %d\n", WIFEXITED(status));
+    // }
+    // else {
+    //   printf("strace exit with some error.\n");
+    // }
+    // // close(pipefd[1]);
+    // fetch_strace_info(pipefd[0]);
+    // // close(pipefd[0]);
+    // display_sperf();
   }
 }

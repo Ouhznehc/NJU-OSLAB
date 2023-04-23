@@ -53,9 +53,10 @@ void fetch_strace_info(int fd) {
   FILE* pipe_stream = fdopen(fd, "r");
   while (fgets(buffer, MAX_BUFFER, pipe_stream) != NULL) {
     printf("%s", buffer);
-    char syscall_name[512];
+    char syscall_name[64];
     double time;
-    if (sscanf(buffer, "%512[^'(]%*[^(](%*[^<]<%lf>)", syscall_name, &time) == 2) {
+    if (sscanf(buffer, "%64[^'(]%*[^(](%*[^<]<%lf>)", syscall_name, &time) == 2) {
+      printf("fuck\n");
       int exist = 0;
       for (int i = 0; i < syscall_count; i++) {
         if (strcmp(syscalls[i].name, syscall_name) == 0) {

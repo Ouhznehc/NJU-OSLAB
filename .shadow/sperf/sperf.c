@@ -54,8 +54,8 @@ void display_sperf() {
   qsort(syscalls, syscall_count, sizeof(syscall_t), syscall_compare);
   printf("%d\n", syscall_count);
   for (int i = 0; i < syscall_count; i++) {
-    int ratio = (int)((syscalls[i].time / total_time) * 100)
-      printf("%s (%d%%)\n", syscalls[i].name, ratio);
+    int ratio = (int)((syscalls[i].time / total_time) * 100);
+    printf("%s (%d%%)\n", syscalls[i].name, ratio);
   }
   fflush(stdout);
 }

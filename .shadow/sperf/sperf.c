@@ -48,6 +48,7 @@ void fetch_strace_info(int fd) {
   char buffer[MAX_BUFFER];
   FILE* pipe_stream = fdopen(fd, "r");
   while (fgets(buffer, MAX_BUFFER, pipe_stream) != NULL) {
+    printf("%s\n", buffer);
     char syscall_name[64];
     double time;
     if (sscanf(buffer, "%63[^'(]%*[^(](%*[^<]<%lf>)", syscall_name, &time) == 2) {

@@ -118,7 +118,7 @@ int main(int argc, char* argv[]) {
     fetch_strace_argv(argc, argv);
     fflush(stdout);
     // execve("/bin/strace", exec_argv, exec_envp);
-    execve(args[0], args, envp);
+    execve(args[0], args, NULL);
     perror("execve");
     exit(EXIT_FAILURE);
   }

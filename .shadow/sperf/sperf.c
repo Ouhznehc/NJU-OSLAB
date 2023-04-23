@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <sys/wait.h>
 
 #define MAX_PATHS 100
 #define MAX_ARGVS 100

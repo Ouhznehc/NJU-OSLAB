@@ -23,7 +23,7 @@ void try() {
   for (int i = 0; i < 100; i++) {
     a[i] = 1;
   }
-  return 0;
+  return;
 }
 
 int main(int argc, char* argv[]) {

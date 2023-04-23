@@ -5,6 +5,8 @@
 #include <sys/select.h>
 #include <fcntl.h>
 #include <time.h>
+#include <fcntl.h>
+#include <poll.h>
 
 #define MAX_PATHS 100
 #define MAX_ARGVS 100
@@ -126,6 +128,17 @@ int main(int argc, char* argv[]) {
   int pipefd[2];
   if (pipe(pipefd) != 0) {
     perror("pipe");
+    exit(EXIT_FAILURE);
+  }
+  int flags = fcntl(pipefd[0], F_GETFL, 0);
+  if (flags == -1) {
+    perror("fcntl F_GETFL");
+    exit(EXIT_FAILURE);
+  }
+
+  flags |= O_NONBLOCK;
+  if (fcntl(pipefd[0], F_SETFL, flags) == -1) {
+    perror("fcntl F_SETFL");
     exit(EXIT_FAILURE);
   }
   pid_t pid = fork();

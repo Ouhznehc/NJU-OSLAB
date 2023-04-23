@@ -9,7 +9,7 @@
 #define MAX_FILENAME 64
 #define MAX_SYSCALL 100
 #define MAX_BUFFER 512
-#define MAX_ENVP 10
+#define MAX_ENVP 1024
 
 //! syscall_t
 typedef struct syscall_t {
@@ -27,7 +27,7 @@ int syscall_count;
 
 //! path_env
 char* env_path[MAX_PATHS];
-char* envp[MAX_ENVP];
+char envp[10][MAX_ENVP];
 char* args[MAX_ARGVS];
 char file_path[MAX_FILENAME];
 

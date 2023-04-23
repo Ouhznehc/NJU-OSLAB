@@ -32,11 +32,11 @@ char* args[MAX_ARGVS];
 char file_path[MAX_FILENAME];
 
 void fetch_path_env() {
-  printf("11\n");
+
   char* path_env = getenv("PATH");
-  printf("12\n");
+
   snprintf(envp[0], 1024, "PATH=%s", path_env);
-  printf("13\n");
+
 
   char* path = strtok(path_env, ":");
   int path_count = 0;
@@ -113,10 +113,10 @@ int main(int argc, char* argv[]) {
   pid_t pid = fork();
   if (pid == 0) {
     close(pipefd[0]);
-    // if (dup2(pipefd[1], STDOUT_FILENO) == -1) {
-    //   perror("dup2");
-    //   exit(EXIT_FAILURE);
-    // }
+    if (dup2(pipefd[1], STDOUT_FILENO) == -1) {
+      perror("dup2");
+      exit(EXIT_FAILURE);
+    }
     close(pipefd[1]);
     fetch_strace_argv(argc, argv);
     printf("execve\n");

@@ -111,22 +111,22 @@ int main(int argc, char* argv[]) {
     //   exit(EXIT_FAILURE);
     // }
     // close(pipefd[1]);
-    fetch_strace_argv(argc, argv);
-    printf("execve\n");
+    // fetch_strace_argv(argc, argv);
+    // printf("execve\n");
     execl("/bin/ls", "ls", "-l", NULL);
-    perror("ls");
-    exit(EXIT_FAILURE);
-    execve(args[0], args, envp);
-    perror("execve");
-    exit(EXIT_FAILURE);
+    // perror("ls");
+    // exit(EXIT_FAILURE);
+    // execve(args[0], args, envp);
+    // perror("execve");
+    // exit(EXIT_FAILURE);
   }
   else {
-    int status;
-    close(pipefd[1]);
-    waitpid(pid, &status, 0);
-    printf("strace exit with %d\n", WIFEXITED(status));
-    fetch_strace_info(pipefd[0]);
-    close(pipefd[0]);
+    // int status;
+    // close(pipefd[1]);
+    // waitpid(pid, &status, 0);
+    // printf("strace exit with %d\n", WIFEXITED(status));
+    // fetch_strace_info(pipefd[0]);
+    // close(pipefd[0]);
     display_sperf();
   }
 }

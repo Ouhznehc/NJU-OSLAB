@@ -73,7 +73,7 @@ void fetch_strace_info(int fd) {
 }
 
 char* fetch_command(char* name) {
-  static counter = -1;
+  static int counter = -1;
   counter++;
   if (name[0] == '/') return name;
   for (int i = 0; env_path[i]; i++) {

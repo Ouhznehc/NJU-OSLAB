@@ -82,7 +82,7 @@ void fetch_strace_info(int fd) {
       }
     }
   }
-  else display_sperf();
+  display_sperf();
   fclose(pipe_stream);
 }
 

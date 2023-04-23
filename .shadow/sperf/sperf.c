@@ -110,13 +110,15 @@ int main(int argc, char* argv[]) {
   pid_t pid = fork();
   if (pid == 0) {
     close(pipefd[0]);
-    if (dup2(pipefd[1], STDERR_FILENO) == -1 || dup2("/dev/null", STDOUT_FILENO)) {
+    if (dup2(pipefd[1], STDERR_FILENO) == -1) {
       perror("dup2");
       exit(EXIT_FAILURE);
     }
+
     close(pipefd[1]);
     fetch_strace_argv(argc, argv);
     fflush(stdout);
+    fclose(stdout);
     execve("/bin/strace", exec_argv, exec_envp);
     // execve(args[0], args, NULL);
     perror("execve");

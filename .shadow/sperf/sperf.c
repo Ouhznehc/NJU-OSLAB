@@ -3,6 +3,21 @@
 #include <unistd.h>
 #include <string.h>
 
+//! syscall_t
+#define MAX_SYSCALL 100
+typedef struct syscall_t {
+  char name[64];
+  double time;
+}syscall_t;
+int syscall_compare(const void* a, const void* b) {
+  const syscall_t* syscallA = (const syscall_t*)a;
+  const syscall_t* syscallB = (const syscall_t*)b;
+  return syscallA->time < syscallB->time;
+}
+
+syscall_t syscalls[MAX_SYSCALL];
+
+
 //! path_env
 #define MAX_PATHS 100
 char* paths[MAX_PATHS];
@@ -18,23 +33,14 @@ void fetch_path_env() {
   }
   paths[path_count] = NULL;
 }
-int try() {
-  int a[100];
-  for (int i = 0; i < 100; i++) {
-    a[i] = 1;
-  }
-  return a[99];
-}
+
+
+
+
 
 int main(int argc, char* argv[]) {
 
   fetch_path_env();
-  try();
-  int i = 0;
-  while (paths[i] != NULL) {
-    printf("%s\n", paths[i]);
-    i++;
-  }
   char* exec_argv[] = { "strace", "ls", NULL, };
   char* exec_envp[] = { "PATH=/bin", NULL, };
   // execve("strace", exec_argv, exec_envp);

@@ -117,11 +117,11 @@ int main(int argc, char* argv[]) {
   }
   else {
     int status;
-    close(pipefd[1]);
+    close(pipefd[0]);
     waitpid(pid, &status, 0);
     printf("strace exit with %d\n", WIFEXITED(status));
     fetch_strace_info(pipefd[1]);
-    close(pipefd[0]);
+    close(pipefd[1]);
     display_sperf();
   }
 }

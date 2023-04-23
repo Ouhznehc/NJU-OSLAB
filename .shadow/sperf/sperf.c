@@ -103,6 +103,7 @@ int main(int argc, char* argv[]) {
   }
   pid_t pid = fork();
   if (pid == 0) {
+    printf("test\n");
     // close(pipefd[0]);
     if (dup2(pipefd[1], STDOUT_FILENO) == -1) {
       perror("dup2");

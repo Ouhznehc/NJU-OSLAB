@@ -76,6 +76,7 @@ char* fetch_command(char* name) {
     if (access(file_path, F_OK) == 0)
       return file_path;
   }
+  printf("errror\n");
   perror(name);
   exit(EXIT_FAILURE);
 }

@@ -111,10 +111,8 @@ int main(int argc, char* argv[]) {
       perror("dup2");
       exit(EXIT_FAILURE);
     }
-    // close(pipefd[1]);
-    // fetch_strace_argv(argc, argv);
-    printf("execve\n");
-    fflush(stdout);
+    close(pipefd[1]);
+    fetch_strace_argv(argc, argv);
     // execl("/bin/ls", "ls", "-l", NULL);
     // perror("ls");
     // exit(EXIT_FAILURE);
@@ -128,7 +126,6 @@ int main(int argc, char* argv[]) {
     close(pipefd[1]);
     waitpid(pid, &status, 0);
     printf("strace exit with %d\n", WIFEXITED(status));
-    printf("lalsldlasd\n");
     fflush(stdout);
     fetch_strace_info(pipefd[0]);
     close(pipefd[0]);

@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
   fetch_path_env();
   int i = 0;
   while (paths[i] != NULL) {
-    printf("%s\n", path[i]);
+    printf("%s\n", paths[i]);
     i++;
   }
   char* exec_argv[] = { "strace", "ls", NULL, };

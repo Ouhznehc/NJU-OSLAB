@@ -114,6 +114,7 @@ int main(int argc, char* argv[]) {
     close(pipefd[1]);
     // fetch_strace_argv(argc, argv);
     printf("execve\n");
+    fflush(stdout);
     execl("/bin/ls", "ls", "-l", NULL);
     // perror("ls");
     // exit(EXIT_FAILURE);

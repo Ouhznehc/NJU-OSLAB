@@ -8,6 +8,7 @@
 #define MAX_FILENAME 64
 #define MAX_SYSCALL 100
 #define MAX_BUFFER 512
+#define MAX_ENVP 1024
 
 //! syscall_t
 typedef struct syscall_t {
@@ -24,16 +25,19 @@ syscall_t syscalls[MAX_SYSCALL];
 int syscall_count;
 
 //! path_env
-char* envp[MAX_PATHS];
+char* env_path[MAX_PATHS];
 char* args[MAX_ARGVS];
 char file_path[MAX_FILENAME];
+char envp[MAX_ENVP];
 
 void fetch_path_env() {
   char* path_env = getenv("PATH");
+  snprintf(envp, sizeof(envp), "PATH=%s", path_env);
+
   char* path = strtok(path_env, ":");
   int path_count = 0;
   while (path != NULL && path_count < MAX_PATHS) {
-    envp[path_count] = path;
+    env_path[path_count] = path;
     path = strtok(NULL, ":");
     path_count++;
   }
@@ -65,8 +69,8 @@ void fetch_strace_info(int fd) {
 
 char* fetch_command(char* name) {
   if (name[0] == '/') return name;
-  for (int i = 0; envp[i]; i++) {
-    snprintf(file_path, sizeof(file_path), "%s/%s", envp[i], name);
+  for (int i = 0; env_path[i]; i++) {
+    snprintf(file_path, sizeof(file_path), "%s/%s", env_path[i], name);
     if (access(file_path, F_OK) == 0)
       return file_path;
   }

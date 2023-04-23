@@ -78,8 +78,8 @@ void fetch_strace_argv(int argc, char* argv[]) {
   fetch_path_env();
   args[0] = fetch_command("strace");
   args[1] = "-T";
-  args[2] = fetch_command(argv[0]);
-  for (int i = 1; i < argc; i++) args[i + 2] = argv[i];
+  args[2] = fetch_command(argv[1]);
+  for (int i = 2; i < argc; i++) args[i + 1] = argv[i];
 }
 
 void display_sperf() {
@@ -91,7 +91,6 @@ void display_sperf() {
 
 int main(int argc, char* argv[]) {
   int pipefd[2];
-  printf("%d %s\n", argc, argv[0]);
   if (pipe(pipefd) != 0) {
     perror("pipe");
     exit(EXIT_FAILURE);

@@ -47,7 +47,6 @@ void fetch_path_env() {
 void fetch_strace_info(int fd) {
   char buffer[MAX_BUFFER];
   FILE* pipe_stream = fdopen(fd, "r");
-  if (pipe_stream == NULL) perror("pipe_stream");
   while (fgets(buffer, MAX_BUFFER, pipe_stream) != NULL) {
     char syscall_name[64];
     double time;
@@ -112,6 +111,7 @@ int main(int argc, char* argv[]) {
     }
     close(pipefd[1]);
     fetch_strace_argv(argc, argv);
+    execl("/bin/ls", "ls", "-l", NULL);
     execve(args[0], args, envp);
     perror("execve");
     exit(EXIT_FAILURE);

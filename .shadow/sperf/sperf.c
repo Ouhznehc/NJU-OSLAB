@@ -36,6 +36,7 @@ void fetch_path_env() {
   char* path_env = getenv("PATH");
   printf("12\n");
   snprintf(envp[0], 1024, "PATH=%s", path_env);
+  printf("13\n");
 
   char* path = strtok(path_env, ":");
   int path_count = 0;

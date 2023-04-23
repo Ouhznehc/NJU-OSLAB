@@ -126,8 +126,8 @@ int main(int argc, char* argv[]) {
     fflush(stdout);
     dup2(fd, STDOUT_FILENO);
     close(fd);
-    execve("/bin/strace", exec_argv, exec_envp);
-    // execve(args[0], args, NULL);
+    // execve("/bin/strace", exec_argv, exec_envp);
+    execve(args[0], args, NULL);
     perror("execve");
     exit(EXIT_FAILURE);
   }

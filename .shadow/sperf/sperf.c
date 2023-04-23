@@ -102,7 +102,7 @@ void display_sperf() {
 }
 
 int main(int argc, char* argv[]) {
-  char* exec_argv[] = { "strace", "ls", NULL, };
+  char* exec_argv[] = { "strace", "-T", "ls", NULL, };
   char* exec_envp[] = { "PATH=/bin", NULL, };
   int pipefd[2];
   if (pipe(pipefd) != 0) {

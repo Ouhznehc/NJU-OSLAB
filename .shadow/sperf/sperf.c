@@ -111,10 +111,10 @@ int main(int argc, char* argv[]) {
     //   perror("dup2");
     //   exit(EXIT_FAILURE);
     // }
-    close(pipefd[1]);
+    // close(pipefd[1]);
     fetch_strace_argv(argc, argv);
     printf("execve\n");
-    fflush(stdout);
+    // fflush(stdout);
     execve("/bin/strace", exec_argv, exec_envp);
     // execve(args[0], args, envp);
     perror("execve");

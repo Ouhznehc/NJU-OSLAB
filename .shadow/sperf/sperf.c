@@ -81,6 +81,7 @@ char* fetch_command(char* name) {
 }
 
 void fetch_strace_argv(int argc, char* argv[]) {
+  printf("1\n");
   fetch_path_env();
   args[0] = fetch_command("strace");
   args[1] = "-T";
@@ -107,12 +108,12 @@ int main(int argc, char* argv[]) {
   pid_t pid = fork();
   if (pid == 0) {
     close(pipefd[0]);
-    if (dup2(pipefd[1], STDOUT_FILENO) == -1) {
-      perror("dup2");
-      exit(EXIT_FAILURE);
-    }
+    // if (dup2(pipefd[1], STDOUT_FILENO) == -1) {
+    //   perror("dup2");
+    //   exit(EXIT_FAILURE);
+    // }
     close(pipefd[1]);
-    // fetch_strace_argv(argc, argv);
+    fetch_strace_argv(argc, argv);
     printf("execve\n");
     fflush(stdout);
     execve("/bin/strace", exec_argv, exec_envp);

@@ -62,20 +62,17 @@ void fetch_strace_info(int fd) {
   char buffer[MAX_BUFFER];
   FILE* pipe_stream = fdopen(fd, "r");
 
-  fd_set read_fds;
-  FD_ZERO(&read_fds);
-  FD_SET(fd, &read_fds);
+  struct pollfd pfd;
+  pfd.fd = fd;
+  pfd.events = POLLIN;
 
-  struct timeval tv;
-  tv.tv_sec = 1;
-  tv.tv_usec = 0;
-
-  int check = select(fd + 1, &read_fds, NULL, NULL, &tv);
-  if (check == -1) {
-    perror("select");
+  int result = poll(&pfd, 1, 1000);  // 使用1000毫秒（1秒）超时
+  if (result == -1) {
+    perror("poll");
     exit(EXIT_FAILURE);
   }
-  if (check)
+
+  if (result)
     while (fgets(buffer, MAX_BUFFER, pipe_stream) != NULL) {
       char syscall_name[64];
       double time;

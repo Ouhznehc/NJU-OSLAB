@@ -63,36 +63,25 @@ void fetch_strace_info(int fd) {
   char buffer[MAX_BUFFER];
   FILE* pipe_stream = fdopen(fd, "r");
 
-  struct pollfd pfd;
-  pfd.fd = fd;
-  pfd.events = POLLIN;
-
-  int result = poll(&pfd, 1, 1000);  // 使用1000毫秒（1秒）超时
-  if (result == -1) {
-    perror("poll");
-    exit(EXIT_FAILURE);
-  }
-
-  if (result)
-    while (fgets(buffer, MAX_BUFFER, pipe_stream) != NULL) {
-      char syscall_name[64];
-      double time;
-      if (sscanf(buffer, "%63[^'(](%*[^<]<%lf>)", syscall_name, &time) == 2) {
-        int exist = 0;
-        total_time += time;
-        for (int i = 0; i < syscall_count; i++) {
-          if (strcmp(syscalls[i].name, syscall_name) == 0) {
-            syscalls[i].time += time;
-            exist = 1;
-          }
-        }
-        if (!exist) {
-          strcpy(syscalls[syscall_count].name, syscall_name);
-          syscalls[syscall_count].time = time;
-          syscall_count++;
+  while (fgets(buffer, MAX_BUFFER, pipe_stream) != NULL) {
+    char syscall_name[64];
+    double time;
+    if (sscanf(buffer, "%63[^'(](%*[^<]<%lf>)", syscall_name, &time) == 2) {
+      int exist = 0;
+      total_time += time;
+      for (int i = 0; i < syscall_count; i++) {
+        if (strcmp(syscalls[i].name, syscall_name) == 0) {
+          syscalls[i].time += time;
+          exist = 1;
         }
       }
+      if (!exist) {
+        strcpy(syscalls[syscall_count].name, syscall_name);
+        syscalls[syscall_count].time = time;
+        syscall_count++;
+      }
     }
+  }
   else display_sperf();
   fclose(pipe_stream);
 }
@@ -121,22 +110,9 @@ void fetch_strace_argv(int argc, char* argv[]) {
 
 
 int main(int argc, char* argv[]) {
-  char* exec_argv[] = { "strace", "-T", "ls", NULL, };
-  char* exec_envp[] = { "PATH=/bin", NULL, };
   int pipefd[2];
   if (pipe(pipefd) != 0) {
     perror("pipe");
-    exit(EXIT_FAILURE);
-  }
-  int flags = fcntl(pipefd[0], F_GETFL, 0);
-  if (flags == -1) {
-    perror("fcntl F_GETFL");
-    exit(EXIT_FAILURE);
-  }
-
-  flags |= O_NONBLOCK;
-  if (fcntl(pipefd[0], F_SETFL, flags) == -1) {
-    perror("fcntl F_SETFL");
     exit(EXIT_FAILURE);
   }
   pid_t pid = fork();

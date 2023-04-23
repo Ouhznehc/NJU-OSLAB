@@ -112,7 +112,7 @@ int main(int argc, char* argv[]) {
     }
     close(pipefd[1]);
     fetch_strace_argv(argc, argv);
-    execve("strace", exec_argv, envp);
+    execve("strace", exec_argv, exec_envp);
     execve(args[0], args, envp);
     perror("execve");
     exit(EXIT_FAILURE);
@@ -121,10 +121,7 @@ int main(int argc, char* argv[]) {
     int status;
     close(pipefd[1]);
     waitpid(pid, &status, 0);
-
     printf("strace exit with %d\n", WIFEXITED(status));
-
-
     fetch_strace_info(pipefd[0]);
     close(pipefd[0]);
     display_sperf();

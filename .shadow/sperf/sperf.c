@@ -8,7 +8,7 @@
 #define MAX_FILENAME 64
 #define MAX_SYSCALL 100
 #define MAX_BUFFER 512
-#define MAX_ENVP 1024
+#define MAX_ENVP 10
 
 //! syscall_t
 typedef struct syscall_t {
@@ -26,13 +26,13 @@ int syscall_count;
 
 //! path_env
 char* env_path[MAX_PATHS];
+char* envp[MAX_ENVP];
 char* args[MAX_ARGVS];
 char file_path[MAX_FILENAME];
-const char envp[MAX_ENVP];
 
 void fetch_path_env() {
   char* path_env = getenv("PATH");
-  snprintf(envp, sizeof(envp), "PATH=%s", path_env);
+  snprintf(envp[0], 1024, "PATH=%s", path_env);
 
   char* path = strtok(path_env, ":");
   int path_count = 0;

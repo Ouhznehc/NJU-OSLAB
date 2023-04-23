@@ -24,31 +24,27 @@
 #define clrbit(x, pos) ((x) &= ~(1 << (pos)))
 #define getbit(x, pos) (((x) >> (pos)) & 1)
 
-typedef union slab_t
-{
-  struct
-  {
+typedef union slab_t {
+  struct {
     int cpu;
-    union slab_t *next;
+    union slab_t* next;
     size_t object_size;
     int object_counter;
     int object_capacity;
-    void *object_start;
+    void* object_start;
     int bitset[64]; // each bit stand for the existence of object
   };
   uint8_t data[SLAB_SIZE];
 } slab_t;
 
-typedef struct kmem_cache
-{
+typedef struct kmem_cache {
   spinlock_t lk;
   slab_t slab_list[SLAB_TYPE]; // the head of slab_list
 } kmem_cache;
 
-typedef struct memory_t
-{
-  struct memory_t *next;
-  void *memory_start;
+typedef struct memory_t {
+  struct memory_t* next;
+  void* memory_start;
   size_t memory_size;
 } memory_t;
 

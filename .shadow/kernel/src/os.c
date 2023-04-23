@@ -4,8 +4,7 @@
 spinlock_t debug_lk;
 #endif
 
-static void os_init()
-{
+static void os_init() {
 #ifdef __DEBUG_MODE__
   init_lock(&debug_lk, "debug_lk");
 #endif
@@ -16,8 +15,7 @@ static void os_init()
 // uintptr_t alloc[100005];
 // size_t num[100005];
 #endif
-static void os_run()
-{
+static void os_run() {
 #ifdef __DEBUG_MODE__
   // for (int i = 0; i < 100005; i++)
   // {
@@ -80,17 +78,14 @@ static void os_run()
   // }
 
   int cnt = 0;
-  void *test[100];
-  while (1)
-  {
-    for (int i = 0; i < 100; i++)
-    {
+  void* test[100];
+  while (1) {
+    for (int i = 0; i < 100; i++) {
       // Log("\nos try alloc %dB", 8);
       // Log("begin alloc %d", i);
       test[i] = pmm->alloc(4096);
       // Log("add = %p", test[i]);
-      if (test[i] == NULL)
-      {
+      if (test[i] == NULL) {
         Log("cnt=%d", cnt);
         while (1)
           ;
@@ -106,18 +101,18 @@ static void os_run()
     // Log("free finish");
   }
 
-// uintptr_t al[4005];
-// for (int i = 1; i <= 4000; i++)
-// {
-//   al[i] = (uintptr_t)pmm->alloc(2);
-//   Log("%d times: %p\n", i, al[i]);
-// }
-// for (int i = 1; i <= 1000; i++)
-// {
-//   pmm->free((void *)al[i]);
-//   void *ret = pmm->alloc(4096);
-//   Log("%d times: %p\n", i, ret);
-// }
+  // uintptr_t al[4005];
+  // for (int i = 1; i <= 4000; i++)
+  // {
+  //   al[i] = (uintptr_t)pmm->alloc(2);
+  //   Log("%d times: %p\n", i, al[i]);
+  // }
+  // for (int i = 1; i <= 1000; i++)
+  // {
+  //   pmm->free((void *)al[i]);
+  //   void *ret = pmm->alloc(4096);
+  //   Log("%d times: %p\n", i, ret);
+  // }
 #endif
   while (1)
     ;

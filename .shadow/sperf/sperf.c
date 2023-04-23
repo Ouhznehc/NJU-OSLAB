@@ -101,21 +101,21 @@ int main(int argc, char* argv[]) {
   }
   pid_t pid = fork();
   if (pid == 0) {
-    close(pipefd[0]);
+    // close(pipefd[0]);
     if (dup2(pipefd[1], STDOUT_FILENO) == -1) {
       perror("dup2");
       exit(EXIT_FAILURE);
     }
-    close(pipefd[1]);
+    // close(pipefd[1]);
     fetch_strace_argv(argc, argv);
     execve(args[0], args, envp);
     perror("execve");
     exit(EXIT_FAILURE);
   }
   else {
-    close(pipefd[1]);
+    // close(pipefd[1]);
     fetch_strace_info(pipefd[0]);
-    close(pipefd[0]);
+    // close(pipefd[0]);
     display_sperf();
   }
 }

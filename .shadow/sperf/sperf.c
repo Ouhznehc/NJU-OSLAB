@@ -12,7 +12,7 @@ void fetch_path_env() {
   char* path = strtok(path_env, ":");
   int path_count = 0;
   while (path != NULL && path_count < MAX_PATHS) {
-    paths[path_count] = path;
+    strcpy(paths[path_count], path);
     path = strtok(NULL, ":");
     path_count++;
   }

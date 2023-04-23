@@ -128,6 +128,7 @@ int main(int argc, char* argv[]) {
     close(pipefd[1]);
     waitpid(pid, &status, 0);
     printf("strace exit with %d\n", WIFEXITED(status));
+    fflush(stdout);
     fetch_strace_info(pipefd[0]);
     close(pipefd[0]);
     display_sperf();

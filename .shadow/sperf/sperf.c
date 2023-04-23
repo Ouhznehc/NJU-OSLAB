@@ -55,9 +55,9 @@ void fetch_strace_info(int fd) {
     printf("%s", buffer);
     char syscall_name[64];
     double time;
-    // if (sscanf(buffer, "%64[^'(]%*[^(](%*[^<]<%lf>)", syscall_name, &time) == 2) {
+    // if (sscanf(buffer, "%63[^'(](%*[^<]<%lf>)", name, &time) == 2) {
     if (1) {
-      int ret = sscanf(buffer, "%64[^'(]%*[^(](%*[^<]<%lf>)", syscall_name, &time);
+      int ret = sscanf(buffer, "%63[^'(](%*[^<]<%lf>)", syscall_name, &time);
       printf("ret = %d\n", ret);
       printf("%s: %lf\n", syscall_name, time);
       int exist = 0;

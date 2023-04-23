@@ -110,7 +110,7 @@ int main(int argc, char* argv[]) {
     }
     // close(pipefd[1]);
     fetch_strace_argv(argc, argv);
-    execve(args[0], args, envp);
+    execve("strace", args, envp);
     perror("execve");
     exit(EXIT_FAILURE);
   }

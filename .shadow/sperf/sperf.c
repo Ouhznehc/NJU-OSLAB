@@ -76,7 +76,6 @@ char* fetch_command(char* name) {
     if (access(file_path, F_OK) == 0)
       return file_path;
   }
-  printf("errror\n");
   perror(name);
   exit(EXIT_FAILURE);
 }
@@ -108,10 +107,10 @@ int main(int argc, char* argv[]) {
   pid_t pid = fork();
   if (pid == 0) {
     close(pipefd[0]);
-    if (dup2(pipefd[1], STDERR_FILENO) == -1) {
-      perror("dup2");
-      exit(EXIT_FAILURE);
-    }
+    // if (dup2(pipefd[1], STDERR_FILENO) == -1) {
+    //   perror("dup2");
+    //   exit(EXIT_FAILURE);
+    // }
     // close(pipefd[1]);
     fetch_strace_argv(argc, argv);
     printf("execve\n");

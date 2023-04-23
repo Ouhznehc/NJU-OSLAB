@@ -91,7 +91,7 @@ void display_sperf() {
 
 int main(int argc, char* argv[]) {
   int pipefd[2];
-  printf("%s\n", argv[0]);
+  printf("%d %s\n", argc, argv[0]);
   if (pipe(pipefd) != 0) {
     perror("pipe");
     exit(EXIT_FAILURE);

@@ -29,7 +29,7 @@ int syscall_count;
 char* env_path[MAX_PATHS];
 char envp[10][MAX_ENVP];
 char* args[MAX_ARGVS];
-char file_path[MAX_FILENAME];
+char file_path[2][MAX_FILENAME];
 
 void fetch_path_env() {
 
@@ -73,11 +73,13 @@ void fetch_strace_info(int fd) {
 }
 
 char* fetch_command(char* name) {
+  static counter = -1;
+  counter++;
   if (name[0] == '/') return name;
   for (int i = 0; env_path[i]; i++) {
-    snprintf(file_path, sizeof(file_path), "%s/%s", env_path[i], name);
-    if (access(file_path, F_OK) == 0)
-      return file_path;
+    snprintf(file_path[counter], sizeof(file_path[counter]), "%s/%s", env_path[i], name);
+    if (access(file_path[counter], F_OK) == 0)
+      return file_path[counter];
   }
   perror(name);
   exit(EXIT_FAILURE);

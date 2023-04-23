@@ -102,7 +102,7 @@ int main(int argc, char* argv[]) {
       exit(EXIT_FAILURE);
     }
     close(pipefd[1]);
-    handle_commands(argc, argv);
+    fetch_strace_argv(argc, argv);
     execve(args[0], args, envp);
     perror("execve");
     exit(EXIT_FAILURE);

@@ -47,7 +47,7 @@ void fetch_path_env() {
 void fetch_strace_info(int fd) {
   char buffer[MAX_BUFFER];
   FILE* pipe_stream = fdopen(fd, "r");
-  if (pipe_stream == -1) printf("error.\n");
+  if (pipe_stream == NULL) printf("error.\n");
   while (fgets(buffer, MAX_BUFFER, pipe_stream) != NULL) {
     char syscall_name[64];
     double time;

@@ -57,7 +57,7 @@ void display_sperf() {
     int ratio = (int)((syscalls[i].time / total_time) * 100);
     printf("%s (%d%%)\n", syscalls[i].name, ratio);
   }
-  for (int i = 0; i < 80; i++) printf("\0");
+  for (int i = 0; i < 80; i++) printf('\0');
   fflush(stdout);
 }
 

@@ -28,17 +28,13 @@ int syscall_count;
 
 //! path_env
 char* env_path[MAX_PATHS];
-char envp[10][MAX_ENVP];
+// char envp[10][MAX_ENVP];
 char* args[MAX_ARGVS];
 char file_path[2][MAX_FILENAME];
 
 void fetch_path_env() {
-
   char* path_env = getenv("PATH");
-
-  snprintf(envp[0], 1024, "PATH=%s", path_env);
-
-
+  // snprintf(envp[0], 1024, "PATH=%s", path_env);
   char* path = strtok(path_env, ":");
   int path_count = 0;
   while (path != NULL && path_count < MAX_PATHS) {
@@ -95,7 +91,6 @@ void fetch_strace_argv(int argc, char* argv[]) {
 
 void display_sperf() {
   qsort(syscalls, syscall_count, sizeof(syscall_t), syscall_compare);
-  printf("%d\n", syscall_count);
   for (int i = 0; i < syscall_count; i++) {
     printf("%s : %lf\n", syscalls[i].name, syscalls[i].time);
   }
@@ -120,13 +115,9 @@ int main(int argc, char* argv[]) {
     }
     close(pipefd[1]);
     fetch_strace_argv(argc, argv);
-    for (int i = 0; args[i]; i++) {
-      printf("%s\n", args[i]);
-    }
     fflush(stdout);
     dup2(fd, STDOUT_FILENO);
     close(fd);
-    // execve("/bin/strace", exec_argv, exec_envp);
     execve(args[0], args, NULL);
     perror("execve");
     exit(EXIT_FAILURE);

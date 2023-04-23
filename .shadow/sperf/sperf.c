@@ -84,11 +84,8 @@ char* fetch_command(char* name) {
 }
 
 void fetch_strace_argv(int argc, char* argv[]) {
-  printf("1\n");
   fetch_path_env();
-  printf("2\n");
   args[0] = fetch_command("strace");
-  printf("3\n");
   args[1] = "-T";
   args[2] = fetch_command(argv[1]);
   for (int i = 2; i < argc; i++) args[i + 1] = argv[i];

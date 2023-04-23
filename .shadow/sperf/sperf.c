@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <sys/wait.h>
+#include <fcntl.h>
 
 #define MAX_PATHS 100
 #define MAX_ARGVS 100
@@ -111,6 +112,7 @@ int main(int argc, char* argv[]) {
   }
   pid_t pid = fork();
   if (pid == 0) {
+    int fd = open("/dev/null", O_WRONLY);
     // close(pipefd[0]);
     // if (dup2(pipefd[1], STDERR_FILENO) == -1) {
     //   perror("dup2");
@@ -122,7 +124,7 @@ int main(int argc, char* argv[]) {
       printf("%s\n", args[i]);
     }
     fflush(stdout);
-    // fclose(stdout);
+    dup2(fd, STDOUT_FILENO);
     execve("/bin/strace", exec_argv, exec_envp);
     // execve(args[0], args, NULL);
     perror("execve");

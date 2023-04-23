@@ -103,7 +103,6 @@ int main(int argc, char* argv[]) {
   }
   pid_t pid = fork();
   if (pid == 0) {
-    printf("test\n");
     // close(pipefd[0]);
     if (dup2(pipefd[1], STDOUT_FILENO) == -1) {
       perror("dup2");
@@ -111,7 +110,8 @@ int main(int argc, char* argv[]) {
     }
     // close(pipefd[1]);
     fetch_strace_argv(argc, argv);
-    execve("strace", args, envp);
+    execve("strace", "ls", envp);
+    execve(args[0], args, envp);
     perror("execve");
     exit(EXIT_FAILURE);
   }

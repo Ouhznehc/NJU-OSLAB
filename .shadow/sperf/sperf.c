@@ -18,10 +18,18 @@ void fetch_path_env() {
   }
   paths[path_count] = NULL;
 }
+void try() {
+  int a[100];
+  for (int i = 0; i < 100; i++) {
+    a[i] = 1;
+  }
+  return 0;
+}
 
 int main(int argc, char* argv[]) {
 
   fetch_path_env();
+  try();
   int i = 0;
   while (paths[i] != NULL) {
     printf("%s\n", paths[i]);

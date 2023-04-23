@@ -123,7 +123,7 @@ int main(int argc, char* argv[]) {
       printf("%s\n", args[i]);
     }
     fflush(stdout);
-    fclose(stdout);
+    // fclose(stdout);
     // execve("/bin/strace", exec_argv, exec_envp);
     execve(args[0], args, NULL);
     perror("execve");

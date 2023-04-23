@@ -49,6 +49,7 @@ void fetch_strace_info(int fd) {
   FILE* pipe_stream = fdopen(fd, "r");
   if (pipe_stream == NULL) printf("error.\n");
   while (fgets(buffer, MAX_BUFFER, pipe_stream) != NULL) {
+    printf("%s\n", buffer);
     char syscall_name[64];
     double time;
     if (sscanf(buffer, "%63[^'(]%*[^(](%*[^<]<%lf>)", syscall_name, &time) == 2) {
@@ -90,7 +91,6 @@ void fetch_strace_argv(int argc, char* argv[]) {
 
 void display_sperf() {
   qsort(syscalls, syscall_count, sizeof(syscall_t), syscall_compare);
-  printf("%d\n", syscall_count);
   for (int i = 0; i < syscall_count; i++) {
     printf("%s : %lf\n", syscalls[i].name, syscalls[i].time);
   }

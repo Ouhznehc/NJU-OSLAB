@@ -7,7 +7,7 @@
 #define MAX_PATHS 100
 char* paths[MAX_PATHS];
 
-void get_path_env() {
+void fetch_path_env() {
   char* path_env = getenv("PATH");
   char* path = strtok(path_env, ":");
   int path_count = 0;
@@ -20,6 +20,13 @@ void get_path_env() {
 }
 
 int main(int argc, char* argv[]) {
+
+  fetch_path_env();
+  int i = 0;
+  while (paths[i] != NULL) {
+    printf("%s\n", path[i]);
+    i++;
+  }
   char* exec_argv[] = { "strace", "ls", NULL, };
   char* exec_envp[] = { "PATH=/bin", NULL, };
   // execve("strace", exec_argv, exec_envp);

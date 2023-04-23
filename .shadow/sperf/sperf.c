@@ -26,6 +26,7 @@ int syscall_count;
 //! path_env
 char* envp[MAX_PATHS];
 char* args[MAX_ARGVS];
+char file_path[MAX_FILENAME];
 
 void fetch_path_env() {
   char* path_env = getenv("PATH");
@@ -65,7 +66,6 @@ void fetch_strace_info(int fd) {
 char* fetch_command(char* name) {
   if (name[0] == '/') return name;
   for (int i = 0; envp[i]; i++) {
-    char file_path[MAX_FILENAME];
     snprintf(file_path, sizeof(file_path), "%s/%s", envp[i], name);
     if (access(file_path, F_OK) == 0)
       return file_path;

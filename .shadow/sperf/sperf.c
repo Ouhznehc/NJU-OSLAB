@@ -54,7 +54,7 @@ void fetch_strace_info(int fd) {
   while (fgets(buffer, MAX_BUFFER, pipe_stream) != NULL) {
     char syscall_name[64];
     double time;
-    if (sscanf(buffer, "%63[^'(](%*[^<]<%lf>)", name, &time) == 2) {
+    if (sscanf(buffer, "%63[^'(](%*[^<]<%lf>)", syscall_name, &time) == 2) {
       int exist = 0;
       for (int i = 0; i < syscall_count; i++) {
         if (strcmp(syscalls[i].name, syscall_name) == 0) {

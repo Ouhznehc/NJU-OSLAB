@@ -28,7 +28,7 @@ int syscall_count;
 char* env_path[MAX_PATHS];
 char* args[MAX_ARGVS];
 char file_path[MAX_FILENAME];
-char envp[MAX_ENVP];
+const char envp[MAX_ENVP];
 
 void fetch_path_env() {
   char* path_env = getenv("PATH");

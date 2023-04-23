@@ -32,7 +32,9 @@ char* args[MAX_ARGVS];
 char file_path[MAX_FILENAME];
 
 void fetch_path_env() {
+  printf("11\n");
   char* path_env = getenv("PATH");
+  printf("12\n");
   snprintf(envp[0], 1024, "PATH=%s", path_env);
 
   char* path = strtok(path_env, ":");

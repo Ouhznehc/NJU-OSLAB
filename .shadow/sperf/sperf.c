@@ -12,7 +12,7 @@ void fetch_path_env() {
   char* path = strtok(path_env, ":");
   int path_count = 0;
   while (path != NULL && path_count < MAX_PATHS) {
-    strcpy(paths[path_count], path);
+    paths[path_count] = path;
     path = strtok(NULL, ":");
     path_count++;
   }
@@ -27,11 +27,11 @@ int main(int argc, char* argv[]) {
     printf("%s\n", paths[i]);
     i++;
   }
-  // char* exec_argv[] = { "strace", "ls", NULL, };
-  // char* exec_envp[] = { "PATH=/bin", NULL, };
-  // // execve("strace", exec_argv, exec_envp);
-  // // execve("/bin/strace", exec_argv, exec_envp);
-  // execve("/usr/bin/strace", exec_argv, exec_envp);
+  char* exec_argv[] = { "strace", "ls", NULL, };
+  char* exec_envp[] = { "PATH=/bin", NULL, };
+  // execve("strace", exec_argv, exec_envp);
+  // execve("/bin/strace", exec_argv, exec_envp);
+  execve("/usr/bin/strace", exec_argv, exec_envp);
   perror(argv[0]);
   exit(EXIT_FAILURE);
 }

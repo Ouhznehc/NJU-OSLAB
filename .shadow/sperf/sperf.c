@@ -96,6 +96,8 @@ void display_sperf() {
 }
 
 int main(int argc, char* argv[]) {
+  char* exec_argv[] = { "strace", "ls", NULL, };
+  char* exec_envp[] = { "PATH=/bin", NULL, };
   int pipefd[2];
   if (pipe(pipefd) != 0) {
     perror("pipe");
@@ -110,7 +112,7 @@ int main(int argc, char* argv[]) {
     }
     // close(pipefd[1]);
     fetch_strace_argv(argc, argv);
-    execve("strace", "ls", envp);
+    execve("strace", exec_argv, envp);
     execve(args[0], args, envp);
     perror("execve");
     exit(EXIT_FAILURE);

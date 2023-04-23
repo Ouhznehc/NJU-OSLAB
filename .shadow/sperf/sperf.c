@@ -25,6 +25,8 @@ int syscall_compare(const void* a, const void* b) {
 
 syscall_t syscalls[MAX_SYSCALL];
 int syscall_count;
+double total_time;
+double output_time;
 
 //! path_env
 char* env_path[MAX_PATHS];
@@ -52,6 +54,7 @@ void fetch_strace_info(int fd) {
     double time;
     if (sscanf(buffer, "%63[^'(](%*[^<]<%lf>)", syscall_name, &time) == 2) {
       int exist = 0;
+      total_time += time;
       for (int i = 0; i < syscall_count; i++) {
         if (strcmp(syscalls[i].name, syscall_name) == 0) {
           syscalls[i].time += time;
@@ -124,7 +127,7 @@ int main(int argc, char* argv[]) {
   }
   else {
     close(pipefd[1]);
-    wait(NULL);
+    // wait(NULL);
     fetch_strace_info(pipefd[0]);
     close(pipefd[0]);
     display_sperf();

@@ -2,8 +2,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-#include <sys/wait.h>
+#include <sys/select.h>
 #include <fcntl.h>
+#include <time.h>
 
 #define MAX_PATHS 100
 #define MAX_ARGVS 100
@@ -46,28 +47,53 @@ void fetch_path_env() {
   }
 }
 
+
+void display_sperf() {
+  qsort(syscalls, syscall_count, sizeof(syscall_t), syscall_compare);
+  for (int i = 0; i < syscall_count; i++) {
+    printf("%s : %lf\n", syscalls[i].name, syscalls[i].time);
+  }
+  fflush(stdout);
+}
+
 void fetch_strace_info(int fd) {
   char buffer[MAX_BUFFER];
   FILE* pipe_stream = fdopen(fd, "r");
-  while (fgets(buffer, MAX_BUFFER, pipe_stream) != NULL) {
-    char syscall_name[64];
-    double time;
-    if (sscanf(buffer, "%63[^'(](%*[^<]<%lf>)", syscall_name, &time) == 2) {
-      int exist = 0;
-      total_time += time;
-      for (int i = 0; i < syscall_count; i++) {
-        if (strcmp(syscalls[i].name, syscall_name) == 0) {
-          syscalls[i].time += time;
-          exist = 1;
+
+  fd_set read_fds;
+  FD_ZERO(&read_fds);
+  FD_SET(fd, &read_fds);
+
+  struct timeval tv;
+  tv.tv_sec = 1;
+  tv.tv_usec = 0;
+
+  int check = select(fd + 1, &read_fds, NULL, NULL, &tv);
+  if (check == -1) {
+    perror("select");
+    exit(EXIT_FAILURE);
+  }
+  if (check)
+    while (fgets(buffer, MAX_BUFFER, pipe_stream) != NULL) {
+      char syscall_name[64];
+      double time;
+      if (sscanf(buffer, "%63[^'(](%*[^<]<%lf>)", syscall_name, &time) == 2) {
+        int exist = 0;
+        total_time += time;
+        for (int i = 0; i < syscall_count; i++) {
+          if (strcmp(syscalls[i].name, syscall_name) == 0) {
+            syscalls[i].time += time;
+            exist = 1;
+          }
+        }
+        if (!exist) {
+          strcpy(syscalls[syscall_count].name, syscall_name);
+          syscalls[syscall_count].time = time;
+          syscall_count++;
         }
       }
-      if (!exist) {
-        strcpy(syscalls[syscall_count].name, syscall_name);
-        syscalls[syscall_count].time = time;
-        syscall_count++;
-      }
     }
-  }
+  else display_sperf();
   fclose(pipe_stream);
 }
 
@@ -92,13 +118,7 @@ void fetch_strace_argv(int argc, char* argv[]) {
   for (int i = 2; i < argc; i++) args[i + 1] = argv[i];
 }
 
-void display_sperf() {
-  qsort(syscalls, syscall_count, sizeof(syscall_t), syscall_compare);
-  for (int i = 0; i < syscall_count; i++) {
-    printf("%s : %lf\n", syscalls[i].name, syscalls[i].time);
-  }
-  fflush(stdout);
-}
+
 
 int main(int argc, char* argv[]) {
   char* exec_argv[] = { "strace", "-T", "ls", NULL, };
@@ -127,9 +147,7 @@ int main(int argc, char* argv[]) {
   }
   else {
     close(pipefd[1]);
-    // wait(NULL);
     fetch_strace_info(pipefd[0]);
     close(pipefd[0]);
-    display_sperf();
   }
 }

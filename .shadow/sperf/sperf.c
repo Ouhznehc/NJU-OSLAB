@@ -6,7 +6,8 @@
 #include <fcntl.h>
 #include <time.h>
 #include <fcntl.h>
-#include <poll.h>
+#include <errno.h>
+#include <sys/wait.h>
 
 #define MAX_PATHS 100
 #define MAX_ARGVS 100
@@ -30,17 +31,15 @@ int syscall_compare(const void* a, const void* b) {
 syscall_t syscalls[MAX_SYSCALL];
 int syscall_count;
 double total_time;
-double output_time;
+int display_time;
 
 //! path_env
 char* env_path[MAX_PATHS];
-// char envp[10][MAX_ENVP];
 char* args[MAX_ARGVS];
 char file_path[2][MAX_FILENAME];
 
 void fetch_path_env() {
   char* path_env = getenv("PATH");
-  // snprintf(envp[0], 1024, "PATH=%s", path_env);
   char* path = strtok(path_env, ":");
   int path_count = 0;
   while (path != NULL && path_count < MAX_PATHS) {
@@ -53,38 +52,47 @@ void fetch_path_env() {
 
 void display_sperf() {
   qsort(syscalls, syscall_count, sizeof(syscall_t), syscall_compare);
+  printf("Time: %ds\n", display_time);
   for (int i = 0; i < MIN(syscall_count, 5); i++) {
     int ratio = (int)((syscalls[i].time / total_time) * 100);
     printf("%s (%d%%)\n", syscalls[i].name, ratio);
   }
+  printf("================\n");
   for (int i = 0; i < 80; i++) putchar('\0');
   fflush(stdout);
 }
 
-void fetch_strace_info(int fd) {
+void fetch_strace_info(int fd, int pid) {
   char buffer[MAX_BUFFER];
   FILE* pipe_stream = fdopen(fd, "r");
-
-  while (fgets(buffer, MAX_BUFFER, pipe_stream) != NULL) {
-    char syscall_name[64];
-    double time;
-    if (sscanf(buffer, "%63[^'(](%*[^<]<%lf>)", syscall_name, &time) == 2) {
-      int exist = 0;
-      total_time += time;
-      for (int i = 0; i < syscall_count; i++) {
-        if (strcmp(syscalls[i].name, syscall_name) == 0) {
-          syscalls[i].time += time;
-          exist = 1;
+  time_t start_time = time(NULL);
+  while (waitpid(pid, NULL, WNOHANG) == 0) {
+    while (fgets(buffer, MAX_BUFFER, pipe_stream) != NULL) {
+      char syscall_name[64];
+      double time;
+      if (sscanf(buffer, "%63[^'(](%*[^<]<%lf>)", syscall_name, &time) == 2) {
+        printf("%s : %lf\n", syscall_name, time);
+        int exist = 0;
+        total_time += time;
+        for (int i = 0; i < syscall_count; i++) {
+          if (strcmp(syscalls[i].name, syscall_name) == 0) {
+            syscalls[i].time += time;
+            exist = 1;
+          }
+        }
+        if (!exist) {
+          strcpy(syscalls[syscall_count].name, syscall_name);
+          syscalls[syscall_count].time = time;
+          syscall_count++;
         }
       }
-      if (!exist) {
-        strcpy(syscalls[syscall_count].name, syscall_name);
-        syscalls[syscall_count].time = time;
-        syscall_count++;
-      }
+    }
+    if (difftime(time(NULL), start_time) >= 1.0) {
+      start_time = time(NULL);
+      display_time++;
+      display_sperf();
     }
   }
-  display_sperf();
   fclose(pipe_stream);
 }
 
@@ -112,11 +120,14 @@ void fetch_strace_argv(int argc, char* argv[]) {
 
 
 int main(int argc, char* argv[]) {
+
   int pipefd[2];
+
   if (pipe(pipefd) != 0) {
     perror("pipe");
     exit(EXIT_FAILURE);
   }
+
   pid_t pid = fork();
   if (pid == 0) {
     int fd = open("/dev/null", O_WRONLY);
@@ -136,7 +147,7 @@ int main(int argc, char* argv[]) {
   }
   else {
     close(pipefd[1]);
-    fetch_strace_info(pipefd[0]);
+    fetch_strace_info(pipefd[0], pid);
     close(pipefd[0]);
   }
 }

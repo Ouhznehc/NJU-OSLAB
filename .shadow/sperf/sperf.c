@@ -92,6 +92,7 @@ void fetch_strace_info(int fd, int pid) {
         display_sperf();
       }
     }
+    if (display_time == 0) display_sperf();
 
   }
   fclose(pipe_stream);

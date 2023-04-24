@@ -69,20 +69,20 @@ void fetch_strace_info(int fd, int pid) {
   while (waitpid(pid, NULL, WNOHANG) == 0) {
     while (fgets(buffer, MAX_BUFFER, pipe_stream) != NULL) {
       char syscall_name[64];
-      double time;
-      if (sscanf(buffer, "%63[^'(](%*[^<]<%lf>)", syscall_name, &time) == 2) {
+      double syscall_time;
+      if (sscanf(buffer, "%63[^'(](%*[^<]<%lf>)", syscall_name, &syscall_time) == 2) {
         // printf("%s : %lf\n", syscall_name, time);
         int exist = 0;
-        total_time += time;
+        total_time += syscall_time;
         for (int i = 0; i < syscall_count; i++) {
           if (strcmp(syscalls[i].name, syscall_name) == 0) {
-            syscalls[i].time += time;
+            syscalls[i].time += syscall_time;
             exist = 1;
           }
         }
         if (!exist) {
           strcpy(syscalls[syscall_count].name, syscall_name);
-          syscalls[syscall_count].time = time;
+          syscalls[syscall_count].time = syscall_time;
           syscall_count++;
         }
       }

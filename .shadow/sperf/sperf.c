@@ -71,7 +71,7 @@ void fetch_strace_info(int fd, int pid) {
       char syscall_name[64];
       double time;
       if (sscanf(buffer, "%63[^'(](%*[^<]<%lf>)", syscall_name, &time) == 2) {
-        printf("%s : %lf\n", syscall_name, time);
+        // printf("%s : %lf\n", syscall_name, time);
         int exist = 0;
         total_time += time;
         for (int i = 0; i < syscall_count; i++) {

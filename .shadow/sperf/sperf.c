@@ -86,12 +86,13 @@ void fetch_strace_info(int fd, int pid) {
           syscall_count++;
         }
       }
+      if (difftime(time(NULL), start_time) >= 1.0) {
+        start_time = time(NULL);
+        display_time++;
+        display_sperf();
+      }
     }
-    if (difftime(time(NULL), start_time) >= 1.0) {
-      start_time = time(NULL);
-      display_time++;
-      display_sperf();
-    }
+
   }
   fclose(pipe_stream);
 }

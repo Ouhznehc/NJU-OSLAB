@@ -101,7 +101,7 @@ void fetch_strace_info(int fd, int pid) {
 char* fetch_command(char* name) {
   static int counter = -1;
   counter++;
-  if (name[0] == '/') return name;
+  if (name[0] == '/' && strcmp(name, "strace") != 0) return name;
   for (int i = 0; env_path[i]; i++) {
     snprintf(file_path[counter], sizeof(file_path[counter]), "%s/%s", env_path[i], name);
     if (access(file_path[counter], F_OK) == 0)

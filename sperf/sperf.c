@@ -47,6 +47,9 @@ void fetch_path_env() {
     path = strtok(NULL, ":");
     path_count++;
   }
+  for (int i = 0; i < path_count; i++) {
+    printf("%s\n", env_path[i]);
+  }
 }
 
 

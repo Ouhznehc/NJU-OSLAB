@@ -123,7 +123,7 @@ void fetch_strace_argv(int argc, char* argv[]) {
 }
 
 
-
+extern char** environ;
 int main(int argc, char* argv[]) {
 
   int pipefd[2];
@@ -142,7 +142,7 @@ int main(int argc, char* argv[]) {
       exit(EXIT_FAILURE);
     }
     close(pipefd[1]);
-    fetch_strace_argv(argc, argv);
+    fetch_strace_argv(argc, argv, environ);
     fflush(stdout);
     dup2(fd, STDOUT_FILENO);
     close(fd);

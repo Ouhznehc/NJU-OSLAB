@@ -142,11 +142,11 @@ int main(int argc, char* argv[]) {
       exit(EXIT_FAILURE);
     }
     close(pipefd[1]);
-    fetch_strace_argv(argc, argv, environ);
+    fetch_strace_argv(argc, argv);
     fflush(stdout);
     dup2(fd, STDOUT_FILENO);
     close(fd);
-    execve(args[0], args, NULL);
+    execve(args[0], args, environ);
     perror("execve");
     exit(EXIT_FAILURE);
   }

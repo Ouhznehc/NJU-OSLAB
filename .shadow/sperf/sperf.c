@@ -9,8 +9,8 @@
 #include <errno.h>
 #include <sys/wait.h>
 
-#define MAX_PATHS 100
-#define MAX_ARGVS 100
+#define MAX_PATHS 1000
+#define MAX_ARGVS 1000
 #define MAX_FILENAME 64
 #define MAX_SYSCALL 100
 #define MAX_BUFFER 512

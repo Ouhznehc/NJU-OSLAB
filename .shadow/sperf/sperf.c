@@ -123,10 +123,13 @@ void fetch_strace_argv(int argc, char* argv[]) {
 }
 
 
-extern char** environ;
 int main(int argc, char* argv[]) {
 
   int pipefd[2];
+  extern char** environ;
+  for (char** env = environ; *env; env++) {
+    printf("%s\n", *env);
+  }
 
   if (pipe(pipefd) != 0) {
     perror("pipe");

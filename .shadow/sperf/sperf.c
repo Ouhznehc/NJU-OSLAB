@@ -92,7 +92,7 @@ void fetch_strace_info(int fd, int pid) {
       }
       else {
         printf("%s", buffer);
-        printf("%s : %lf\n", syscall_name, time);
+        printf("%s : %lf\n", syscall_name, syscall_time);
         assert(0);
       };
       if (difftime(time(NULL), start_time) >= 1.0) {

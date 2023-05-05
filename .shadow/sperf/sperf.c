@@ -82,12 +82,12 @@ void fetch_strace_info(int fd, int pid) {
 
       if (regcomp(&regex, "^([^(]+)\\(.*\\) = .* <([0-9.]+)>$", REG_EXTENDED) != 0) {
         fprintf(stderr, "Error compiling regex\n");
-        exit(EXIT_FAILURE);
+        //exit(EXIT_FAILURE);
       }
 
       if (regexec(&regex, buffer, 3, matches, 0) != 0) {
         fprintf(stderr, "No match found\n");
-        exit(EXIT_FAILURE);
+        //exit(EXIT_FAILURE);
       }
 
       strncpy(syscall_name, buffer + matches[1].rm_so, matches[1].rm_eo - matches[1].rm_so);

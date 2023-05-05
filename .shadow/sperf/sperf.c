@@ -85,7 +85,7 @@ void fetch_strace_info(int fd, int pid) {
         //exit(EXIT_FAILURE);
       }
 
-      if (regexec(&regex, buffer, 3, matches, 0) != 0) {
+      if (regexec(&regex, buffer, 2, matches, 0) != 0) {
         fprintf(stderr, "No match found\n");
         //exit(EXIT_FAILURE);
       }

@@ -80,7 +80,7 @@ void fetch_strace_info(int fd, int pid) {
       regex_t regex;
       regmatch_t matches[3];
 
-      if (regcomp(&regex, "^([^(]+)\\(.*\\) = .* <([0-9.]+)>$", REG_EXTENDED) != 0) {
+      if (regcomp(&regex, "^([^(]+)\\([^)]*\\)[^<]*<([0-9.]+)>$", REG_EXTENDED) != 0) {
         fprintf(stderr, "Error compiling regex\n");
         //exit(EXIT_FAILURE);
       }

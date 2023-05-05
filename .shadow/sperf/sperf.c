@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <sys/wait.h>
 #include <assert.h>
+#include <regex.h>
 
 #define MAX_PATHS 1000
 #define MAX_ARGVS 1000
@@ -74,21 +75,38 @@ void fetch_strace_info(int fd, int pid) {
     while (fgets(buffer, MAX_BUFFER, pipe_stream) != NULL) {
       char syscall_name[64];
       double syscall_time;
-      if (sscanf(buffer, "%63[^'(](%*[^<]<%lf>)", syscall_name, &syscall_time) == 2) {
+      // if (sscanf(buffer, "%63[^'(](%*[^<]<%lf>)", syscall_name, &syscall_time) == 2) {
         // printf("%s : %lf\n", syscall_name, time);
-        int exist = 0;
-        total_time += syscall_time;
-        for (int i = 0; i < syscall_count; i++) {
-          if (strcmp(syscalls[i].name, syscall_name) == 0) {
-            syscalls[i].time += syscall_time;
-            exist = 1;
-          }
+      regex_t regex;
+      regmatch_t matches[3];
+
+      if (regcomp(&regex, "^([^(]+)\\(.*\\) = .* <([0-9.]+)>$", REG_EXTENDED) != 0) {
+        fprintf(stderr, "Error compiling regex\n");
+        return 1;
+      }
+
+      if (regexec(&regex, buffer, 3, matches, 0) != 0) {
+        fprintf(stderr, "No match found\n");
+        return 1;
+      }
+
+      strncpy(syscall_name, buffer + matches[1].rm_so, matches[1].rm_eo - matches[1].rm_so);
+      syscall_name[matches[1].rm_eo - matches[1].rm_so] = '\0';
+      sscanf(buffer + matches[2].rm_so, "%lf", &syscall_time);
+
+      int exist = 0;
+      total_time += syscall_time;
+      for (int i = 0; i < syscall_count; i++) {
+        if (strcmp(syscalls[i].name, syscall_name) == 0) {
+          syscalls[i].time += syscall_time;
+          exist = 1;
         }
-        if (!exist) {
-          strcpy(syscalls[syscall_count].name, syscall_name);
-          syscalls[syscall_count].time = syscall_time;
-          syscall_count++;
-        }
+      }
+      if (!exist) {
+        strcpy(syscalls[syscall_count].name, syscall_name);
+        syscalls[syscall_count].time = syscall_time;
+        syscall_count++;
+        // }
       }
       if (difftime(time(NULL), start_time) >= 1.0) {
         start_time = time(NULL);

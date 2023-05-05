@@ -90,7 +90,11 @@ void fetch_strace_info(int fd, int pid) {
           syscall_count++;
         }
       }
-      else assert(0);
+      else {
+        printf("%s", buffer);
+        printf("%s : %lf\n", syscall_name, time);
+        assert(0);
+      };
       if (difftime(time(NULL), start_time) >= 1.0) {
         start_time = time(NULL);
         display_time++;

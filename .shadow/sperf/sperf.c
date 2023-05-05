@@ -8,6 +8,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <sys/wait.h>
+#include <assert.h>
 
 #define MAX_PATHS 1000
 #define MAX_ARGVS 1000

@@ -149,7 +149,7 @@ int main(int argc, char* argv[]) {
     }
     close(pipefd[1]);
     fetch_strace_argv(argc, argv);
-    fflush(stdout);
+    // fflush(stdout);
     dup2(fd, STDOUT_FILENO);
     close(fd);
     execve(args[0], args, environ);

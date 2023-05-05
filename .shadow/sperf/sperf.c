@@ -74,7 +74,7 @@ void fetch_strace_info(int fd, int pid) {
     while (fgets(buffer, MAX_BUFFER, pipe_stream) != NULL) {
       char syscall_name[64];
       double syscall_time;
-      if (sscanf(buffer, "%63[^'(](%*[^<]<%lf>)", syscall_name, &syscall_time) == 2) {
+      if (sscanf(buffer, "%63[^'(](%*[^)])<%lf>)", syscall_name, &syscall_time) == 2) {
         // printf("%s : %lf\n", syscall_name, time);
         int exist = 0;
         total_time += syscall_time;
@@ -90,11 +90,6 @@ void fetch_strace_info(int fd, int pid) {
           syscall_count++;
         }
       }
-      else {
-        printf("%s", buffer);
-        printf("%s : %lf\n", syscall_name, syscall_time);
-        assert(0);
-      };
       if (difftime(time(NULL), start_time) >= 1.0) {
         start_time = time(NULL);
         display_time++;

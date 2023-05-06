@@ -39,6 +39,7 @@ int display_time;
 char* env_path[MAX_PATHS];
 char* args[MAX_ARGVS];
 char file_path[2][MAX_FILENAME];
+extern char** environ;
 
 void fetch_path_env() {
   char* path_environ = getenv("PATH");
@@ -131,7 +132,6 @@ void fetch_strace_argv(int argc, char* argv[]) {
 int main(int argc, char* argv[]) {
 
   int pipefd[2];
-  extern char** environ;
 
   if (pipe(pipefd) != 0) {
     perror("pipe");

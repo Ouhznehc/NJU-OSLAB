@@ -41,7 +41,9 @@ char* args[MAX_ARGVS];
 char file_path[2][MAX_FILENAME];
 
 void fetch_path_env() {
-  char* path_env = getenv("PATH");
+  char* path_environ = getenv("PATH");
+  char* path_env[2048];
+  strcpy(path_env, path_environ);
   char* path = strtok(path_env, ":");
   int path_count = 0;
   while (path != NULL && path_count < MAX_PATHS) {

@@ -40,7 +40,7 @@ char* env_path[MAX_PATHS];
 char* args[MAX_ARGVS];
 char file_path[2][MAX_FILENAME];
 extern char** environ;
-char exec_envp[MAX_PATHS];
+char* exec_envp[MAX_PATHS];
 int exec_envc = 0;
 char path_env[2048];
 

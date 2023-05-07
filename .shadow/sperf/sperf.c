@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <sys/wait.h>
 #include <assert.h>
+#include <sys/poll.h>
 #include <regex.h>
 
 #define MAX_PATHS 1000
@@ -40,6 +41,8 @@ char* env_path[MAX_PATHS];
 char* args[MAX_ARGVS];
 char file_path[2][MAX_FILENAME];
 extern char** environ;
+char* exec_envp[MAX_PATHS];
+int exec_envc;
 char path_env[2048];
 
 void fetch_path_env() {
@@ -52,9 +55,9 @@ void fetch_path_env() {
     path = strtok(NULL, ":");
     path_count++;
   }
-  // for (int i = 0; i < path_count; i++) {
-  //   printf("%s\n", env_path[i]);
-  // }
+  for (char** var = environ; *var != NULL; ++var)
+    exec_envp[exec_envc++] = *var;
+  exec_envp[exec_envc] = NULL;
 }
 
 
@@ -146,7 +149,7 @@ int main(int argc, char* argv[]) {
     fetch_strace_argv(argc, argv);
 
     // fflush(stdout);
-    execve(args[0], args, environ);
+    execve(args[0], args, exec_envp);
     perror("execve");
     exit(EXIT_FAILURE);
   }

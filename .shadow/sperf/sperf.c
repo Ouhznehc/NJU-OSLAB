@@ -122,7 +122,8 @@ char* fetch_command(char* name) {
 
 void fetch_strace_argv(int argc, char* argv[]) {
   fetch_path_env();
-  args[0] = fetch_command("strace");
+  // args[0] = fetch_command("strace");
+  args[0] = "strace";
   args[1] = "-T";
   // args[2] = fetch_command(argv[1]);
   args[2] = "strace";

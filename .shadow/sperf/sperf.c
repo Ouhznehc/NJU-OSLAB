@@ -150,7 +150,7 @@ int main(int argc, char* argv[]) {
     fetch_strace_argv(argc, argv);
 
     // fflush(stdout);
-    execve(args[0], args, exec_envp);
+    execve(args[0], args, environ);
     perror("execve");
     exit(EXIT_FAILURE);
   }

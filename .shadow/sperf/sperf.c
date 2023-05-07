@@ -40,8 +40,6 @@ char* env_path[MAX_PATHS];
 char* args[MAX_ARGVS];
 char file_path[2][MAX_FILENAME];
 extern char** environ;
-char* exec_envp[MAX_PATHS];
-int exec_envc = 0;
 char path_env[2048];
 
 void fetch_path_env() {
@@ -54,9 +52,6 @@ void fetch_path_env() {
     path = strtok(NULL, ":");
     path_count++;
   }
-  for (char** env = environ; *env; env++)
-    exec_envp[exec_envc++] = *env;
-  exec_envp[exec_envc] = NULL;
   // for (int i = 0; i < path_count; i++) {
   //   printf("%s\n", env_path[i]);
   // }

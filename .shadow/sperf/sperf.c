@@ -148,6 +148,9 @@ int main(int argc, char* argv[]) {
     }
     close(pipefd[1]);
     fetch_strace_argv(argc, argv);
+    for (char** env = environ; *env; env++) {
+      printf("%s\n", *env);
+    }
     // fflush(stdout);
     dup2(fd, STDOUT_FILENO);
     close(fd);
@@ -156,6 +159,7 @@ int main(int argc, char* argv[]) {
     exit(EXIT_FAILURE);
   }
   else {
+
     close(pipefd[1]);
     fetch_strace_info(pipefd[0], pid);
     close(pipefd[0]);

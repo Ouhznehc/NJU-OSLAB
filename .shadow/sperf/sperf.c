@@ -43,8 +43,8 @@ extern char** environ;
 char path_env[2048];
 
 void fetch_path_env() {
-  char* path_env = getenv("PATH");
-  // strcpy(path_env, path_environ);
+  char* path_environ = getenv("PATH");
+  strcpy(path_env, path_environ);
   char* path = strtok(path_env, ":");
   int path_count = 0;
   while (path != NULL && path_count < MAX_PATHS) {

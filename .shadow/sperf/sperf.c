@@ -113,10 +113,9 @@ char* fetch_command(char* name) {
   if (name[0] == '/') return name;
   for (int i = 0; env_path[i]; i++) {
     snprintf(file_path[counter], sizeof(file_path[counter]), "%s/%s", env_path[i], name);
-    if (access(file_path[counter], F_OK) == 0)
+    if (access(file_path[counter], X_OK) == 0)
       return file_path[counter];
   }
-  assert(0);
   perror(name);
   exit(EXIT_FAILURE);
 }
@@ -133,7 +132,6 @@ void fetch_strace_argv(int argc, char* argv[]) {
 int main(int argc, char* argv[]) {
 
   int pipefd[2];
-  assert(0);
   if (pipe(pipefd) != 0) {
     perror("pipe");
     exit(EXIT_FAILURE);

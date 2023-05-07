@@ -40,6 +40,8 @@ char* env_path[MAX_PATHS];
 char* args[MAX_ARGVS];
 char file_path[2][MAX_FILENAME];
 extern char** environ;
+char exec_envp[MAX_PATHS];
+int exec_envc = 0;
 char path_env[2048];
 
 void fetch_path_env() {
@@ -52,6 +54,9 @@ void fetch_path_env() {
     path = strtok(NULL, ":");
     path_count++;
   }
+  for (char** env = environ; *env; env++)
+    exec_envp[exec_envc++] = *env;
+  exec_envp[exec_envc] = NULL;
   // for (int i = 0; i < path_count; i++) {
   //   printf("%s\n", env_path[i]);
   // }
@@ -132,28 +137,20 @@ void fetch_strace_argv(int argc, char* argv[]) {
 int main(int argc, char* argv[]) {
 
   int pipefd[2];
-  if (pipe(pipefd) != 0) {
-    perror("pipe");
-    exit(EXIT_FAILURE);
-  }
+  pipe(pipefd);
 
   pid_t pid = fork();
   if (pid == 0) {
     int fd = open("/dev/null", O_WRONLY);
     close(pipefd[0]);
-    if (dup2(pipefd[1], STDERR_FILENO) == -1) {
-      perror("dup2");
-      exit(EXIT_FAILURE);
-    }
-    close(pipefd[1]);
-    fetch_strace_argv(argc, argv);
-    // for (char** env = environ; *env; env++) {
-    //   printf("%s\n", *env);
-    // }
-    // fflush(stdout);
+    dup2(pipefd[1], STDERR_FILENO);
     dup2(fd, STDOUT_FILENO);
+    close(pipefd[1]);
     close(fd);
-    execve(args[0], args, environ);
+    fetch_strace_argv(argc, argv);
+
+    // fflush(stdout);
+    execve(args[0], args, exec_envp);
     perror("execve");
     exit(EXIT_FAILURE);
   }

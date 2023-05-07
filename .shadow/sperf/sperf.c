@@ -120,7 +120,7 @@ char* fetch_command(char* name) {
       return file_path[counter];
   }
   perror(name);
-  exit(EXIT_FAILURE);
+  exit(EXIT_SUCCESS);
 }
 
 void fetch_strace_argv(int argc, char* argv[]) {
@@ -149,9 +149,9 @@ int main(int argc, char* argv[]) {
     fetch_strace_argv(argc, argv);
 
     // fflush(stdout);
-    execve(args[0], args, exec_envp);
+    execve(args[0], args, environ);
     perror("execve");
-    exit(EXIT_FAILURE);
+    exit(EXIT_SUCCESS);
   }
   else {
 

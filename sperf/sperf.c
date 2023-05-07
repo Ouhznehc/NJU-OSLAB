@@ -8,9 +8,11 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <sys/wait.h>
+#include <assert.h>
+#include <regex.h>
 
-#define MAX_PATHS 100
-#define MAX_ARGVS 100
+#define MAX_PATHS 1000
+#define MAX_ARGVS 1000
 #define MAX_FILENAME 64
 #define MAX_SYSCALL 100
 #define MAX_BUFFER 512
@@ -37,9 +39,12 @@ int display_time;
 char* env_path[MAX_PATHS];
 char* args[MAX_ARGVS];
 char file_path[2][MAX_FILENAME];
+extern char** environ;
+char path_env[2048];
 
 void fetch_path_env() {
-  char* path_env = getenv("PATH");
+  char* path_environ = getenv("PATH");
+  strcpy(path_env, path_environ);
   char* path = strtok(path_env, ":");
   int path_count = 0;
   while (path != NULL && path_count < MAX_PATHS) {
@@ -47,9 +52,9 @@ void fetch_path_env() {
     path = strtok(NULL, ":");
     path_count++;
   }
-  for (int i = 0; i < path_count; i++) {
-    printf("%s\n", env_path[i]);
-  }
+  // for (int i = 0; i < path_count; i++) {
+  //   printf("%s\n", env_path[i]);
+  // }
 }
 
 
@@ -75,6 +80,7 @@ void fetch_strace_info(int fd, int pid) {
       double syscall_time;
       if (sscanf(buffer, "%63[^'(](%*[^<]<%lf>)", syscall_name, &syscall_time) == 2) {
         // printf("%s : %lf\n", syscall_name, time);
+
         int exist = 0;
         total_time += syscall_time;
         for (int i = 0; i < syscall_count; i++) {
@@ -123,7 +129,6 @@ void fetch_strace_argv(int argc, char* argv[]) {
 }
 
 
-
 int main(int argc, char* argv[]) {
 
   int pipefd[2];
@@ -143,10 +148,10 @@ int main(int argc, char* argv[]) {
     }
     close(pipefd[1]);
     fetch_strace_argv(argc, argv);
-    fflush(stdout);
+    // fflush(stdout);
     dup2(fd, STDOUT_FILENO);
     close(fd);
-    execve(args[0], args, NULL);
+    execve(args[0], args, environ);
     perror("execve");
     exit(EXIT_FAILURE);
   }

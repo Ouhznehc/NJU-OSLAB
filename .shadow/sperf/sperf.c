@@ -133,7 +133,7 @@ void fetch_strace_argv(int argc, char* argv[]) {
 int main(int argc, char* argv[]) {
 
   int pipefd[2];
-
+  assert(0);
   if (pipe(pipefd) != 0) {
     perror("pipe");
     exit(EXIT_FAILURE);
@@ -149,9 +149,9 @@ int main(int argc, char* argv[]) {
     }
     close(pipefd[1]);
     fetch_strace_argv(argc, argv);
-    for (char** env = environ; *env; env++) {
-      printf("%s\n", *env);
-    }
+    // for (char** env = environ; *env; env++) {
+    //   printf("%s\n", *env);
+    // }
     // fflush(stdout);
     dup2(fd, STDOUT_FILENO);
     close(fd);

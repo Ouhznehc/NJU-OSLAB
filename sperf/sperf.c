@@ -156,6 +156,7 @@ int main(int argc, char* argv[]) {
     exit(EXIT_FAILURE);
   }
   else {
+
     close(pipefd[1]);
     fetch_strace_info(pipefd[0], pid);
     close(pipefd[0]);

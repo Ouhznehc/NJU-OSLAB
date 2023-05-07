@@ -78,7 +78,7 @@ void fetch_strace_info(int fd, int pid) {
     while (fgets(buffer, MAX_BUFFER, pipe_stream) != NULL) {
       char syscall_name[64];
       double syscall_time;
-      if (sscanf(buffer, "%63[^'(](%*[^<]<%lf>)", syscall_name, &syscall_time) == 2) {
+      if (sscanf(buffer, "%[^(](%*[^<]<%lf>)", syscall_name, &syscall_time) == 2) {
         // printf("%s : %lf\n", syscall_name, time);
 
         int exist = 0;

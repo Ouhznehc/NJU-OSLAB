@@ -116,6 +116,7 @@ char* fetch_command(char* name) {
     if (access(file_path[counter], F_OK) == 0)
       return file_path[counter];
   }
+  assert(0);
   perror(name);
   exit(EXIT_FAILURE);
 }

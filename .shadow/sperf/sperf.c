@@ -55,9 +55,9 @@ void fetch_path_env() {
     path = strtok(NULL, ":");
     path_count++;
   }
-  for (char** var = environ; *var != NULL; ++var)
-    exec_envp[exec_envc++] = *var;
-  exec_envp[exec_envc] = NULL;
+  // for (char** var = environ; *var != NULL; ++var)
+  //   exec_envp[exec_envc++] = *var;
+  // exec_envp[exec_envc] = NULL;
 }
 
 

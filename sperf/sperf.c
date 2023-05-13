@@ -9,13 +9,14 @@
 #include <errno.h>
 #include <sys/wait.h>
 #include <assert.h>
+#include <sys/poll.h>
 #include <regex.h>
 
-#define MAX_PATHS 1000
-#define MAX_ARGVS 1000
+#define MAX_PATHS 1024
+#define MAX_ARGVS 1024
 #define MAX_FILENAME 64
-#define MAX_SYSCALL 100
-#define MAX_BUFFER 512
+#define MAX_SYSCALL 1024
+#define MAX_BUFFER 1024
 #define MAX_ENVP 1024
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
@@ -40,6 +41,8 @@ char* env_path[MAX_PATHS];
 char* args[MAX_ARGVS];
 char file_path[2][MAX_FILENAME];
 extern char** environ;
+char* exec_envp[MAX_PATHS];
+int exec_envc;
 char path_env[2048];
 
 void fetch_path_env() {
@@ -52,9 +55,9 @@ void fetch_path_env() {
     path = strtok(NULL, ":");
     path_count++;
   }
-  // for (int i = 0; i < path_count; i++) {
-  //   printf("%s\n", env_path[i]);
-  // }
+  // for (char** var = environ; *var != NULL; ++var)
+  //   exec_envp[exec_envc++] = *var;
+  // exec_envp[exec_envc] = NULL;
 }
 
 
@@ -78,7 +81,7 @@ void fetch_strace_info(int fd, int pid) {
     while (fgets(buffer, MAX_BUFFER, pipe_stream) != NULL) {
       char syscall_name[64];
       double syscall_time;
-      if (sscanf(buffer, "%63[^'(](%*[^<]<%lf>)", syscall_name, &syscall_time) == 2) {
+      if (sscanf(buffer, "%[^(](%*[^<]<%lf>)", syscall_name, &syscall_time) == 2) {
         // printf("%s : %lf\n", syscall_name, time);
 
         int exist = 0;
@@ -113,7 +116,7 @@ char* fetch_command(char* name) {
   if (name[0] == '/') return name;
   for (int i = 0; env_path[i]; i++) {
     snprintf(file_path[counter], sizeof(file_path[counter]), "%s/%s", env_path[i], name);
-    if (access(file_path[counter], F_OK) == 0)
+    if (access(file_path[counter], X_OK) == 0)
       return file_path[counter];
   }
   perror(name);
@@ -125,6 +128,7 @@ void fetch_strace_argv(int argc, char* argv[]) {
   args[0] = fetch_command("strace");
   args[1] = "-T";
   args[2] = fetch_command(argv[1]);
+  // args[2] = "strace";
   for (int i = 2; i < argc; i++) args[i + 1] = argv[i];
 }
 
@@ -132,25 +136,19 @@ void fetch_strace_argv(int argc, char* argv[]) {
 int main(int argc, char* argv[]) {
 
   int pipefd[2];
-
-  if (pipe(pipefd) != 0) {
-    perror("pipe");
-    exit(EXIT_FAILURE);
-  }
+  pipe(pipefd);
 
   pid_t pid = fork();
   if (pid == 0) {
     int fd = open("/dev/null", O_WRONLY);
     close(pipefd[0]);
-    if (dup2(pipefd[1], STDERR_FILENO) == -1) {
-      perror("dup2");
-      exit(EXIT_FAILURE);
-    }
-    close(pipefd[1]);
-    fetch_strace_argv(argc, argv);
-    // fflush(stdout);
+    dup2(pipefd[1], STDERR_FILENO);
     dup2(fd, STDOUT_FILENO);
-    close(fd);
+    // close(pipefd[1]);
+    // close(fd);
+    fetch_strace_argv(argc, argv);
+
+    // fflush(stdout);
     execve(args[0], args, environ);
     perror("execve");
     exit(EXIT_FAILURE);

@@ -38,7 +38,7 @@ typedef union slab_t {
 } slab_t;
 
 typedef struct kmem_cache {
-  spinlock_t lk;
+  kspinlock_t lk;
   slab_t slab_list[SLAB_TYPE]; // the head of slab_list
 } kmem_cache;
 

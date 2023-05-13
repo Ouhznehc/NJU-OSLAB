@@ -4,7 +4,7 @@
 #include <kernel.h>
 #include <klib.h>
 #include <klib-macros.h>
-#include "spinlock.h"
+#include "kspinlock.h"
 #include "pmm.h"
 
 #define __DEBUG_MODE__
@@ -21,7 +21,7 @@
 
 #ifdef __DEBUG_MODE__
 
-extern spinlock_t debug_lk;
+extern kspinlock_t debug_lk;
 
 #define debug(format, ...)                         \
     printf("\33[1;35m[%s: %d] " format "\33[0m\n", \
@@ -37,10 +37,10 @@ extern spinlock_t debug_lk;
 #define Log(format, ...)                           \
     do                                             \
     {                                              \
-        spin_lock(&debug_lk);                      \
+        kspin_lock(&debug_lk);                      \
         printf("[%s: %d] " format "\n",            \
                __func__, __LINE__, ##__VA_ARGS__); \
-        spin_unlock(&debug_lk);                    \
+        kspin_unlock(&debug_lk);                    \
     } while (0)
 
 #define panic(format, ...)                           \

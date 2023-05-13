@@ -1,8 +1,8 @@
 #include <common.h>
 
 // #define DEAD_LOCK
-static spinlock_t heap_lock;
-static spinlock_t slab_lock;
+static kspinlock_t heap_lock;
+static kspinlock_t slab_lock;
 static memory_t heap_pool;
 static memory_t slab_pool;
 static kmem_cache kmem[MAX_CPU];
@@ -57,7 +57,7 @@ static void* object_from_slab(slab_t* page) {
 // get memory from heap with size
 static memory_t* memory_from_heap(size_t size) {
   memory_t* ret = NULL;
-  spin_lock(&heap_lock);
+  kspin_lock(&heap_lock);
   if (heap_pool.next == NULL)
     ret = NULL;
   else {
@@ -115,13 +115,13 @@ static memory_t* memory_from_heap(size_t size) {
       ret = cur;
     }
   }
-  spin_unlock(&heap_lock);
+  kspin_unlock(&heap_lock);
   return ret;
 }
 
 // free memoru to heap
 static void memory_to_heap(memory_t* memory) {
-  spin_lock(&heap_lock);
+  kspin_lock(&heap_lock);
   assert(memory != NULL);
   assert(*(uintptr_t*)(memory->memory_start - sizeof(uintptr_t)) == MAGIC);
   assert(*(uintptr_t*)(memory->memory_start - 2 * sizeof(uintptr_t)) == (uintptr_t)memory);
@@ -129,7 +129,7 @@ static void memory_to_heap(memory_t* memory) {
   memory->memory_start = (void*)memory + MEMORY_CONFIG;
   memory->next = heap_pool.next;
   heap_pool.next = memory;
-  spin_unlock(&heap_lock);
+  kspin_unlock(&heap_lock);
 }
 
 // get one page from heap_pool to slab_pool
@@ -144,7 +144,7 @@ static memory_t* page_from_heap_pool() {
 }
 
 static void page_to_slab_pool(memory_t* page) {
-  spin_lock(&slab_lock);
+  kspin_lock(&slab_lock);
   assert(page != NULL);
   assert((uintptr_t)page->memory_start + page->memory_size - (uintptr_t)page == 8 KB);
   assert(page->memory_size == 4 KB);
@@ -153,13 +153,13 @@ static void page_to_slab_pool(memory_t* page) {
   assert(page->next == NULL);
   page->next = slab_pool.next;
   slab_pool.next = page;
-  spin_unlock(&slab_lock);
+  kspin_unlock(&slab_lock);
 }
 
 // get one page from slab_pool
 static memory_t* page_from_slab_pool() {
   memory_t* ret = NULL;
-  spin_lock(&slab_lock);
+  kspin_lock(&slab_lock);
   if (slab_pool.next != NULL) {
     ret = slab_pool.next;
     assert(ret != NULL);
@@ -168,10 +168,10 @@ static memory_t* page_from_slab_pool() {
     assert(ret->memory_size == 4 KB);
     assert(*(uintptr_t*)(ret->memory_start - sizeof(uintptr_t)) == MAGIC);
     assert(*(uintptr_t*)(ret->memory_start - 2 * sizeof(uintptr_t)) == (uintptr_t)ret);
-    spin_unlock(&slab_lock);
+    kspin_unlock(&slab_lock);
   }
   else {
-    spin_unlock(&slab_lock);
+    kspin_unlock(&slab_lock);
     ret = page_from_heap_pool();
   }
   return ret;
@@ -224,7 +224,7 @@ static void* kalloc_slab(size_t size) {
 #ifdef DEAD_LOCK
   Log("spin_lock CPU#%d", cpu);
 #endif
-  spin_lock(&kmem[cpu].lk);
+  kspin_lock(&kmem[cpu].lk);
   slab_t* page = kmem[cpu].slab_list[slab_index].next;
   if (page != NULL) {
     ret = object_from_slab(page);
@@ -245,7 +245,7 @@ static void* kalloc_slab(size_t size) {
 #ifdef DEAD_LOCK
   Log("spin_unlock CPU#%d", cpu);
 #endif
-  spin_unlock(&kmem[cpu].lk);
+  kspin_unlock(&kmem[cpu].lk);
   return ret;
 }
 
@@ -266,7 +266,7 @@ static void kfree_slab(slab_t* page, void* ptr) {
   Log("spin_lock CPU#%d", page->cpu);
 #endif
   assert(page != NULL);
-  spin_lock(&kmem[page->cpu].lk);
+  kspin_lock(&kmem[page->cpu].lk);
   if (page->object_counter == page->object_capacity) {
     int cpu = page->cpu, slab_index = match_slab_type(page->object_size);
     page->next = kmem[cpu].slab_list[slab_index].next;
@@ -280,7 +280,7 @@ static void kfree_slab(slab_t* page, void* ptr) {
 #ifdef DEAD_LOCK
   Log("spin_unlock CPU#%d", page->cpu);
 #endif
-  spin_unlock(&kmem[page->cpu].lk);
+  kspin_unlock(&kmem[page->cpu].lk);
 }
 
 static void* kalloc(size_t size) {
@@ -326,18 +326,18 @@ static void kfree(void* ptr) {
 
 static void slab_init() {
   for (int cpu = 0; cpu < cpu_count(); cpu++) {
-    init_lock(&kmem[cpu].lk, "cpu");
-    spin_lock(&kmem[cpu].lk);
+    init_klock(&kmem[cpu].lk, "cpu");
+    kspin_lock(&kmem[cpu].lk);
     for (int slab = 0; slab < SLAB_TYPE; slab++) {
       fetch_page_to_slab(slab, cpu);
     }
-    spin_unlock(&kmem[cpu].lk);
+    kspin_unlock(&kmem[cpu].lk);
   }
 }
 
 static void pmm_init() {
-  init_lock(&heap_lock, "heap_lock");
-  init_lock(&slab_lock, "slab_lock");
+  init_klock(&heap_lock, "heap_lock");
+  init_klock(&slab_lock, "slab_lock");
 
   uintptr_t pmsize = ((uintptr_t)heap.end - (uintptr_t)heap.start);
   printf("Got %d MiB heap: [%p, %p)\n", pmsize >> 20, heap.start, heap.end);

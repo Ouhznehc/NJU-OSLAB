@@ -144,8 +144,8 @@ int main(int argc, char* argv[]) {
     close(pipefd[0]);
     dup2(pipefd[1], STDERR_FILENO);
     dup2(fd, STDOUT_FILENO);
-    close(pipefd[1]);
-    close(fd);
+    // close(pipefd[1]);
+    // close(fd);
     fetch_strace_argv(argc, argv);
 
     // fflush(stdout);

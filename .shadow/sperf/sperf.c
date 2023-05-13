@@ -156,10 +156,10 @@ int main(int argc, char* argv[]) {
     exit(EXIT_FAILURE);
   }
   else {
-    int child_ret;
-    int pidd = wait(&child_ret);
-    printf("%d %d %d\n", pidd, pid, WEXITSTATUS(child_ret));
-    // exit(child_ret);
+    //   int child_ret;
+    //   int pidd = wait(&child_ret);
+    //   printf("%d %d %d\n", pidd, pid, WEXITSTATUS(child_ret));
+      // exit(child_ret);
     close(pipefd[1]);
     fetch_strace_info(pipefd[0], pid);
     close(pipefd[0]);

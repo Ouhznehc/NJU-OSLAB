@@ -121,8 +121,8 @@ char* fetch_command(char* name) {
     if (access(file_path[counter], X_OK) == 0)
       return file_path[counter];
   }
-  perror(name);
-  exit(EXIT_FAILURE);
+  // perror (name);
+  // exit(EXIT_FAILURE);
 }
 
 void fetch_strace_argv(int argc, char* argv[]) {
@@ -137,8 +137,6 @@ void fetch_strace_argv(int argc, char* argv[]) {
 
 
 int main(int argc, char* argv[]) {
-  perror("FUCK");
-  exit(EXIT_SUCCESS);
   int pipefd[2];
   pipe(pipefd);
 
@@ -154,8 +152,8 @@ int main(int argc, char* argv[]) {
 
     // fflush(stdout);
     execve(args[0], args, environ);
-    perror("execve");
-    exit(EXIT_FAILURE);
+    // perror("execve");
+    // exit(EXIT_FAILURE);
   }
   else {
     //   int child_ret;

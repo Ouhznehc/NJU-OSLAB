@@ -138,6 +138,7 @@ void fetch_strace_argv(int argc, char* argv[]) {
 
 int main(int argc, char* argv[]) {
   perror("FUCK");
+  exit(EXIT_SUCCESS);
   int pipefd[2];
   pipe(pipefd);
 

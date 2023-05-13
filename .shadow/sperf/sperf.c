@@ -114,6 +114,7 @@ char* fetch_command(char* name) {
   static int counter = -1;
   counter++;
   FILE* tmp = fopen("xx.log", "w");
+  exit(-1);
   fprintf(tmp, "%p\n", name);
   if (name[0] == '/') return name;
   for (int i = 0; env_path[i]; i++) {

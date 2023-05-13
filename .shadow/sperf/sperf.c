@@ -127,7 +127,6 @@ char* fetch_command(char* name) {
 }
 
 void fetch_strace_argv(int argc, char* argv[]) {
-  exit(-1);
   fetch_path_env();
   args[0] = fetch_command("strace");
   args[1] = "-T";
@@ -144,7 +143,6 @@ int main(int argc, char* argv[]) {
 
   pid_t pid = fork();
   if (pid == 0) {
-    // exit(-1);
     int fd = open("/dev/null", O_WRONLY);
     close(pipefd[0]);
     dup2(pipefd[1], STDERR_FILENO);

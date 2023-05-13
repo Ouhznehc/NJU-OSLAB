@@ -14,7 +14,7 @@
 
 #define MAX_PATHS 1024
 #define MAX_ARGVS 1024
-#define MAX_FILENAME 64
+#define MAX_FILENAME 128
 #define MAX_SYSCALL 1024
 #define MAX_BUFFER 1024
 #define MAX_ENVP 1024
@@ -22,7 +22,7 @@
 
 //! syscall_t
 typedef struct syscall_t {
-  char name[64];
+  char name[128];
   double time;
 }syscall_t;
 int syscall_compare(const void* a, const void* b) {
@@ -79,7 +79,7 @@ void fetch_strace_info(int fd, int pid) {
   time_t start_time = time(NULL);
   while (waitpid(pid, NULL, WNOHANG) == 0) {
     while (fgets(buffer, MAX_BUFFER, pipe_stream) != NULL) {
-      char syscall_name[64];
+      char syscall_name[128];
       double syscall_time;
       if (sscanf(buffer, "%[^(](%*[^<]<%lf>)", syscall_name, &syscall_time) == 2) {
         // printf("%s : %lf\n", syscall_name, time);

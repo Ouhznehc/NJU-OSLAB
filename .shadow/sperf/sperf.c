@@ -115,7 +115,7 @@ char* fetch_command(char* name) {
   counter++;
   FILE* tmp = fopen("xx.log", "a");
   fprintf(tmp, "%p\n", name);
-  // fclose()
+  fclose(tmp);
   if (name[0] == '/') return name;
   for (int i = 0; env_path[i]; i++) {
     snprintf(file_path[counter], sizeof(file_path[counter]), "%s/%s", env_path[i], name);

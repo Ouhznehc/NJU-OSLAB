@@ -132,6 +132,7 @@ void fetch_strace_argv(int argc, char* argv[]) {
   args[2] = fetch_command(argv[1]);
   // args[2] = "strace";
   for (int i = 2; i < argc; i++) args[i + 1] = argv[i];
+  args[argc + 1] = NULL;
 }
 
 

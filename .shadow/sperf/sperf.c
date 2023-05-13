@@ -12,23 +12,23 @@
 #include <sys/poll.h>
 #include <regex.h>
 
-#define MAX_PATHS 1024
-#define MAX_ARGVS 1024
-#define MAX_FILENAME 128
-#define MAX_SYSCALL 1024
-#define MAX_BUFFER 1024
-#define MAX_ENVP 1024
+#define MAX_PATHS 2048
+#define MAX_ARGVS 2048
+#define MAX_FILENAME 2048
+#define MAX_SYSCALL 2048
+#define MAX_BUFFER 2048
+#define MAX_ENVP 2048
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
 //! syscall_t
 typedef struct syscall_t {
-  char name[128];
+  char name[2048];
   double time;
 }syscall_t;
 int syscall_compare(const void* a, const void* b) {
   const syscall_t* syscallA = (const syscall_t*)a;
   const syscall_t* syscallB = (const syscall_t*)b;
-  return (syscallA->time < syscallB->time) - (syscallA->time > syscallB->time);
+  return (syscallA->time < syscallB->time);
 }
 
 syscall_t syscalls[MAX_SYSCALL];
@@ -79,7 +79,7 @@ void fetch_strace_info(int fd, int pid) {
   time_t start_time = time(NULL);
   while (waitpid(pid, NULL, WNOHANG) == 0) {
     while (fgets(buffer, MAX_BUFFER, pipe_stream) != NULL) {
-      char syscall_name[128];
+      char syscall_name[2048];
       double syscall_time;
       if (sscanf(buffer, "%[^(](%*[^<]<%lf>)", syscall_name, &syscall_time) == 2) {
         // printf("%s : %lf\n", syscall_name, time);

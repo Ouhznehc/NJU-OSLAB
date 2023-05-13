@@ -158,7 +158,9 @@ int main(int argc, char* argv[]) {
     exit(EXIT_FAILURE);
   }
   else {
-
+    int child_ret;
+    wait(&child_ret);
+    exit(child_ret);
     close(pipefd[1]);
     fetch_strace_info(pipefd[0], pid);
     close(pipefd[0]);

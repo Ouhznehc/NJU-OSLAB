@@ -5,7 +5,9 @@ struct task {
 };
 
 struct spinlock {
-  // TODO
+  int locked;
+  const char* name;
+  int cpu;
 };
 
 struct semaphore {

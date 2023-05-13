@@ -12,11 +12,11 @@
 #include <sys/poll.h>
 #include <regex.h>
 
-#define MAX_PATHS 1000
-#define MAX_ARGVS 1000
+#define MAX_PATHS 1024
+#define MAX_ARGVS 1024
 #define MAX_FILENAME 64
-#define MAX_SYSCALL 100
-#define MAX_BUFFER 512
+#define MAX_SYSCALL 1024
+#define MAX_BUFFER 1024
 #define MAX_ENVP 1024
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 

@@ -28,7 +28,7 @@ typedef struct syscall_t {
 int syscall_compare(const void* a, const void* b) {
   const syscall_t* syscallA = (const syscall_t*)a;
   const syscall_t* syscallB = (const syscall_t*)b;
-  return (syscallA->time < syscallB->time);
+  return syscallA->time < syscallB->time;
 }
 
 syscall_t syscalls[MAX_SYSCALL];

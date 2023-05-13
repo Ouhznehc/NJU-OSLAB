@@ -41,7 +41,7 @@ char* env_path[MAX_PATHS];
 char* args[MAX_ARGVS];
 char file_path[MAX_FILENAME];
 extern char** environ;
-char path_env[MAX_PATH];
+char path_env[MAX_PATHS];
 
 void fetch_path_env() {
   char* path_environ = getenv("PATH");

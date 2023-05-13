@@ -123,6 +123,7 @@ char* fetch_command(char* name) {
   }
   // perror (name);
   // exit(EXIT_FAILURE);
+  return NULL;
 }
 
 void fetch_strace_argv(int argc, char* argv[]) {

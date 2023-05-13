@@ -129,9 +129,9 @@ void fetch_strace_argv(int argc, char* argv[]) {
   fetch_path_env();
   args[0] = fetch_command("strace");
   args[1] = "-T";
-  args[2] = fetch_command(argv[1]);
+  // args[2] = fetch_command(argv[1]);
   // args[2] = "strace";
-  for (int i = 2; i < argc; i++) args[i + 1] = argv[i];
+  for (int i = 1; i < argc; i++) args[i + 1] = argv[i];
   args[argc + 1] = NULL;
 }
 
@@ -156,10 +156,6 @@ int main(int argc, char* argv[]) {
     // exit(EXIT_FAILURE);
   }
   else {
-    //   int child_ret;
-    //   int pidd = wait(&child_ret);
-    //   printf("%d %d %d\n", pidd, pid, WEXITSTATUS(child_ret));
-      // exit(child_ret);
     close(pipefd[1]);
     fetch_strace_info(pipefd[0], pid);
     close(pipefd[0]);

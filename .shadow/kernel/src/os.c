@@ -9,11 +9,12 @@ static void os_init() {
   init_klock(&debug_lk, "debug_lk");
 #endif
   pmm->init();
+  kmt->init();
 }
 static void os_run() {
 
+  iset(true);
   while (1);
-  halt(0);
 }
 
 MODULE_DEF(os) = {

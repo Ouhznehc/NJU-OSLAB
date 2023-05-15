@@ -37,11 +37,11 @@ static Context* os_trap(Event ev, Context* ctx) {
   for (irq_t* h = irq_list_head->next; h != NULL; h = h->next) {
     if (h->event == EVENT_NULL || h->event == ev.event) {
       Context* r = h->handler(ev, ctx);
-      assert(0);
       panic_on(r && next, "returning multiple contexts");
       if (r) next = r;
     }
   }
+  assert(0);
   panic_on(!next, "returning NULL context");
   return next;
 }

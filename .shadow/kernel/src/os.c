@@ -34,7 +34,7 @@ static void os_run() {
 static Context* os_trap(Event ev, Context* ctx) {
   Context* next = NULL;
   for (irq_t* h = irq_list_head; h != NULL; h = h->next) {
-    Log("h->seq = %d", h->seq);
+    printf("h->seq = %d\n", h->seq);
     if (h->event == EVENT_NULL || h->event == ev.event) {
       Context* r = h->handler(ev, ctx);
       panic_on(r && next, "returning multiple contexts");

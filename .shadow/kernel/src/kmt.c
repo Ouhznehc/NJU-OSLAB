@@ -116,6 +116,7 @@ static void task_list_insert(task_t* insert_task) {
     insert_task->next = task_list;
   }
   else {
+    Log("second");
     insert_task->next = task_list->next;
     task_list->next = insert_task;
   }

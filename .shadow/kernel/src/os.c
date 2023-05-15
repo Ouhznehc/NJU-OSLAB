@@ -45,11 +45,6 @@ static Context* os_trap(Event ev, Context* ctx) {
 }
 
 static void os_on_irq(int seq, int event, handler_t handler) {
-  irq_t* new_irq = pmm->alloc(sizeof(new_irq));
-  new_irq->seq = seq;
-  new_irq->event = event;
-  new_irq->handler = handler;
-
   irq_t* cur = irq_list_head;
 
   Log("==================0");
@@ -58,6 +53,12 @@ static void os_on_irq(int seq, int event, handler_t handler) {
     cur = cur->next;
   }
   cur = irq_list_head;
+
+  irq_t* new_irq = pmm->alloc(sizeof(new_irq));
+  new_irq->seq = seq;
+  new_irq->event = event;
+  new_irq->handler = handler;
+
 
   while (cur->next != NULL && cur->next->seq < seq) cur = cur->next;
   new_irq->next = cur->next;

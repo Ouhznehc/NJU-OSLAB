@@ -127,9 +127,10 @@ static void task_list_delete(task_t* delete_task) {
 static task_t* task_list_query(int cpu) {
   Log("begin");
   for (task_t* cur = current_task[cpu]->next; cur != current_task[cpu]; cur = cur->next) {
-    printf("==========\n");
-    printf("%d", cur->status);
-    if (cur->status == RUNNABLE) return cur;
+    if (cur->status == RUNNABLE) {
+      Log("return");
+      return cur;
+    }
   }
   return NULL;
 }

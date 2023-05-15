@@ -111,6 +111,7 @@ static task_t* task_list;
 
 static void task_list_insert(task_t* insert_task) {
   if (task_list == NULL) {
+    Log("first");
     task_list = insert_task;
     insert_task->next = task_list;
   }

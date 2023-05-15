@@ -167,7 +167,6 @@ static int kmt_create(task_t* task, const char* name, void (*entry)(void* arg), 
   task->context = kcontext(stack, entry, arg);
   task->status = RUNNABLE;
   task_list_insert(task);
-  assert(0);
   return 0;
 }
 

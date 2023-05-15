@@ -126,9 +126,6 @@ static void task_list_delete(task_t* delete_task) {
 
 static task_t* task_list_query(int cpu) {
   for (task_t* cur = current_task[cpu]->next; cur != current_task[cpu]; cur = cur->next) {
-    printf("cur->status = %d\n", cur->status);
-  }
-  for (task_t* cur = current_task[cpu]->next; cur != current_task[cpu]; cur = cur->next) {
     if (cur->status == RUNNABLE) return cur;
   }
   return NULL;
@@ -152,8 +149,11 @@ static Context* kmt_schedule(Event ev, Context* context) {
     Assert(buffer_task[cpu]->status == RUNNING, "buffer_task not RUNNING");
     buffer_task[cpu]->status = RUNNABLE;
     buffer_task[cpu] = NULL;
+    Log("1");
   }
+  Log("2");
   task_t* next_task = task_list_query(cpu);
+  Log("3");
   if (next_task == NULL) ret = current_task[cpu]->context;
   else {
     Log("find runnable");

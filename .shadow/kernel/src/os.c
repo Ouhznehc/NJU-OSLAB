@@ -32,7 +32,6 @@ static void os_run() {
 
 
 static Context* os_trap(Event ev, Context* ctx) {
-  assert(0);
   Context* next = NULL;
   for (irq_t* h = irq_list_head; h != NULL; h = h->next) {
     if (h->event == EVENT_NULL || h->event == ev.event) {
@@ -41,6 +40,7 @@ static Context* os_trap(Event ev, Context* ctx) {
       if (r) next = r;
     }
   }
+  assert(0);
   panic_on(!next, "returning NULL context");
   return next;
 }

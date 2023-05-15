@@ -27,6 +27,8 @@ MODULE(pmm) {
 typedef struct task task_t;
 typedef struct spinlock spinlock_t;
 typedef struct semaphore sem_t;
+typedef struct interrupt_request irq_t;
+
 MODULE(kmt) {
   void (*init)();
   int  (*create)(task_t * task, const char* name, void (*entry)(void* arg), void* arg);

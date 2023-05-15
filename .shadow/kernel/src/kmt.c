@@ -138,7 +138,6 @@ static task_t* task_list_query() {
 
 
 static Context* kmt_context_save(Event ev, Context* context) {
-  assert(0);
   int cpu = cpu_current();
   current_task[cpu]->context = context;
   return NULL;

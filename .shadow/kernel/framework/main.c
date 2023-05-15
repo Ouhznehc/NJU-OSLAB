@@ -34,6 +34,7 @@ int main() {
   cte_init(os->trap);
   os->init();
   create_threads();
+  assert(0);
   mpe_init(os->run);
   return 1;
 }

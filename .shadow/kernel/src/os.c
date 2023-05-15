@@ -23,7 +23,7 @@ static void os_init() {
   kmt->init();
 }
 static void os_run() {
-  iset(false);
+  iset(true);
   while (1);
 }
 

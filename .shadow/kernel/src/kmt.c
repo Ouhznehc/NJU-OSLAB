@@ -125,13 +125,14 @@ static void task_list_delete(task_t* delete_task) {
 }
 
 static task_t* task_list_query(int cpu) {
-  Log("begin");
-  assert(current_task[cpu] != NULL);
-  for (task_t* cur = current_task[cpu]->next; cur != current_task[cpu]; cur = cur->next) {
-    assert(cur != NULL);
-    if (cur->status == RUNNABLE) {
-      Log("return");
-      return cur;
+  if (current_task[cpu] == NULL) {
+    for (task_t* cur = task_list->next; cur != task_list; cur = cur->next) {
+      if (cur->status == RUNNABLE) return cur;
+    }
+  }
+  else {
+    for (task_t* cur = current_task[cpu]->next; cur != current_task[cpu]; cur = cur->next) {
+      if (cur->status == RUNNABLE) return cur;
     }
   }
   return NULL;
@@ -147,10 +148,8 @@ static Context* kmt_context_save(Event ev, Context* context) {
 
 static Context* kmt_schedule(Event ev, Context* context) {
   int cpu = cpu_current();
-  Log("CPU#%d", cpu);
   Context* ret = NULL;
   kmt_spin_lock(&os_trap_lk);
-  Log("begin");
   if (buffer_task[cpu] != NULL) {
     Assert(buffer_task[cpu]->status == RUNNING, "buffer_task not RUNNING");
     buffer_task[cpu]->status = RUNNABLE;
@@ -165,7 +164,6 @@ static Context* kmt_schedule(Event ev, Context* context) {
     current_task[cpu] = next_task;
     next_task->status = RUNNING;
   }
-  Log("end");
   kmt_spin_unlock(&os_trap_lk);
   return ret;
 }

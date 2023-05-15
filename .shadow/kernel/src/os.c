@@ -6,6 +6,7 @@ struct interrupt_request {
   handler_t handler;
   struct interrupt_request* next;
 };
+
 static irq_t* irq_list_head;
 
 

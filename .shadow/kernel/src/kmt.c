@@ -107,34 +107,27 @@ static void kmt_sem_signal(sem_t* sem) {
 
 static spinlock_t os_trap_lk;
 static task_t* current_task[MAX_CPU], * buffer_task[MAX_CPU];
-static task_t* task_list_head, * task_list_tail;
-
-
-static void task_list_init() {
-  task_list_head = pmm->alloc(sizeof(task_t));
-  task_list_tail = pmm->alloc(sizeof(task_t));
-  task_list_head->prev = NULL;
-  task_list_head->next = task_list_tail;
-  task_list_tail->prev = task_list_head;
-  task_list_tail->next = NULL;
-}
+static task_t* task_list;
 
 static void task_list_insert(task_t* insert_task) {
   kmt_spin_lock(&os_trap_lk);
-  insert_task->next = task_list_head->next;
-  insert_task->prev = task_list_head;
-  task_list_head->next->prev = insert_task;
-  task_list_head->next = insert_task;
+  if (task_list == NULL) {
+    task_list = insert_task;
+    insert_task->next = task_list;
+  }
+  else {
+    insert_task->next = task_list->next;
+    task_list->next = insert_task;
+  }
   kmt_spin_unlock(&os_trap_lk);
 }
 
 static void task_list_delete(task_t* delete_task) {
-  delete_task->prev->next = delete_task->next;
-  delete_task->next->prev = delete_task->prev;
+  delete_task->status = DELETED;
 }
 
-static task_t* task_list_query() {
-  for (task_t* cur = task_list_tail->prev; cur != task_list_head; cur = cur->prev) {
+static task_t* task_list_query(int cpu) {
+  for (task_t* cur = current_task[cpu]->next; cur != current_task[cpu]; cur = cur->next) {
     if (cur->status == RUNNABLE) return cur;
   }
   return NULL;
@@ -157,7 +150,7 @@ static Context* kmt_schedule(Event ev, Context* context) {
     buffer_task[cpu]->status = RUNNABLE;
     buffer_task[cpu] = NULL;
   }
-  task_t* next_task = task_list_query();
+  task_t* next_task = task_list_query(cpu);
   if (next_task == NULL) ret = current_task[cpu]->context;
   else {
     ret = next_task->context;
@@ -183,7 +176,6 @@ static void kmt_teardown(task_t* task) {
   kmt_spin_lock(&os_trap_lk);
   pmm->free(task->stack);
   task_list_delete(task);
-  pmm->free(task);
   kmt_spin_unlock(&os_trap_lk);
 }
 
@@ -194,7 +186,6 @@ static void kmt_init() {
     lock_cnt[i] = is_lock[i] = 0;
     buffer_task[i] = NULL;
   }
-  task_list_init();
   os->on_irq(INT_MIN, EVENT_NULL, kmt_context_save);
   os->on_irq(INT_MAX, EVENT_NULL, kmt_schedule);
 }

@@ -178,6 +178,9 @@ static int kmt_create(task_t* task, const char* name, void (*entry)(void* arg), 
   task->context = kcontext(stack, entry, arg);
   task->status = RUNNABLE;
   task_list_insert(task);
+  for (task_t* cur = task_list_tail->prev; cur->prev != task_list_head; cur = cur->prev) {
+    Log("cur->status = %d", cur->status);
+  }
   return 0;
 }
 

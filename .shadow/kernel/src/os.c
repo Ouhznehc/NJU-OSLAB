@@ -41,7 +41,6 @@ static Context* os_trap(Event ev, Context* ctx) {
       if (r) next = r;
     }
   }
-  assert(0);
   panic_on(!next, "returning NULL context");
   return next;
 }

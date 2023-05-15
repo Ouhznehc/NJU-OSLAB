@@ -5,13 +5,14 @@
 enum task_status {
   BLOCKED = 0,
   RUNNABLE = 1,
-  RUNNING = 2
+  RUNNING = 2,
+  DELETED = 3
 };
 
 struct task {
   int status;
   const char* name;
-  struct task* prev, * next;
+  struct task* next;
   Context* context;
   uintptr_t* stack;
 };

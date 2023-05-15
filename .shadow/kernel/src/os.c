@@ -6,7 +6,7 @@ struct interrupt_request {
   handler_t handler;
   irq_t* next;
 };
-static irq_t* irq_list_head;
+static irq_t irq_list_head;
 
 
 #ifdef __DEBUG_MODE__
@@ -18,8 +18,7 @@ static void os_init() {
   init_klock(&debug_lk, "debug_lk");
 #endif
   pmm->init();
-  irq_list_head = pmm->alloc(sizeof(irq_list_head));
-  irq_list_head->next = NULL;
+  irq_list_head.next = NULL;
   kmt->init();
 }
 static void os_run() {
@@ -30,7 +29,7 @@ static void os_run() {
 
 static Context* os_trap(Event ev, Context* ctx) {
   Context* next = NULL;
-  for (irq_t* h = irq_list_head; h != NULL; h = h->next) {
+  for (irq_t* h = &irq_list_head; h != NULL; h = h->next) {
     if (h->event == EVENT_NULL || h->event == ev.event) {
       Context* r = h->handler(ev, ctx);
       panic_on(r && next, "returning multiple contexts");
@@ -47,21 +46,21 @@ static void os_on_irq(int seq, int event, handler_t handler) {
   new_irq->event = event;
   new_irq->handler = handler;
 
-  irq_t* cur = irq_list_head;
+  irq_t* cur = &irq_list_head;
 
   Log("==================0");
   while (cur != NULL) {
     Log("cur->seq = %d", cur->seq);
     cur = cur->next;
   }
-  cur = irq_list_head;
+  cur = &irq_list_head;
 
   while (cur->next != NULL && cur->next->seq < seq) cur = cur->next;
   new_irq->next = cur->next;
   cur->next = new_irq;
 
   Log("==================1");
-  cur = irq_list_head;
+  cur = &irq_list_head;
   while (cur != NULL) {
     Log("cur->seq = %d", cur->seq);
     cur = cur->next;

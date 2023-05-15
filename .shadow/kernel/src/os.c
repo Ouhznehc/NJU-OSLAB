@@ -33,7 +33,7 @@ static void os_run() {
 
 static Context* os_trap(Event ev, Context* ctx) {
   Context* next = NULL;
-  for (irq_t* h = irq_list_head; h != NULL; h = h->next) {
+  for (irq_t* h = irq_list_head->next; h != NULL; h = h->next) {
     printf("h->seq = %d\n", h->seq);
     if (h->event == EVENT_NULL || h->event == ev.event) {
       Context* r = h->handler(ev, ctx);
@@ -56,12 +56,6 @@ static void os_on_irq(int seq, int event, handler_t handler) {
   while (cur->next != NULL && cur->next->seq < seq) cur = cur->next;
   new_irq->next = cur->next;
   cur->next = new_irq;
-
-  cur = irq_list_head;
-  while (cur != NULL) {
-    printf("cur->seq = %d\n", cur->seq);
-    cur = cur->next;
-  }
 }
 
 

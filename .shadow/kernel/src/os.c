@@ -19,8 +19,8 @@ static void os_init() {
 #endif
   pmm->init();
   irq_list_head = pmm->alloc(sizeof(irq_list_head));
-  assert(0);
   irq_list_head->next = NULL;
+  assert(0);
   kmt->init();
 }
 static void os_run() {

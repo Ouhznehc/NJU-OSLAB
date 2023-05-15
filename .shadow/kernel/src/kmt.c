@@ -134,7 +134,7 @@ static void task_list_delete(task_t* delete_task) {
 static task_t* task_list_query() {
   for (task_t* cur = task_list_tail->prev; cur->prev != task_list_head; cur = cur->prev) {
     Log("cur->status = %d", cur->status);
-    if (cur->status == RUNNABLE) return cur;
+    //if (cur->status == RUNNABLE) return cur;
   }
   return NULL;
 }

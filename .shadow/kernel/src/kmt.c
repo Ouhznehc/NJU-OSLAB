@@ -80,7 +80,7 @@ static void kmt_sem_init(sem_t* sem, const char* name, int value) {
 
 static void kmt_sem_wait(sem_t* sem) {
   kmt_spin_lock(&sem->lk);
-  Log("%s try lock with count = %d", sem->name, sem->count);
+  Log("%s try P with count = %d", sem->name, sem->count);
   Assert(sem->count >= 0, "kmt_sem_wait: sem->count < 0");
   int is_wait = 0;
   while (sem->count == 0) {
@@ -95,7 +95,7 @@ static void kmt_sem_wait(sem_t* sem) {
 
 static void kmt_sem_signal(sem_t* sem) {
   kmt_spin_lock(&sem->lk);
-  Log("%s try unlock with count = %d", sem->name, sem->count);
+  Log("%s try V with count = %d", sem->name, sem->count);
   Assert(sem->count >= 0, "kmt_sem_signal: sem->count < 0");
   sem->count++;
   kmt_spin_unlock(&sem->lk);

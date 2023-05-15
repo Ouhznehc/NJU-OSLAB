@@ -86,6 +86,7 @@ static void kmt_sem_wait(sem_t* sem) {
   while (sem->count == 0) {
     is_wait = 1;
     kmt_spin_unlock(&sem->lk);
+    Log("%s P failed: yield()", sem->name);
     yield();
   }
   if (is_wait == 1) kmt_spin_lock(&sem->lk);

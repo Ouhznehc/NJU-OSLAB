@@ -125,9 +125,6 @@ static void task_list_insert(task_t* insert_task) {
   insert_task->prev = task_list_head;
   task_list_head->next->prev = insert_task;
   task_list_head->next = insert_task;
-  for (task_t* cur = task_list_tail->prev; cur != task_list_head; cur = cur->prev) {
-    Log("cur->status = %d", cur->status);
-  }
   kmt_spin_unlock(&os_trap_lk);
 }
 
@@ -137,10 +134,7 @@ static void task_list_delete(task_t* delete_task) {
 }
 
 static task_t* task_list_query() {
-  // for (task_t* cur = task_list_tail->prev; cur->prev != task_list_head; cur = cur->prev) {
-  //   Log("cur->status = %d", cur->status);
-  // }
-  for (task_t* cur = task_list_tail->prev; cur->prev != task_list_head; cur = cur->prev) {
+  for (task_t* cur = task_list_tail->prev; cur != task_list_head; cur = cur->prev) {
     if (cur->status == RUNNABLE) return cur;
   }
   return NULL;
@@ -166,7 +160,6 @@ static Context* kmt_schedule(Event ev, Context* context) {
   task_t* next_task = task_list_query();
   if (next_task == NULL) ret = current_task[cpu]->context;
   else {
-    Log("find runnable");
     ret = next_task->context;
     buffer_task[cpu] = current_task[cpu];
     current_task[cpu] = next_task;
@@ -182,9 +175,7 @@ static int kmt_create(task_t* task, const char* name, void (*entry)(void* arg), 
   Area stack = (Area){ task->stack, task->stack + STACK_SIZE };
   task->context = kcontext(stack, entry, arg);
   task->status = RUNNABLE;
-  Log("begin insert");
   task_list_insert(task);
-  Log("end insert");
   return 0;
 }
 

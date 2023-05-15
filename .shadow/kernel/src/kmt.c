@@ -141,6 +141,7 @@ static task_t* task_list_query() {
 
 
 static Context* kmt_context_save(Event ev, Context* context) {
+  assert(0);
   int cpu = cpu_current();
   current_task[cpu]->context = context;
   return NULL;
@@ -167,7 +168,6 @@ static Context* kmt_schedule(Event ev, Context* context) {
 }
 
 static int kmt_create(task_t* task, const char* name, void (*entry)(void* arg), void* arg) {
-  assert(0);
   task->name = name;
   task->stack = pmm->alloc(STACK_SIZE);
   Area stack = (Area){ task->stack, task->stack + STACK_SIZE };

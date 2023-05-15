@@ -188,6 +188,7 @@ static void kmt_init() {
     lock_cnt[i] = is_lock[i] = 0;
     buffer_task[i] = NULL;
   }
+  assert(0);
   task_list_init();
   os->on_irq(INT_MIN, EVENT_NULL, kmt_context_save);
   os->on_irq(INT_MAX, EVENT_NULL, kmt_schedule);

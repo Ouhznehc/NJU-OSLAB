@@ -21,7 +21,6 @@ static void os_init() {
   irq_list_head = pmm->alloc(sizeof(irq_list_head));
   irq_list_head->next = NULL;
   kmt->init();
-  assert(0);
 }
 static void os_run() {
   iset(true);

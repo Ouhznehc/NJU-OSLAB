@@ -57,6 +57,11 @@ static void os_on_irq(int seq, int event, handler_t handler) {
   new_irq->next = cur->next;
   cur->next = new_irq;
 
+  cur = irq_list_head;
+  while (cur != NULL) {
+    printf("cur->seq = %d\n", cur->seq);
+    cur = cur->next;
+  }
 }
 
 

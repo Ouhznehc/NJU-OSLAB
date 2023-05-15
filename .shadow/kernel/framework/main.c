@@ -6,6 +6,7 @@
 #define V kmt->sem_signal
 sem_t empty, fill;
 void Tproduce(void* arg) {
+  assert(0);
   while (1) {
     P(&empty);
     putch('(');
@@ -13,6 +14,7 @@ void Tproduce(void* arg) {
   }
 }
 void Tconsume(void* arg) {
+  assert(0);
   while (1) {
     P(&fill);
     putch(')');

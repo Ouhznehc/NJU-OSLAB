@@ -84,8 +84,8 @@ static void kmt_sem_wait(sem_t* sem) {
   Assert(sem->count >= 0, "kmt_sem_wait: sem->count < 0");
   int is_wait = 0;
   while (sem->count == 0) {
+    if (is_wait == 0) kmt_spin_unlock(&sem->lk);
     is_wait = 1;
-    kmt_spin_unlock(&sem->lk);
     // Log("%s P failed: yield()", sem->name);
     yield();
   }

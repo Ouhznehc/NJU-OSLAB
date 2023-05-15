@@ -110,7 +110,7 @@ static task_t* current_task[MAX_CPU], * buffer_task[MAX_CPU];
 static task_t* task_list;
 
 static void task_list_insert(task_t* insert_task) {
-  kmt_spin_lock(&os_trap_lk);
+  // kmt_spin_lock(&os_trap_lk);
   if (task_list == NULL) {
     task_list = insert_task;
     insert_task->next = task_list;
@@ -119,7 +119,7 @@ static void task_list_insert(task_t* insert_task) {
     insert_task->next = task_list->next;
     task_list->next = insert_task;
   }
-  kmt_spin_unlock(&os_trap_lk);
+  // kmt_spin_unlock(&os_trap_lk);
 }
 
 static void task_list_delete(task_t* delete_task) {

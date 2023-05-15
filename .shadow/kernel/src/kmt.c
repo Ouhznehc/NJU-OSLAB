@@ -140,6 +140,7 @@ static Context* kmt_context_save(Event ev, Context* context) {
 }
 
 static Context* kmt_schedule(Event ev, Context* context) {
+  assert(0);
   int cpu = cpu_current();
   Context* ret = NULL;
   kmt_spin_lock(&os_trap_lk);

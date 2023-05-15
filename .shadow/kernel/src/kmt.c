@@ -171,10 +171,10 @@ static int kmt_create(task_t* task, const char* name, void (*entry)(void* arg), 
 }
 
 static void kmt_teardown(task_t* task) {
-  kmt_spin_lock(&os_trap_lk);
+  // kmt_spin_lock(&os_trap_lk);
   pmm->free(task->stack);
   task_list_delete(task);
-  kmt_spin_unlock(&os_trap_lk);
+  // kmt_spin_unlock(&os_trap_lk);
 }
 
 

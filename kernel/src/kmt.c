@@ -80,13 +80,11 @@ static void kmt_sem_init(sem_t* sem, const char* name, int value) {
 
 static void kmt_sem_wait(sem_t* sem) {
   kmt_spin_lock(&sem->lk);
-  // Log("%s try P with count = %d", sem->name, sem->count);
   Assert(sem->count >= 0, "kmt_sem_wait: sem->count < 0");
   int is_wait = 0;
   while (sem->count == 0) {
     if (is_wait == 0) kmt_spin_unlock(&sem->lk);
     is_wait = 1;
-    // Log("%s P failed: yield()", sem->name);
     yield();
   }
   if (is_wait == 1) kmt_spin_lock(&sem->lk);
@@ -96,7 +94,6 @@ static void kmt_sem_wait(sem_t* sem) {
 
 static void kmt_sem_signal(sem_t* sem) {
   kmt_spin_lock(&sem->lk);
-  // Log("%s try V with count = %d", sem->name, sem->count);
   Assert(sem->count >= 0, "kmt_sem_signal: sem->count < 0");
   sem->count++;
   kmt_spin_unlock(&sem->lk);
@@ -110,6 +107,7 @@ static task_t* current_task[MAX_CPU], * buffer_task[MAX_CPU];
 static task_t* task_list;
 
 static void task_list_insert(task_t* insert_task) {
+  kmt_spin_lock(&os_trap_lk);
   if (task_list == NULL) {
     task_list = insert_task;
     insert_task->next = task_list;
@@ -118,6 +116,7 @@ static void task_list_insert(task_t* insert_task) {
     insert_task->next = task_list->next;
     task_list->next = insert_task;
   }
+  kmt_spin_unlock(&os_trap_lk);
 }
 
 static void task_list_delete(task_t* delete_task) {
@@ -134,9 +133,12 @@ static task_t* task_list_query(int cpu) {
     if (cur->status == RUNNABLE) return cur;
   }
   else {
-    for (task_t* cur = current_task[cpu]->next; cur != current_task[cpu]; cur = cur->next) {
+    task_t* cur = current_task[cpu]->next;
+    while (cur != current_task[cpu]) {
       if (cur->status == RUNNABLE) return cur;
+      cur = cur->next;
     }
+    if (cur->status == RUNNABLE) return cur;
   }
   return NULL;
 }
@@ -181,10 +183,10 @@ static int kmt_create(task_t* task, const char* name, void (*entry)(void* arg), 
 }
 
 static void kmt_teardown(task_t* task) {
-  // kmt_spin_lock(&os_trap_lk);
+  kmt_spin_lock(&os_trap_lk);
   pmm->free(task->stack);
   task_list_delete(task);
-  // kmt_spin_unlock(&os_trap_lk);
+  kmt_spin_unlock(&os_trap_lk);
 }
 
 

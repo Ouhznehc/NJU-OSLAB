@@ -61,7 +61,7 @@ static void kmt_spin_lock(spinlock_t* lk) {
 
 static void kmt_spin_unlock(spinlock_t* lk) {
   if (!holding(lk)) panic("double unlock: %s in CPU#%d", lk->name, lk->cpu);
-  lk->cpu = -1;
+  //lk->cpu = -1;
   __sync_synchronize();
   atomic_xchg(&lk->locked, 0);
   popcli();

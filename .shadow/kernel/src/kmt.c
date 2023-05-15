@@ -95,6 +95,7 @@ static void kmt_sem_wait(sem_t* sem) {
 
 static void kmt_sem_signal(sem_t* sem) {
   kmt_spin_lock(&sem->lk);
+  Log("%s try unlock with count = %d", sem->name, sem->count);
   Assert(sem->count >= 0, "kmt_sem_signal: sem->count < 0");
   sem->count++;
   kmt_spin_unlock(&sem->lk);

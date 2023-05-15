@@ -53,24 +53,9 @@ static void os_on_irq(int seq, int event, handler_t handler) {
   new_irq->handler = handler;
 
   irq_t* cur = irq_list_head;
-
-  Log("==================0");
-  while (cur != NULL) {
-    Log("cur->seq = %d", cur->seq);
-    cur = cur->next;
-  }
-  cur = irq_list_head;
-
   while (cur->next != NULL && cur->next->seq < seq) cur = cur->next;
   new_irq->next = cur->next;
   cur->next = new_irq;
-
-  Log("==================1");
-  cur = irq_list_head;
-  while (cur != NULL) {
-    Log("cur->seq = %d", cur->seq);
-    cur = cur->next;
-  }
 
 }
 

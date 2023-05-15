@@ -194,7 +194,6 @@ static void kmt_init() {
   task_list_init();
   os->on_irq(INT_MIN, EVENT_NULL, kmt_context_save);
   os->on_irq(INT_MAX, EVENT_NULL, kmt_schedule);
-  assert(0);
 }
 
 MODULE_DEF(kmt) = {

@@ -2,7 +2,7 @@
 #include <common.h>
 
 #define INT_MAX 2147483647
-#define INT_MIN (-INT_MAX - 1)
+#define INT_MIN -2147483648
 #define STACK_SIZE 8196
 
 static void kmt_init();

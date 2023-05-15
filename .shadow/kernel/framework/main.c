@@ -24,13 +24,10 @@ static void create_threads() {
   kmt->sem_init(&fill, "fill", 0);
   for (int i = 0; i < 1; i++) {
     kmt->create(pmm->alloc(sizeof(task_t)), "producer", Tproduce, NULL);
-    Log("create 0");
   }
   for (int i = 0; i < 1; i++) {
     kmt->create(pmm->alloc(sizeof(task_t)), "consumer", Tconsume, NULL);
-    Log("create 1");
   }
-  assert(0);
 }
 int main() {
   ioe_init();

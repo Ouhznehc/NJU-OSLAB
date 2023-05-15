@@ -1,11 +1,11 @@
 #include <common.h>
 
-struct interrupt_request {
+typedef struct interrupt_request {
   int seq;
   int event;
   handler_t handler;
   struct interrupt_request* next;
-};
+}irq_t;
 
 static irq_t* irq_list_head;
 

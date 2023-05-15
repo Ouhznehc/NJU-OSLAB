@@ -172,13 +172,14 @@ static Context* kmt_schedule(Event ev, Context* context) {
 }
 
 static int kmt_create(task_t* task, const char* name, void (*entry)(void* arg), void* arg) {
-  Log("into");
   task->name = name;
   task->stack = pmm->alloc(STACK_SIZE);
   Area stack = (Area){ task->stack, task->stack + STACK_SIZE };
   task->context = kcontext(stack, entry, arg);
   task->status = RUNNABLE;
+  Log("begin insert");
   task_list_insert(task);
+  Log("end insert");
   for (task_t* cur = task_list_tail->prev; cur->prev != task_list_head; cur = cur->prev) {
     Log("cur->status = %d", cur->status);
   }

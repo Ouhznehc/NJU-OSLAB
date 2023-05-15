@@ -20,6 +20,9 @@ static void os_init() {
   pmm->init();
   irq_list_head = pmm->alloc(sizeof(irq_list_head));
   irq_list_head->next = NULL;
+  irq_list_head->seq = 0;
+  irq_list_head->handler = NULL;
+  irq_list_head->event = EVENT_NULL;
   kmt->init();
 }
 static void os_run() {

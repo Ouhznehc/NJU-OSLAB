@@ -133,9 +133,12 @@ static task_t* task_list_query(int cpu) {
     if (cur->status == RUNNABLE) return cur;
   }
   else {
-    for (task_t* cur = current_task[cpu]->next; cur != current_task[cpu]; cur = cur->next) {
+    task_t* cur = current_task[cpu]->next;
+    while (cur != current_task[cpu]) {
       if (cur->status == RUNNABLE) return cur;
+      cur = cur->next;
     }
+    if (cur->status == RUNNABLE) return cur;
   }
   return NULL;
 }

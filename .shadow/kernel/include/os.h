@@ -11,7 +11,7 @@ enum task_status {
 struct task {
   int status;
   const char* name;
-  task_t* prev, * next;
+  struct task* prev, * next;
   Context* context;
   uintptr_t* stack;
 };

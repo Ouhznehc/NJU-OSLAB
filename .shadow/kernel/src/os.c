@@ -4,7 +4,7 @@ struct interrupt_request {
   int seq;
   int event;
   handler_t handler;
-  irq_t* next;
+  struct interrupt_request* next;
 };
 static irq_t* irq_list_head;
 

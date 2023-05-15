@@ -172,6 +172,7 @@ static Context* kmt_schedule(Event ev, Context* context) {
 }
 
 static int kmt_create(task_t* task, const char* name, void (*entry)(void* arg), void* arg) {
+  Log("into");
   task->name = name;
   task->stack = pmm->alloc(STACK_SIZE);
   Area stack = (Area){ task->stack, task->stack + STACK_SIZE };

@@ -125,7 +125,7 @@ static void task_list_insert(task_t* insert_task) {
   insert_task->prev = task_list_head;
   task_list_head->next->prev = insert_task;
   task_list_head->next = insert_task;
-  for (task_t* cur = task_list_tail->prev; cur->prev != task_list_head; cur = cur->prev) {
+  for (task_t* cur = task_list_tail->prev; cur != task_list_head; cur = cur->prev) {
     Log("cur->status = %d", cur->status);
   }
   kmt_spin_unlock(&os_trap_lk);

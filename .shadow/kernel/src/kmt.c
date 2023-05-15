@@ -96,6 +96,7 @@ static void kmt_sem_wait(sem_t* sem) {
 
 static void kmt_sem_signal(sem_t* sem) {
   kmt_spin_lock(&sem->lk);
+  assert(0);
   // Log("%s try V with count = %d", sem->name, sem->count);
   Assert(sem->count >= 0, "kmt_sem_signal: sem->count < 0");
   sem->count++;
@@ -143,7 +144,6 @@ static Context* kmt_schedule(Event ev, Context* context) {
   int cpu = cpu_current();
   Context* ret = NULL;
   kmt_spin_lock(&os_trap_lk);
-  assert(0);
   if (buffer_task[cpu] != NULL) {
     Assert(buffer_task[cpu]->status == RUNNING, "buffer_task not RUNNING");
     buffer_task[cpu]->status = RUNNABLE;

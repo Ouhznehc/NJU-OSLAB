@@ -18,6 +18,7 @@ static void os_init() {
   init_klock(&debug_lk, "debug_lk");
 #endif
   pmm->init();
+  assert(0);
   irq_list_head = pmm->alloc(sizeof(irq_list_head));
   irq_list_head->next = NULL;
   kmt->init();

@@ -151,6 +151,7 @@ static Context* kmt_schedule(Event ev, Context* context) {
   task_t* next_task = task_list_query(cpu);
   if (next_task == NULL) ret = current_task[cpu]->context;
   else {
+    Log("find runnable");
     ret = next_task->context;
     buffer_task[cpu] = current_task[cpu];
     current_task[cpu] = next_task;

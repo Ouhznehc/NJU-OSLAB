@@ -118,13 +118,13 @@ static void task_list_init() {
 }
 
 static void task_list_insert(task_t* insert_task) {
-  kmt_spin_lock(&os_trap_lk);
+  //kmt_spin_lock(&os_trap_lk);
   Log("fuck");
   insert_task->next = task_list_head->next;
   insert_task->prev = task_list_head;
   task_list_head->next->prev = insert_task;
   task_list_head->next = insert_task;
-  kmt_spin_unlock(&os_trap_lk);
+  // kmt_spin_unlock(&os_trap_lk);
 }
 
 static void task_list_delete(task_t* delete_task) {

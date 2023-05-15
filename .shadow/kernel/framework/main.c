@@ -30,6 +30,7 @@ static void create_threads() {
     kmt->create(pmm->alloc(sizeof(task_t)), "consumer", Tconsume, NULL);
     Log("create 1");
   }
+  assert(0);
 }
 int main() {
   ioe_init();

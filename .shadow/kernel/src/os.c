@@ -46,7 +46,7 @@ static Context* os_trap(Event ev, Context* ctx) {
 
 static void os_on_irq(int seq, int event, handler_t handler) {
 
-  irq_t* new_irq = pmm->alloc(16);
+  irq_t* new_irq = pmm->alloc(sizeof(irq_t));
   Log("%p", new_irq);
   new_irq->seq = seq;
   new_irq->event = event;

@@ -110,7 +110,6 @@ static task_t* current_task[MAX_CPU], * buffer_task[MAX_CPU];
 static task_t* task_list;
 
 static void task_list_insert(task_t* insert_task) {
-  // kmt_spin_lock(&os_trap_lk);
   if (task_list == NULL) {
     task_list = insert_task;
     insert_task->next = task_list;
@@ -119,7 +118,6 @@ static void task_list_insert(task_t* insert_task) {
     insert_task->next = task_list->next;
     task_list->next = insert_task;
   }
-  // kmt_spin_unlock(&os_trap_lk);
 }
 
 static void task_list_delete(task_t* delete_task) {
@@ -144,7 +142,7 @@ static Context* kmt_context_save(Event ev, Context* context) {
 static Context* kmt_schedule(Event ev, Context* context) {
   int cpu = cpu_current();
   Context* ret = NULL;
-  kmt_spin_lock(&os_trap_lk);
+  // kmt_spin_lock(&os_trap_lk);
   if (buffer_task[cpu] != NULL) {
     Assert(buffer_task[cpu]->status == RUNNING, "buffer_task not RUNNING");
     buffer_task[cpu]->status = RUNNABLE;
@@ -158,7 +156,7 @@ static Context* kmt_schedule(Event ev, Context* context) {
     current_task[cpu] = next_task;
     next_task->status = RUNNING;
   }
-  kmt_spin_unlock(&os_trap_lk);
+  // kmt_spin_unlock(&os_trap_lk);
   return ret;
 }
 

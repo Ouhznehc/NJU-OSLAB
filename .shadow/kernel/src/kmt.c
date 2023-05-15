@@ -142,8 +142,8 @@ static Context* kmt_context_save(Event ev, Context* context) {
 static Context* kmt_schedule(Event ev, Context* context) {
   int cpu = cpu_current();
   Context* ret = NULL;
-  kmt_spin_lock(&os_trap_lk);
   assert(0);
+  kmt_spin_lock(&os_trap_lk);
   if (buffer_task[cpu] != NULL) {
     Assert(buffer_task[cpu]->status == RUNNING, "buffer_task not RUNNING");
     buffer_task[cpu]->status = RUNNABLE;

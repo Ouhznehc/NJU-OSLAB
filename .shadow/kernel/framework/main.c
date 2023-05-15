@@ -30,6 +30,7 @@ static void create_threads() {
   }
 }
 int main() {
+  assert(0);
   ioe_init();
   cte_init(os->trap);
   assert(0);

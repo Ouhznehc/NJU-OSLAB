@@ -126,9 +126,12 @@ static void task_list_delete(task_t* delete_task) {
 
 static task_t* task_list_query(int cpu) {
   if (current_task[cpu] == NULL) {
-    for (task_t* cur = task_list->next; cur != task_list; cur = cur->next) {
+    task_t* cur = task_list->next;
+    while (cur != task_list) {
       if (cur->status == RUNNABLE) return cur;
+      cur = cur->next;
     }
+    if (cur->status == RUNNABLE) return cur;
   }
   else {
     for (task_t* cur = current_task[cpu]->next; cur != current_task[cpu]; cur = cur->next) {

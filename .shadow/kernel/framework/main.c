@@ -7,16 +7,16 @@
 sem_t empty, fill;
 void Tproduce(void* arg) {
   while (1) {
-    P(&empty);
+    // P(&empty);
     putch('(');
-    V(&fill);
+    // V(&fill);
   }
 }
 void Tconsume(void* arg) {
   while (1) {
-    P(&fill);
+    // P(&fill);
     putch(')');
-    V(&empty);
+    // V(&empty);
   }
 }
 static void create_threads() {

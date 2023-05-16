@@ -85,13 +85,14 @@ static void kmt_sem_init(sem_t* sem, const char* name, int value) {
 static void kmt_sem_wait(sem_t* sem) {
   kmt_spin_lock(&sem->lk);
   Assert(sem->count >= 0, "kmt_sem_wait: sem->count < 0");
-  int is_wait = 0;
+  int sem_time = 0;
   while (sem->count == 0) {
-    if (is_wait == 0) kmt_spin_unlock(&sem->lk);
-    is_wait = 1;
+    sem_time++;
+    if (sem_time >= 100000) panic("%s: sem time exceeded", sem->name);
+    kmt_spin_unlock(&sem->lk);
     yield();
+    kmt_spin_lock(&sem->lk);
   }
-  if (is_wait == 1) kmt_spin_lock(&sem->lk);
   sem->count--;
   kmt_spin_unlock(&sem->lk);
 }

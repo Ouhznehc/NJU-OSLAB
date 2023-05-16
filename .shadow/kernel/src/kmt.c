@@ -53,8 +53,12 @@ static void kmt_spin_init(spinlock_t* lk, const char* name) {
 
 static void kmt_spin_lock(spinlock_t* lk) {
   pushcli();
+  int spin_time = 0;
   if (holding(lk)) panic("double lock: %s in CPU #%d", lk->name, lk->cpu);
-  while (atomic_xchg(&lk->locked, 1) != 0);
+  while (atomic_xchg(&lk->locked, 1) != 0) {
+    spin_time++;
+    if (spin_time >= 1000000) panic("%s: spin time exceed", lk->name);
+  }
   __sync_synchronize();
   lk->cpu = cpu_current();
 }

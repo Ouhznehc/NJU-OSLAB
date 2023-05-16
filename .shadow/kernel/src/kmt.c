@@ -16,11 +16,18 @@ static void kmt_sem_wait(sem_t* sem);
 static void kmt_sem_signal(sem_t* sem);
 
 
-
-/*====================== lock ====================== */
-
 static int is_lock[MAX_CPU];
 static int lock_cnt[MAX_CPU];
+
+
+
+static spinlock_t os_trap_lk;
+static task_t* current_task[MAX_CPU], * buffer_task[MAX_CPU];
+static task_t* runnable_task[MAX_TASK];
+int runnable_head, runnable_tail;
+
+
+/*====================== lock ====================== */
 
 static void pushcli() {
   int cpu = cpu_current();
@@ -89,6 +96,7 @@ static void kmt_sem_wait(sem_t* sem) {
   while (sem->count == 0) {
     sem_time++;
     if (sem_time >= 100000) panic("%s: sem time exceeded", sem->name);
+    Log("TH#%p is yield", current_task[cpu_current()]->stack);
     kmt_spin_unlock(&sem->lk);
     yield();
     kmt_spin_lock(&sem->lk);
@@ -106,11 +114,6 @@ static void kmt_sem_signal(sem_t* sem) {
 
 
 /*====================== kmt ====================== */
-
-static spinlock_t os_trap_lk;
-static task_t* current_task[MAX_CPU], * buffer_task[MAX_CPU];
-static task_t* runnable_task[MAX_TASK];
-int runnable_head, runnable_tail;
 
 static void runnable_task_push(task_t* task) {
   runnable_task[runnable_tail] = task;

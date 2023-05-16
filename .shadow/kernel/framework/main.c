@@ -22,10 +22,10 @@ void Tconsume(void* arg) {
 static void create_threads() {
   kmt->sem_init(&empty, "empty", 1);
   kmt->sem_init(&fill, "fill", 0);
-  for (int i = 0; i < 2; i++) {
+  for (int i = 0; i < 1; i++) {
     kmt->create(pmm->alloc(sizeof(task_t)), "producer", Tproduce, NULL);
   }
-  for (int i = 0; i < 2; i++) {
+  for (int i = 0; i < 1; i++) {
     kmt->create(pmm->alloc(sizeof(task_t)), "consumer", Tconsume, NULL);
   }
 }

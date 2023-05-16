@@ -42,6 +42,7 @@ static Context* os_trap(Event ev, Context* ctx) {
     }
   }
   panic_on(!next, "returning NULL context");
+  Log("trap finished!");
   return next;
 }
 

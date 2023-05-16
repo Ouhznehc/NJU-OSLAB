@@ -92,7 +92,7 @@ static void kmt_sem_init(sem_t* sem, const char* name, int value) {
 static void kmt_sem_wait(sem_t* sem) {
   kmt_spin_lock(&sem->lk);
   Assert(sem->count >= 0, "kmt_sem_wait: sem->count < 0");
-  Log("sem_wait: sem count: %d", sem->count);
+  Log("sem_wait: %s sem count: %d", sem->name, sem->count);
   int sem_time = 0;
   while (sem->count == 0) {
     sem_time++;
@@ -109,7 +109,7 @@ static void kmt_sem_wait(sem_t* sem) {
 static void kmt_sem_signal(sem_t* sem) {
   kmt_spin_lock(&sem->lk);
   Assert(sem->count >= 0, "kmt_sem_signal: sem->count < 0");
-  Log("sem_signal: sem count: %d", sem->count);
+  Log("sem_signal: %s sem count: %d", sem->name, sem->count);
   sem->count++;
   kmt_spin_unlock(&sem->lk);
 }

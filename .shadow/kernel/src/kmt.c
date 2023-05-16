@@ -135,6 +135,7 @@ static task_t* runnable_task_pop() {
 
 static Context* kmt_context_save(Event ev, Context* context) {
   int cpu = cpu_current();
+  if (current_task[cpu] == NULL) return NULL;
   current_task[cpu]->context = context;
   return NULL;
 }

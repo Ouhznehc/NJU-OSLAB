@@ -160,6 +160,7 @@ static Context* kmt_schedule(Event ev, Context* context) {
     current_task[cpu] = next_task;
     next_task->status = RUNNING;
   }
+  Log("TH#%p context: %p", ret->stack, ret->context);
   Log("TH#%p: %s is running", ret->stack, ret->name);
   kmt_spin_unlock(&os_trap_lk);
   return ret->context;
@@ -172,6 +173,7 @@ static int kmt_create(task_t* task, const char* name, void (*entry)(void* arg), 
   task->context = kcontext(stack, entry, arg);
   task->status = RUNNABLE;
   runnable_task_push(task);
+  Log("TH#%p context: %p", task->stack, task->context);
   return 0;
 }
 

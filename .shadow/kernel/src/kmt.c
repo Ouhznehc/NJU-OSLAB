@@ -153,6 +153,7 @@ static Context* kmt_schedule(Event ev, Context* context) {
   if (next_task == NULL) ret = current_task[cpu];
   else {
     if (current_task[cpu] != NULL) Log("TH#%p: %s is sleeping", current_task[cpu]->stack, current_task[cpu]->name);
+    else Log("This is the first task");
     ret = next_task;
     buffer_task[cpu] = current_task[cpu];
     current_task[cpu] = next_task;

@@ -146,6 +146,7 @@ static Context* kmt_schedule(Event ev, Context* context) {
     buffer_task[cpu] = current_task[cpu];
     current_task[cpu] = next_task;
     next_task->status = RUNNING;
+    Log("TH#%p is running", next_task->stack);
   }
   kmt_spin_unlock(&os_trap_lk);
   return ret;

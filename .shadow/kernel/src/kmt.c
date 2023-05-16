@@ -135,7 +135,7 @@ static Context* kmt_context_save(Event ev, Context* context) {
 
 static Context* kmt_schedule(Event ev, Context* context) {
   int cpu = cpu_current();
-  Context* ret = NULL;
+  task_t* ret = NULL;
   kmt_spin_lock(&os_trap_lk);
   if (buffer_task[cpu] != NULL) {
     Assert(buffer_task[cpu]->status == RUNNING, "buffer_task not RUNNING");
@@ -144,16 +144,16 @@ static Context* kmt_schedule(Event ev, Context* context) {
     buffer_task[cpu] = NULL;
   }
   task_t* next_task = runnable_task_pop();
-  if (next_task == NULL) ret = current_task[cpu]->context;
+  if (next_task == NULL) ret = current_task[cpu];
   else {
-    ret = next_task->context;
+    ret = next_task;
     buffer_task[cpu] = current_task[cpu];
     current_task[cpu] = next_task;
     next_task->status = RUNNING;
-    Log("TH#%p is running", next_task->stack);
   }
+  Log("TH#%p is running", ret->stack);
   kmt_spin_unlock(&os_trap_lk);
-  return ret;
+  return ret->context;
 }
 
 static int kmt_create(task_t* task, const char* name, void (*entry)(void* arg), void* arg) {

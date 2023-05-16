@@ -104,45 +104,23 @@ static void kmt_sem_signal(sem_t* sem) {
 
 static spinlock_t os_trap_lk;
 static task_t* current_task[MAX_CPU], * buffer_task[MAX_CPU];
-static task_t* task_list;
+static task_t* runnable_task[MAX_TASK];
+int runnable_head, runnable_tail;
 
-static void task_list_insert(task_t* insert_task) {
-  kmt_spin_lock(&os_trap_lk);
-  if (task_list == NULL) {
-    task_list = insert_task;
-    insert_task->next = task_list;
-  }
-  else {
-    insert_task->next = task_list->next;
-    task_list->next = insert_task;
-  }
-  kmt_spin_unlock(&os_trap_lk);
+static void runnable_task_push(task_t* task) {
+  runnable_task[runnable_tail] = task;
+  runnable_tail = (runnable_tail + 1) % MAX_TASK;
 }
 
-static void task_list_delete(task_t* delete_task) {
-  delete_task->status = DELETED;
-}
-
-static task_t* task_list_query(int cpu) {
-  if (current_task[cpu] == NULL) {
-    task_t* cur = task_list->next;
-    while (cur != task_list) {
-      if (cur->status == RUNNABLE) return cur;
-      cur = cur->next;
-    }
-    if (cur->status == RUNNABLE) return cur;
+static task_t* runnable_task_pop() {
+  task_t* ret = NULL;
+  while (runnable_task[runnable_head]->status != RUNNABLE && runnable_head != runnable_tail) runnable_head = (runnable_head + 1) % MAX_TASK;
+  if (runnable_head != runnable_tail) {
+    ret = runnable_task[runnable_head];
+    runnable_head = (runnable_head + 1) % MAX_TASK;
   }
-  else {
-    task_t* cur = current_task[cpu]->next;
-    while (cur != current_task[cpu]) {
-      if (cur->status == RUNNABLE) return cur;
-      cur = cur->next;
-    }
-    if (cur->status == RUNNABLE) return cur;
-  }
-  return NULL;
+  return ret;
 }
-
 
 
 static Context* kmt_context_save(Event ev, Context* context) {
@@ -158,9 +136,10 @@ static Context* kmt_schedule(Event ev, Context* context) {
   if (buffer_task[cpu] != NULL) {
     Assert(buffer_task[cpu]->status == RUNNING, "buffer_task not RUNNING");
     buffer_task[cpu]->status = RUNNABLE;
+    runnable_task_push(buffer_task[cpu]);
     buffer_task[cpu] = NULL;
   }
-  task_t* next_task = task_list_query(cpu);
+  task_t* next_task = runnable_task_pop();
   if (next_task == NULL) ret = current_task[cpu]->context;
   else {
     ret = next_task->context;
@@ -178,15 +157,15 @@ static int kmt_create(task_t* task, const char* name, void (*entry)(void* arg), 
   Area stack = (Area){ task->stack, task->stack + STACK_SIZE };
   task->context = kcontext(stack, entry, arg);
   task->status = RUNNABLE;
-  task_list_insert(task);
+  runnable_task_push(task);
   return 0;
 }
 
 static void kmt_teardown(task_t* task) {
-  kmt_spin_lock(&os_trap_lk);
-  pmm->free(task->stack);
-  task_list_delete(task);
-  kmt_spin_unlock(&os_trap_lk);
+  // kmt_spin_lock(&os_trap_lk);
+  // pmm->free(task->stack);
+  // task_list_delete(task);
+  // kmt_spin_unlock(&os_trap_lk);
 }
 
 

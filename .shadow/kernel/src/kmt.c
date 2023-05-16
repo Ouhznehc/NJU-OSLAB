@@ -152,7 +152,7 @@ static Context* kmt_schedule(Event ev, Context* context) {
   task_t* next_task = runnable_task_pop();
   if (next_task == NULL) ret = current_task[cpu];
   else {
-    printf("TH#%p: %s is sleeping", current_task[cpu]->stack, current_task[cpu]->name);
+    if (current_task[cpu] != NULL) Log("TH#%p: %s is sleeping", current_task[cpu]->stack, current_task[cpu]->name);
     ret = next_task;
     buffer_task[cpu] = current_task[cpu];
     current_task[cpu] = next_task;

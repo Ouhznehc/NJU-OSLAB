@@ -1,6 +1,6 @@
 #include <common.h>
 
-#define MAX_TASK 64
+#define MAX_TASK 128
 
 enum task_status {
   BLOCKED = 0,

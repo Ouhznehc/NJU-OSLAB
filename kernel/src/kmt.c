@@ -16,11 +16,18 @@ static void kmt_sem_wait(sem_t* sem);
 static void kmt_sem_signal(sem_t* sem);
 
 
-
-/*====================== lock ====================== */
-
 static int is_lock[MAX_CPU];
 static int lock_cnt[MAX_CPU];
+
+
+
+static spinlock_t os_trap_lk;
+static task_t* current_task[MAX_CPU], * buffer_task[MAX_CPU];
+static task_t* runnable_task[MAX_TASK];
+int runnable_head, runnable_tail;
+
+
+/*====================== lock ====================== */
 
 static void pushcli() {
   int cpu = cpu_current();
@@ -53,8 +60,12 @@ static void kmt_spin_init(spinlock_t* lk, const char* name) {
 
 static void kmt_spin_lock(spinlock_t* lk) {
   pushcli();
+  int spin_time = 0;
   if (holding(lk)) panic("double lock: %s in CPU #%d", lk->name, lk->cpu);
-  while (atomic_xchg(&lk->locked, 1) != 0);
+  while (atomic_xchg(&lk->locked, 1) != 0) {
+    spin_time++;
+    if (spin_time >= 10000) panic("%s: spin time exceed", lk->name);
+  }
   __sync_synchronize();
   lk->cpu = cpu_current();
 }
@@ -81,13 +92,16 @@ static void kmt_sem_init(sem_t* sem, const char* name, int value) {
 static void kmt_sem_wait(sem_t* sem) {
   kmt_spin_lock(&sem->lk);
   Assert(sem->count >= 0, "kmt_sem_wait: sem->count < 0");
-  int is_wait = 0;
+  Log("TH#%p-%s sem_wait: %s sem count: %d", current_task[cpu_current()]->stack, current_task[cpu_current()]->name, sem->name, sem->count);
+  int sem_time = 0;
   while (sem->count == 0) {
-    if (is_wait == 0) kmt_spin_unlock(&sem->lk);
-    is_wait = 1;
+    sem_time++;
+    if (sem_time >= 100000) panic("%s: sem time exceeded", sem->name);
+    Log("TH#%p is yield", current_task[cpu_current()]->stack);
+    kmt_spin_unlock(&sem->lk);
     yield();
+    kmt_spin_lock(&sem->lk);
   }
-  if (is_wait == 1) kmt_spin_lock(&sem->lk);
   sem->count--;
   kmt_spin_unlock(&sem->lk);
 }
@@ -95,6 +109,7 @@ static void kmt_sem_wait(sem_t* sem) {
 static void kmt_sem_signal(sem_t* sem) {
   kmt_spin_lock(&sem->lk);
   Assert(sem->count >= 0, "kmt_sem_signal: sem->count < 0");
+  Log("TH#%p-%s sem_signal: %s sem count: %d", current_task[cpu_current()]->stack, current_task[cpu_current()]->name, sem->name, sem->count);
   sem->count++;
   kmt_spin_unlock(&sem->lk);
 }
@@ -102,74 +117,53 @@ static void kmt_sem_signal(sem_t* sem) {
 
 /*====================== kmt ====================== */
 
-static spinlock_t os_trap_lk;
-static task_t* current_task[MAX_CPU], * buffer_task[MAX_CPU];
-static task_t* task_list;
-
-static void task_list_insert(task_t* insert_task) {
-  kmt_spin_lock(&os_trap_lk);
-  if (task_list == NULL) {
-    task_list = insert_task;
-    insert_task->next = task_list;
-  }
-  else {
-    insert_task->next = task_list->next;
-    task_list->next = insert_task;
-  }
-  kmt_spin_unlock(&os_trap_lk);
+static void runnable_task_push(task_t* task) {
+  runnable_task[runnable_tail] = task;
+  runnable_tail = (runnable_tail + 1) % MAX_TASK;
 }
 
-static void task_list_delete(task_t* delete_task) {
-  delete_task->status = DELETED;
-}
-
-static task_t* task_list_query(int cpu) {
-  if (current_task[cpu] == NULL) {
-    task_t* cur = task_list->next;
-    while (cur != task_list) {
-      if (cur->status == RUNNABLE) return cur;
-      cur = cur->next;
-    }
-    if (cur->status == RUNNABLE) return cur;
+static task_t* runnable_task_pop() {
+  task_t* ret = NULL;
+  while (runnable_task[runnable_head]->status != RUNNABLE && runnable_head != runnable_tail) runnable_head = (runnable_head + 1) % MAX_TASK;
+  if (runnable_head != runnable_tail) {
+    ret = runnable_task[runnable_head];
+    runnable_head = (runnable_head + 1) % MAX_TASK;
   }
-  else {
-    task_t* cur = current_task[cpu]->next;
-    while (cur != current_task[cpu]) {
-      if (cur->status == RUNNABLE) return cur;
-      cur = cur->next;
-    }
-    if (cur->status == RUNNABLE) return cur;
-  }
-  return NULL;
+  return ret;
 }
-
 
 
 static Context* kmt_context_save(Event ev, Context* context) {
   int cpu = cpu_current();
+  if (current_task[cpu] == NULL) return NULL;
   current_task[cpu]->context = context;
   return NULL;
 }
 
 static Context* kmt_schedule(Event ev, Context* context) {
   int cpu = cpu_current();
-  Context* ret = NULL;
+  task_t* ret = NULL;
   kmt_spin_lock(&os_trap_lk);
   if (buffer_task[cpu] != NULL) {
     Assert(buffer_task[cpu]->status == RUNNING, "buffer_task not RUNNING");
     buffer_task[cpu]->status = RUNNABLE;
+    runnable_task_push(buffer_task[cpu]);
     buffer_task[cpu] = NULL;
   }
-  task_t* next_task = task_list_query(cpu);
-  if (next_task == NULL) ret = current_task[cpu]->context;
+  task_t* next_task = runnable_task_pop();
+  if (next_task == NULL) ret = current_task[cpu];
   else {
-    ret = next_task->context;
+    if (current_task[cpu] != NULL) Log("TH#%p: %s is sleeping", current_task[cpu]->stack, current_task[cpu]->name);
+    else Log("This is the first task");
+    ret = next_task;
     buffer_task[cpu] = current_task[cpu];
     current_task[cpu] = next_task;
     next_task->status = RUNNING;
   }
+  Log("TH#%p context: %p", ret->stack, ret->context);
+  Log("TH#%p: %s is running", ret->stack, ret->name);
   kmt_spin_unlock(&os_trap_lk);
-  return ret;
+  return ret->context;
 }
 
 static int kmt_create(task_t* task, const char* name, void (*entry)(void* arg), void* arg) {
@@ -178,15 +172,16 @@ static int kmt_create(task_t* task, const char* name, void (*entry)(void* arg), 
   Area stack = (Area){ task->stack, task->stack + STACK_SIZE };
   task->context = kcontext(stack, entry, arg);
   task->status = RUNNABLE;
-  task_list_insert(task);
+  runnable_task_push(task);
+  Log("TH#%p context: %p", task->stack, task->context);
   return 0;
 }
 
 static void kmt_teardown(task_t* task) {
-  kmt_spin_lock(&os_trap_lk);
-  pmm->free(task->stack);
-  task_list_delete(task);
-  kmt_spin_unlock(&os_trap_lk);
+  // kmt_spin_lock(&os_trap_lk);
+  // pmm->free(task->stack);
+  // task_list_delete(task);
+  // kmt_spin_unlock(&os_trap_lk);
 }
 
 

@@ -190,6 +190,7 @@ static void kmt_init() {
   for (int i = 0; i < MAX_CPU; i++) {
     lock_cnt[i] = is_lock[i] = 0;
     buffer_task[i] = NULL;
+    current_task[i] = NULL;
   }
   os->on_irq(INT_MIN, EVENT_NULL, kmt_context_save);
   os->on_irq(INT_MAX, EVENT_NULL, kmt_schedule);

@@ -118,6 +118,7 @@ static void kmt_sem_signal(sem_t* sem) {
 /*====================== kmt ====================== */
 
 static void runnable_task_push(task_t* task) {
+  Log("task context rip=%p", task->context->rip);
   runnable_task[runnable_tail] = task;
   runnable_tail = (runnable_tail + 1) % MAX_TASK;
 }

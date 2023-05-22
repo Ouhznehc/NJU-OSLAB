@@ -137,6 +137,9 @@ static task_t* runnable_task_pop() {
 
 static Context* kmt_context_save(Event ev, Context* context) {
   kmt_spin_lock(&os_trap_lk);
+  for (int i = runnable_head; i < runnable_tail; i++) {
+    Log("TASK#%p : rip = %p", runnable_task[i]->stack, runnable_task[i]->context->rip);
+  }
   int cpu = cpu_current();
   if (current_task[cpu] != NULL) current_task[cpu]->context = context;
   kmt_spin_unlock(&os_trap_lk);

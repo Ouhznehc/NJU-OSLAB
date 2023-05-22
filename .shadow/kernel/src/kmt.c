@@ -197,6 +197,7 @@ static void kmt_init() {
     buffer_task[i] = NULL;
     current_task[i] = NULL;
   }
+  memset(runnable_task, 0, sizeof(runnable_task));
   os->on_irq(INT_MIN, EVENT_NULL, kmt_context_save);
   os->on_irq(INT_MAX, EVENT_NULL, kmt_schedule);
 }

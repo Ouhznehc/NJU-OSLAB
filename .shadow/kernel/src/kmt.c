@@ -162,6 +162,7 @@ static Context* kmt_schedule(Event ev, Context* context) {
   }
   // Log("TH#%p context: %p", ret->stack, ret->context);
   Log("TH#%p: %s is running", ret->stack, ret->name);
+  Log("context %p", ret->context->rsp);
   kmt_spin_unlock(&os_trap_lk);
   return ret->context;
 }

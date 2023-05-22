@@ -124,7 +124,7 @@ static void runnable_task_push(task_t* task) {
 }
 
 static task_t* runnable_task_pop() {
-  Log("head context rip=%d", runnable_tail);
+  Log("head context rip=%p", runnable_task[1]->context->rip);
   task_t* ret = NULL;
   while (runnable_task[runnable_head]->status != RUNNABLE && runnable_head != runnable_tail) runnable_head = (runnable_head + 1) % MAX_TASK;
   if (runnable_head != runnable_tail) {

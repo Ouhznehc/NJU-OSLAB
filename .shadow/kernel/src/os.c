@@ -9,9 +9,6 @@ typedef struct interrupt_request {
 
 static irq_t* irq_list_head;
 
-extern task_t* runnable_task[128];
-extern int runnable_head, runnable_tail;
-
 #ifdef __DEBUG_MODE__
 kspinlock_t debug_lk;
 #endif

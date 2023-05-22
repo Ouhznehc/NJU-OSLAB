@@ -23,7 +23,7 @@ static int lock_cnt[MAX_CPU];
 
 static spinlock_t os_trap_lk;
 static task_t* current_task[MAX_CPU], * buffer_task[MAX_CPU];
-static task_t* runnable_task[MAX_TASK];
+task_t* runnable_task[MAX_TASK];
 int runnable_head = 0, runnable_tail = 0;
 
 

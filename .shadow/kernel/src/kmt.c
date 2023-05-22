@@ -92,12 +92,12 @@ static void kmt_sem_init(sem_t* sem, const char* name, int value) {
 static void kmt_sem_wait(sem_t* sem) {
   kmt_spin_lock(&sem->lk);
   Assert(sem->count >= 0, "kmt_sem_wait: sem->count < 0");
-  Log("TH#%p-%s sem_wait: %s sem count: %d", current_task[cpu_current()]->stack, current_task[cpu_current()]->name, sem->name, sem->count);
+  // Log("TH#%p-%s sem_wait: %s sem count: %d", current_task[cpu_current()]->stack, current_task[cpu_current()]->name, sem->name, sem->count);
   int sem_time = 0;
   while (sem->count == 0) {
     sem_time++;
     if (sem_time >= 100000) panic("%s: sem time exceeded", sem->name);
-    Log("TH#%p is yield", current_task[cpu_current()]->stack);
+    // Log("TH#%p is yield", current_task[cpu_current()]->stack);
     kmt_spin_unlock(&sem->lk);
     yield();
     kmt_spin_lock(&sem->lk);
@@ -109,7 +109,7 @@ static void kmt_sem_wait(sem_t* sem) {
 static void kmt_sem_signal(sem_t* sem) {
   kmt_spin_lock(&sem->lk);
   Assert(sem->count >= 0, "kmt_sem_signal: sem->count < 0");
-  Log("TH#%p-%s sem_signal: %s sem count: %d", current_task[cpu_current()]->stack, current_task[cpu_current()]->name, sem->name, sem->count);
+  // Log("TH#%p-%s sem_signal: %s sem count: %d", current_task[cpu_current()]->stack, current_task[cpu_current()]->name, sem->name, sem->count);
   sem->count++;
   kmt_spin_unlock(&sem->lk);
 }
@@ -118,7 +118,7 @@ static void kmt_sem_signal(sem_t* sem) {
 /*====================== kmt ====================== */
 
 static void runnable_task_push(task_t* task) {
-  Log("task context rip=%p", task->context->rip);
+  // Log("task context rip=%p", task->context->rip);
   runnable_task[runnable_tail] = task;
   runnable_tail = (runnable_tail + 1) % MAX_TASK;
 }
@@ -130,7 +130,7 @@ static task_t* runnable_task_pop() {
     ret = runnable_task[runnable_head];
     runnable_head = (runnable_head + 1) % MAX_TASK;
   }
-  Log("ret context rip=%p", ret->context->rip);
+  // Log("ret context rip=%p", ret->context->rip);
   return ret;
 }
 
@@ -165,7 +165,7 @@ static Context* kmt_schedule(Event ev, Context* context) {
   }
   // Log("TH#%p context: %p", ret->stack, ret->context);
   Log("TH#%p: %s is running", ret->stack, ret->name);
-  Log("context rsp=%p rip=%p rsp0=%p", ret->context->rsp, ret->context->rip, ret->context->rsp0);
+  // Log("context rsp=%p rip=%p rsp0=%p", ret->context->rsp, ret->context->rip, ret->context->rsp0);
   kmt_spin_unlock(&os_trap_lk);
   return ret->context;
 }
@@ -175,7 +175,7 @@ static int kmt_create(task_t* task, const char* name, void (*entry)(void* arg), 
   task->stack = pmm->alloc(STACK_SIZE);
   Area stack = (Area){ task->stack, task->stack + STACK_SIZE };
   task->context = kcontext(stack, entry, arg);
-  Log("context rip=%p stack=%p", task->context->rip, task->stack);
+  // Log("context rip=%p stack=%p", task->context->rip, task->stack);
   task->status = RUNNABLE;
   runnable_task_push(task);
   // Log("TH#%p context: %p", task->stack, task->context);

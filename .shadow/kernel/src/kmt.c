@@ -181,6 +181,7 @@ static int kmt_create(task_t* task, const char* name, void (*entry)(void* arg), 
   // Log("context rip=%p stack=%p", task->context->rip, task->stack);
   task->status = RUNNABLE;
   runnable_task_push(task);
+  Log("TASK#%p : rip = %p", task->stack, task->context->rip);
   // Log("TH#%p context: %p", task->stack, task->context);
   return 0;
 }

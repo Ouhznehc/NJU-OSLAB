@@ -129,6 +129,7 @@ static task_t* runnable_task_pop() {
     ret = runnable_task[runnable_head];
     runnable_head = (runnable_head + 1) % MAX_TASK;
   }
+  Log("ret context rip=%p", ret->context->rip);
   return ret;
 }
 

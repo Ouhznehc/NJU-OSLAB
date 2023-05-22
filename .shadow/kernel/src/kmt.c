@@ -136,9 +136,10 @@ static task_t* runnable_task_pop() {
 
 
 static Context* kmt_context_save(Event ev, Context* context) {
+  kmt_spin_lock(&os_trap_lk);
   int cpu = cpu_current();
-  if (current_task[cpu] == NULL) return NULL;
-  current_task[cpu]->context = context;
+  if (current_task[cpu] != NULL) current_task[cpu]->context = context;
+  kmt_spin_unlock(&os_trap_lk);
   return NULL;
 }
 

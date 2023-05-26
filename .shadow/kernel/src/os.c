@@ -30,18 +30,12 @@ static void os_init() {
   kmt->init();
 }
 static void os_run() {
-  for (int i = runnable_head; i < runnable_tail; i++) {
-    Log("TASK#%p : rip = %p", runnable_task[i]->stack, runnable_task[i]->context->rip);
-  }
   iset(true);
   while (1);
 }
 
 
 static Context* os_trap(Event ev, Context* ctx) {
-  for (int i = runnable_head; i < runnable_tail; i++) {
-    Log("TASK#%p : rip = %p", runnable_task[i]->stack, runnable_task[i]->context->rip);
-  }
   Context* next = NULL;
   for (irq_t* h = irq_list_head->next; h != NULL; h = h->next) {
     if (h->event == EVENT_NULL || h->event == ev.event) {

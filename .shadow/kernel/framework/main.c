@@ -35,7 +35,7 @@ static void create_threads() {
   }
   Log("head = %d, tail = %d", runnable_head, runnable_tail);
   for (int i = runnable_head; i < runnable_tail; i++) {
-    Log("TASK#%p : rip = %p", runnable_task[i]->stack, runnable_task[i]->context->rip);
+    printf("TASK#%p : rip = %p\n", runnable_task[i]->stack, runnable_task[i]->context->rip);
   }
 }
 int main() {

@@ -1,4 +1,5 @@
 #include <common.h>
+#include <os.h>
 
 typedef struct interrupt_request {
   int seq;
@@ -9,10 +10,12 @@ typedef struct interrupt_request {
 
 static irq_t* irq_list_head;
 
-
 #ifdef __DEBUG_MODE__
 kspinlock_t debug_lk;
 #endif
+
+extern struct task* runnable_task[MAX_TASK];
+extern int runnable_head, runnable_tail;
 
 static void os_init() {
 #ifdef __DEBUG_MODE__
@@ -43,6 +46,7 @@ static Context* os_trap(Event ev, Context* ctx) {
     }
   }
   panic_on(!next, "returning NULL context");
+  // Log("return context %p", next);
   return next;
 }
 

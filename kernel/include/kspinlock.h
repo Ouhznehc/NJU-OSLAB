@@ -2,9 +2,7 @@
 #define __KSPINLOCK_H__
 
 typedef struct kspinlock {
-    const char* name;
     int locked;
-    int cpu;
 }kspinlock_t;
 
 

@@ -37,19 +37,11 @@ extern kspinlock_t debug_lk;
 #define Log(format, ...)                           \
     do                                             \
     {                                              \
+        kspin_lock(&debug_lk);                      \
         printf("[%s: %d] " format "\n",            \
                __func__, __LINE__, ##__VA_ARGS__); \
+        kspin_unlock(&debug_lk);                    \
     } while (0)
-/*
-// #define Log(format, ...)                           \
-//     do                                             \
-//     {                                              \
-//         kspin_lock(&debug_lk);                      \
-//         printf("[%s: %d] " format "\n",            \
-//                __func__, __LINE__, ##__VA_ARGS__); \
-//         kspin_unlock(&debug_lk);                    \
-//     } while (0)
-*/
 
 #define panic(format, ...)                           \
     do                                               \

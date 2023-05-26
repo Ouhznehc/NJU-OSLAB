@@ -13,6 +13,9 @@ static irq_t* irq_list_head;
 kspinlock_t debug_lk;
 #endif
 
+extern struct Task* runnable_task[100];
+extern int runnable_head, runnable_tail;
+
 static void os_init() {
 #ifdef __DEBUG_MODE__
   init_klock(&debug_lk, "debug_lk");

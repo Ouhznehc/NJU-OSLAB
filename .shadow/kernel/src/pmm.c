@@ -374,278 +374,383 @@
 //     .alloc = kalloc_safe,
 //     .free = kfree_safe,
 // };
-
-
 #include <common.h>
 
-typedef int pmm_spinlock_t;
+#define CPUS 8
+#define TYPE 11
+
+#define KiB *1024
+#define MiB *1024*1024
+#define PageSize (8 KiB)
+
+#define BIT(n) (1 << get_bit(n))
+#define MASK(n) (BIT(n) - 1)
+#define ALIGN(n, m) ((n) & ~MASK(m))
+
+//spin_lock
 #define SPIN_INIT() 0
-static void pmm_spin_lock(pmm_spinlock_t* lk) {
+
+void spin_lock(int* lk);
+void spin_unlock(int* lk);
+
+void spin_lock(int* lk) {
   while (1) {
-    int value = atomic_xchg(lk, 1);
+    intptr_t value = atomic_xchg(lk, 1);
     if (value == 0) {
       break;
     }
   }
 }
-static void pmm_spin_unlock(pmm_spinlock_t* lk) {
+void spin_unlock(int* lk) {
   atomic_xchg(lk, 0);
 }
 
+int heap_lock = SPIN_INIT();
+int page_lock = SPIN_INIT();
+int cpu_lock[CPUS] = { SPIN_INIT() };
 
+typedef union Page {
+  struct {
+    int cpu_id;
+    void* ptr;
+    union Page* next;
+    int slab_type;
+    int capacity;
+    int num;
+    int map[128];
+  };
+  uint8_t SIZE[PageSize];
+}Page;
 
-struct SLAB {
-  int magic;
-  int order;
-  int used[64];
-  int num, num_max;
-  int master;
-  uintptr_t addr;
-  struct SLAB* next;
-};
+Page slab_cpu[CPUS][TYPE];
 
-struct per_CPU {
-  struct SLAB* fast_next[12];
-};
+typedef struct heap_free {
+  uintptr_t size;
+  void* ptr;
+  struct heap_free* next;
+}heap_free;
 
-struct per_CPU per_CPU_list[8];
-pmm_spinlock_t cpu_lk[8];
+heap_free initial_heap, all_head, all_tail;
+heap_free* head_heap = &all_head, * tail_heap = &all_tail;
 
-struct NODE {
-  uintptr_t l;
-  size_t len;
-  struct NODE* next, * pre;
-} unused_list, page_list;
-
-pmm_spinlock_t unused_list_lk, page_list_lk;
-
-static void node_init(struct NODE* now) {
-  now->l = 0;
-  now->len = 0;
-  now->next = NULL;
-  now->pre = NULL;
-}
-
-static void slab_init(struct SLAB* now, int order) {
-  now->magic = 114514;
-  now->order = order;
-  now->num = 0;
-  now->num_max = 4096 / (1 << order);
-  for (int i = 0; i < 64; i++)
-    now->used[i] = 0;
-  now->master = 0;
-  now->addr = (uintptr_t)now + sizeof(struct SLAB);
-  now->next = 0;
-}
-
-static int size2num(size_t size) {
-  int ret = 1, tmp = 1;
-  for (int i = 1; i <= 11; i++) {
-    tmp = tmp * 2;
-    if (tmp == size)
-      ret = i;
+int get_bit(uintptr_t n) {
+  if (n == 1) return 1;
+  int cnt = 0; n -= 1;
+  while (n) {
+    n >>= 1;
+    cnt++;
   }
+  return cnt;
+}
+
+void push_head_heap(heap_free* node) {
+  node->next = head_heap;
+  head_heap = node;
+}
+
+void push_tail_heap(heap_free* node) {
+  node->next = NULL;
+  tail_heap->next = node;
+  tail_heap = node;
+}
+
+void push_heap(heap_free* node, size_t size) {
+  if (size > 8 KiB) return push_head_heap(node);
+  else return push_tail_heap(node);
+}
+
+
+int check_heap(heap_free* node, size_t size, uintptr_t* start, uintptr_t* end) {
+  uintptr_t node_end = (uintptr_t)node->ptr + node->size;
+  uintptr_t final_align = ALIGN(node_end, size);
+  if (final_align + size > node_end) final_align -= BIT(size);
+  if (final_align < (intptr_t)node->ptr || final_align + size > node_end) return 0;
+  *start = final_align;
+  *end = final_align + size;
+  *end = ROUNDUP(*end, 4 KiB);
+  if (final_align == (intptr_t)node->ptr) return 1;
+  else return 2;
+}
+
+void* kalloc_large(size_t size) {
+  spin_lock(&heap_lock);
+  void* ret = NULL;
+  heap_free* last = head_heap;
+  // for (heap_free* cur = head_heap; cur <= tail_heap; cur++) {
+  for (heap_free* cur = head_heap->next; cur; cur = cur->next) {
+    uintptr_t new_start, cur_start = (uintptr_t)cur->ptr;
+    uintptr_t new_end, cur_end = (uintptr_t)cur->ptr + cur->size;
+    int type = check_heap(cur, size, &new_start, &new_end);
+    //printf("\ncur st  %p    ed  %p\nnew st  %p    ed  %p\nhead st  %p    ed  %p\n\n", cur_start,cur_end,new_start,new_end,(uintptr_t)head_heap->ptr,(uintptr_t)head_heap->ptr+(uintptr_t)head_heap->size);
+    if (type == 0) { continue; last = cur; }
+    if (type == 1) {
+      if (cur_end - new_end >= 8 KiB) {
+        heap_free* new_heap = (heap_free*)new_end;
+        new_heap->next = cur->next;
+        new_heap->ptr = (void*)((uintptr_t)new_heap + 4 KiB);
+        new_heap->size = cur_end - new_end - 4 KiB;
+        if (last != NULL) last->next = new_heap;
+        else head_heap = new_heap;
+        // if(cur == tail_heap) tail_heap = new_heap;
+      }
+      else {
+        // if (cur == head_heap && cur == tail_heap) {
+        // if (cur == head_heap && cur->next == NULL) {
+        //   ret = NULL;
+        //   break;
+        // }
+        last->next = cur->next;
+        // if (last != NULL) last->next = cur->next;
+        // else head_heap = cur->next;
+        // if(tail_heap == cur && cur->next != NULL) tail_heap = cur->next; 
+      }
+      ret = cur->ptr;
+      // cur->next = NULL;
+      cur->size = new_end - cur_start;
+      if (cur_end - new_end < 8 KiB) cur->size += cur_end - new_end;
+      break;
+    }
+    if (type == 2) {
+      if (new_start - cur_start == 4 KiB) {
+        heap_free* new_heap = (heap_free*)(new_start - 4 KiB);
+        new_heap->next = NULL;
+        new_heap->ptr = (void*)new_start;
+        new_heap->size = new_end - new_start;
+        // if (cur_end - new_end < 8 KiB) {
+          //new_heap->size += cur_end - new_end;
+          // if (cur == head_heap && cur == tail_heap) {
+          // if (cur == head_heap && cur->next == NULL) {
+          //   ret = NULL;
+          //   break;
+          // }
+        last->next = cur->next;
+        // if (last != NULL) last->next = cur->next;
+        // else head_heap = cur->next;
+
+        // if(cur == tail_heap && cur->next != NULL) tail_heap = cur->next;
+      // }
+      // else {
+      //   heap_free* new_heap_t = (heap_free*)new_end;
+      //   new_heap_t->next = cur->next;
+      //   new_heap_t->ptr = (void*)(new_heap + 4 KiB);
+      //   new_heap_t->size = cur_end - new_end - 4 KiB;
+      //   if (last != NULL) last->next = new_heap_t;
+      //   else head_heap = new_heap_t;
+      // }
+      }
+      else {
+        cur->size = new_start - cur_start - 4 KiB;
+        // if (cur_end - new_end >= 8 KiB) {
+        //   heap_free* new_heap = (heap_free*)new_end;
+        //   new_heap->next = cur->next;
+        //   new_heap->ptr = (void*)(new_heap + 4 KiB);
+        //   new_heap->size = cur_end - new_end - 4 KiB;
+        //   cur->next = new_heap;
+        //   if(cur == tail_heap) tail_heap = new_heap;
+        // }
+        // else {
+         // new_end = cur_end;
+        // }
+      }
+      ret = (void*)new_start;
+      heap_free* message = (heap_free*)(new_start - 4 KiB);
+      message->next = NULL;
+      message->ptr = ret;
+      message->size = new_end - new_start;
+      break;
+    }
+  }
+  //printf("------       %p %p\n", (uintptr_t)ret, size + (uintptr_t)ret);
+  if (ret != NULL) {
+    uint8_t* type = (uint8_t*)(ret - 1); *type = 12;
+  }
+  spin_unlock(&heap_lock);
+  return ret;
+}
+
+void* kalloc_page(size_t size) {
+  spin_lock(&page_lock);
+  if (tail_heap->next == NULL) {
+    spin_unlock(&page_lock);
+    return kalloc_large(size);
+  }
+  heap_free* newpage = tail_heap->next;
+  tail_heap->next = newpage->next;
+  newpage->next = NULL;
+  spin_unlock(&page_lock);
+  return newpage->ptr;
+}
+
+int bit_map(int size, int map[128]) {
+  int x = size / 32, y = size % 32;
+  for (int i = 0; i < x; i++) {
+    for (int j = 0; j < 32; j++) {
+      if ((map[i] & (1 << j)) == 0) return 32 * i + j;
+    }
+  }
+  for (int j = 0; j < y; j++) {
+    if ((map[x] & (1 << j)) == 0) return 32 * x + j;
+  }
+  return 0;
+}
+
+void set_bit(int cnt, int map[128]) {
+  int x = cnt / 32, y = cnt % 32;
+  map[x] ^= (1 << y);
+}
+
+void* kalloc_little(size_t size) {
+  int cpu = cpu_current(), type;
+  void* ret = NULL;
+  Page* cur = NULL;
+  //printf("cpu  %d    size  %p\n", cpu, size);
+  for (int i = 0; i < TYPE; i++) {
+    if (get_bit(size) == i + 1) {
+      cur = &slab_cpu[cpu][i];
+      type = (1 << (i + 1));
+      //printf("size=%d, type=%d\n", size, type);
+      break;
+    }
+  }
+  spin_lock(&cpu_lock[cpu]);
+  //assert(cur != NULL);
+  if (cur->next != NULL) {
+    Page* last = cur;
+    for (Page* tmp = cur->next; tmp; tmp = tmp->next) {
+      if (tmp->num < tmp->capacity) {
+        int cnt = bit_map(tmp->capacity, tmp->map);
+        set_bit(cnt, tmp->map);
+        tmp->num++;
+        if (tmp->num == tmp->capacity) {
+          last->next = tmp->next;
+          tmp->next = NULL;
+        }
+        ret = tmp->ptr + cnt * type;
+        break;
+      }
+    }
+    if (ret == NULL) {
+      void* slab = kalloc_page(4 KiB);
+      if (slab != NULL) {
+        memset(slab - 4 KiB, 0, 8 KiB);
+        uint8_t* magic = (uint8_t*)(slab - 1); *magic = 21;
+        Page* new_page = (Page*)(slab - 4 KiB);
+        new_page->capacity = 4 KiB / type;
+        new_page->cpu_id = cpu;
+        new_page->num = 1;
+        new_page->ptr = slab;
+        new_page->slab_type = type;
+        new_page->next = cur->next;
+        int cnt = bit_map(new_page->capacity, new_page->map);
+        set_bit(cnt, new_page->map);
+        ret = slab + cnt * type;
+        cur->next = new_page;
+      }
+      else {
+        ret = NULL;
+      }
+    }
+  }
+  else {
+    void* slab = kalloc_page(4 KiB);
+    if (slab != NULL) {
+      memset(slab - 4 KiB, 0, 8 KiB);
+      uint8_t* magic = (uint8_t*)(slab - 1); *magic = 21;
+      Page* new_page = (Page*)(slab - 4 KiB);
+      cur->next = new_page;
+      new_page->capacity = 4 KiB / type;
+      new_page->cpu_id = cpu;
+      new_page->num = 1;
+      new_page->ptr = slab;
+      new_page->slab_type = type;
+      new_page->next = NULL;
+      int cnt = bit_map(new_page->capacity, new_page->map);
+      set_bit(cnt, new_page->map);
+      ret = slab + cnt * type;
+    }
+    else ret = NULL;
+
+  }
+  spin_unlock(&cpu_lock[cpu]);
   return ret;
 }
 
 static void* kalloc(size_t size) {
-  if (size > (16 << 20)) {
-    return NULL;
-  }
-  size_t power = 2;
-  while (power < size)
-    power *= 2;
-  size = power;
-  if (size < 4096) {
-    int num = size2num(size);
-    uintptr_t ret;
-    int master = cpu_current();
-    pmm_spin_lock(&cpu_lk[master]);
-    struct SLAB* now = per_CPU_list[master].fast_next[num];
-    if (now != NULL) {
-      assert(now->magic == 114514);
-      int pos = 0;
-      while ((now->used[pos] == -1) && pos < 64) {
-        pos++;
-      }
-      if (pos != 64) {
-        int rank = 0;
-        for (int i = 0; i < 32; i++)
-          if (((1 << i) & now->used[pos]) == 0) {
-            now->used[pos] |= (1 << i);
-            rank = i + pos * 32;
-            break;
-          }
-        now->num++;
-        if (now->num == now->num_max)
-          per_CPU_list[master].fast_next[num] = now->next;
-        ret = now->addr + (1 << num) * rank;
-        pmm_spin_unlock(&cpu_lk[master]);
-        return (void*)ret;
-      }
-    }
-    pmm_spin_unlock(&cpu_lk[master]);
-
-    uintptr_t new_slab = (uintptr_t)(pmm->alloc(1 << 12));
-
-    if (new_slab == 0) {
-      return NULL;
-    }
-    struct SLAB* tmp = (struct SLAB*)(new_slab - sizeof(struct SLAB));
-    slab_init(tmp, num);
-    tmp->master = master;
-    tmp->used[0] |= 1;
-    tmp->num = 1;
-    pmm_spin_lock(&cpu_lk[master]);
-    per_CPU_list[master].fast_next[num] = tmp;
-    pmm_spin_unlock(&cpu_lk[master]);
-    ret = tmp->addr;
-    return (void*)ret;
-  }
-  if (size == (1 << 12)) {
-    uintptr_t ans;
-    pmm_spin_lock(&page_list_lk);
-    if (page_list.next != NULL) {
-      struct NODE* now = page_list.next;
-      ans = now->l;
-      page_list.next = now->next;
-      pmm_spin_unlock(&page_list_lk);
-      return (void*)ans;
-    }
-    pmm_spin_unlock(&page_list_lk);
-  }
-  pmm_spin_lock(&unused_list_lk);
-
-  struct NODE* spare = &unused_list, * pre = NULL;
-  while (spare && (spare->l + spare->len < ROUNDUP(spare->l, size) + size)) {
-    pre = spare;
-    spare = spare->next;
-  }
-
-  if (!spare) {
-    pmm_spin_unlock(&unused_list_lk);
-    return NULL;
-  }
-  uintptr_t ans = ROUNDUP(spare->l, size);
-
-  if (spare->l + spare->len - ans - size >= (1 << 13)) {
-    struct NODE* tmp = (struct NODE*)(ans + size);
-    node_init(tmp);
-    tmp->len = spare->l + spare->len - (uintptr_t)tmp - sizeof(struct NODE);
-    tmp->l = (uintptr_t)tmp + sizeof(struct NODE);
-    tmp->next = spare->next;
-    pre->next = tmp;
-  }
-  else {
-    pre->next = spare->next;
-  }
-
-  spare->l = ans;
-  spare->len = size;
-  uintptr_t* pos = (uintptr_t*)(spare->l - sizeof(uintptr_t*) - sizeof(struct SLAB));
-  *pos = (uintptr_t)spare;
-
-  pmm_spin_unlock(&unused_list_lk);
-
-  return (void*)ans;
+  if (size > 16 MiB || size <= 0 MiB) return NULL;
+  if (size > 2 KiB && size <= 4 KiB) return kalloc_page(size);
+  if (size > 4 KiB) return kalloc_large(size);
+  else return kalloc_little(size);
 }
 
 static void kfree(void* ptr) {
-  void* extra = ptr;
-  if (((uintptr_t)ptr & (~0xfff)) - sizeof(struct SLAB) >= (uintptr_t)heap.start) {
-    struct SLAB* tmp = (struct SLAB*)(((uintptr_t)ptr & (~0xfff)) - sizeof(struct SLAB));
-    if (tmp->magic == 114514) {
-      extra = NULL;
-      int master = tmp->master;
-      pmm_spin_lock(&cpu_lk[master]);
-      int num = tmp->order;
-      int rank = ((uintptr_t)ptr - (uintptr_t)tmp->addr) / (1 << num);
-      int pos = rank / 32;
-      rank %= 32;
-      if ((tmp->used[pos] & (1 << rank)) == 0)
-        assert(0);
-      tmp->used[pos] -= (1 << rank);
-      if (tmp->num == tmp->num_max) {
-        tmp->next = per_CPU_list[master].fast_next[num];
-        per_CPU_list[master].fast_next[num] = tmp;
-      }
-      tmp->num--;
-      pmm_spin_unlock(&cpu_lk[master]);
+  //return;
+  uintptr_t align = ALIGN((uintptr_t)ptr, 4 KiB);
+  uint8_t* type = (uint8_t*)(align - 1);
+  //printf("typ=%d\n", *type);
+  if (*type == 12) {
+    heap_free* to_free = (heap_free*)(align - 4 KiB);
+    if (to_free->size == 4 KiB) {
+      spin_lock(&page_lock);
+      to_free->next = tail_heap->next;
+      tail_heap->next = to_free;
+      spin_unlock(&page_lock);
     }
+    else {
+      spin_lock(&heap_lock);
+      to_free->next = head_heap->next;
+      head_heap->next = to_free;
+      spin_unlock(&heap_lock);
+    }
+    // tail_heap->next = to_free;
+    // to_free->next = NULL;
+    // tail_heap = to_free;
   }
-  if (extra == NULL)
-    return;
-  ptr = extra;
-
-  uintptr_t* pos = (uintptr_t*)(ptr - sizeof(uintptr_t*) - sizeof(struct SLAB));
-  struct NODE* using = (struct NODE*)(*pos);
-
-  if (!using) {
-    assert(0);
-    return;
-  }
-  if (using->len == (1 << 12)) {
-    pmm_spin_lock(&page_list_lk);
-    using->next = page_list.next;
-    page_list.next = using;
-    pmm_spin_unlock(&page_list_lk);
-  }
-  else {
-    pmm_spin_lock(&unused_list_lk);
-    using->len = using->l + using->len - (uintptr_t) using - sizeof(struct NODE);
-    using->l = (uintptr_t) using + sizeof(struct NODE);
-    using->next = unused_list.next;
-    unused_list.next = using;
-    pmm_spin_unlock(&unused_list_lk);
+  if (*type == 21) {
+    Page* to_free = (Page*)(align - 4 KiB);
+    int cpu = to_free->cpu_id;
+    spin_lock(&cpu_lock[cpu]);
+    int typ = to_free->slab_type;
+    int offset = (uintptr_t)ptr - align;
+    //assert(offset % typ == 0);
+    int cnt = offset / typ;
+    to_free->num--;
+    if (to_free->num + 1 == to_free->capacity) {
+      to_free->next = slab_cpu[to_free->cpu_id][get_bit(to_free->slab_type) - 1].next;
+      slab_cpu[to_free->cpu_id][get_bit(to_free->slab_type) - 1].next = to_free;
+    }
+    set_bit(cnt, to_free->map);
+    spin_unlock(&cpu_lock[cpu]);
   }
 }
 
+#ifndef TEST
 static void pmm_init() {
   uintptr_t pmsize = ((uintptr_t)heap.end - (uintptr_t)heap.start);
-  debug("Got %d MiB heap: [%p, %p)\n", pmsize >> 20, heap.start, heap.end);
-
-  struct NODE* tmp = (struct NODE*)ROUNDUP(heap.start, 1 << 12);
-  node_init(tmp);
-  tmp->l = (uintptr_t)tmp + sizeof(struct NODE);
-  tmp->len = pmsize - sizeof(struct NODE);
-
-  node_init(&unused_list);
-  unused_list.next = tmp;
-
-  node_init(&page_list);
-  unused_list_lk = SPIN_INIT();
-  page_list_lk = SPIN_INIT();
-  int cpu_num = cpu_count();
-  for (int i = 0; i < cpu_num; i++) {
-    cpu_lk[i] = SPIN_INIT();
-    for (int j = 1; j <= 11; j++) {
-      struct SLAB* tmp = (struct SLAB*)(pmm->alloc(1 << 12) - sizeof(struct SLAB));
-      slab_init(tmp, j);
-      per_CPU_list[i].fast_next[j] = tmp;
-      tmp->master = i;
+  initial_heap.ptr = (void*)heap.start;
+  initial_heap.next = NULL;
+  initial_heap.size = pmsize - 4 KiB;
+  // head_heap = &initial_heap; tail_heap = &initial_heap;
+  head_heap->next = &initial_heap;
+  tail_heap->next = NULL;
+  printf("Got %d MiB heap: [%p, %p)\n", pmsize >> 20, heap.start, heap.end);
+  for (int i = 0; i < CPUS; i++) {
+    for (int j = 0; j < TYPE; j++) {
+      slab_cpu[i][j].next = NULL;
+      slab_cpu[i][j].cpu_id = i;
     }
   }
 }
-
-static void* kalloc_safe(size_t size) {
-  bool i = ienabled();
-  iset(false);
-  void* ret = kalloc(size);
-  if (i)
-    iset(true);
-  return ret;
+#else
+static void pmm_init() {
+  char* ptr = malloc(HEAP_SIZE);
+  heap.start = ptr;
+  heap.end = ptr + HEAP_SIZE;
+  printf("Got %d MiB heap: [%p, %p)\n", HEAP_SIZE >> 20, heap.start, heap.end);
 }
-
-static void kfree_safe(void* ptr) {
-  int i = ienabled();
-  iset(false);
-  kfree(ptr);
-  if (i)
-    iset(true);
-}
+#endif
 
 MODULE_DEF(pmm) = {
-    .init = pmm_init,
-    .alloc = kalloc_safe,
-    .free = kfree_safe,
+  .init = pmm_init,
+  .alloc = kalloc,
+  .free = kfree,
 };

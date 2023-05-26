@@ -1,4 +1,5 @@
 #include <common.h>
+#include <os.h>
 
 typedef struct interrupt_request {
   int seq;
@@ -13,7 +14,7 @@ static irq_t* irq_list_head;
 kspinlock_t debug_lk;
 #endif
 
-extern struct Task* runnable_task[100];
+extern struct task* runnable_task[100];
 extern int runnable_head, runnable_tail;
 
 static void os_init() {
@@ -35,6 +36,9 @@ static void os_run() {
 
 
 static Context* os_trap(Event ev, Context* ctx) {
+  for (int i = runnable_head; i < runnable_tail; i++) {
+    Log("TASK#%p : rip = %p", runnable_task[i]->stack, runnable_task[i]->context->rip);
+  }
   Context* next = NULL;
   for (irq_t* h = irq_list_head->next; h != NULL; h = h->next) {
     if (h->event == EVENT_NULL || h->event == ev.event) {

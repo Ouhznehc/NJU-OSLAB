@@ -41,9 +41,6 @@ int main() {
   cte_init(os->trap);
   os->init();
   create_threads();
-  for (int i = runnable_head; i < runnable_tail; i++) {
-    Log("TASK#%p : rip = %p", runnable_task[i]->stack, runnable_task[i]->context->rip);
-  }
   mpe_init(os->run);
   return 1;
 }

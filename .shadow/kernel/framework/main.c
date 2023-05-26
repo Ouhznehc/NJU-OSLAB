@@ -32,6 +32,9 @@ static void create_threads() {
   for (int i = 0; i < 1; i++) {
     kmt->create(pmm->alloc(sizeof(task_t)), "consumer", Tconsume, NULL);
   }
+  for (int i = runnable_head; i < runnable_tail; i++) {
+    Log("TASK#%p : rip = %p", runnable_task[i]->stack, runnable_task[i]->context->rip);
+  }
 }
 int main() {
   ioe_init();

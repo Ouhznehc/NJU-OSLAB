@@ -26,16 +26,16 @@ void Tconsume(void* arg) {
 static void create_threads() {
   kmt->sem_init(&empty, "empty", 1);
   kmt->sem_init(&fill, "fill", 0);
-  printf("head = %d, tail = %d\n", runnable_head, runnable_tail);
+  Log("head = %d, tail = %d", runnable_head, runnable_tail);
   for (int i = 0; i < 10; i++) {
     kmt->create(pmm->alloc(sizeof(task_t)), "producer", Tproduce, NULL);
   }
   for (int i = 0; i < 1; i++) {
     kmt->create(pmm->alloc(sizeof(task_t)), "consumer", Tconsume, NULL);
   }
-  printf("head = %d, tail = %d\n", runnable_head, runnable_tail);
+  Log("head = %d, tail = %d", runnable_head, runnable_tail);
   for (int i = runnable_head; i < runnable_tail; i++) {
-    printf("TASK#%p : rip = %p\n", runnable_task[i]->stack, runnable_task[i]->context->rip);
+    Log("TASK#%p : rip = %p", runnable_task[i]->stack, runnable_task[i]->context->rip);
   }
 }
 int main() {

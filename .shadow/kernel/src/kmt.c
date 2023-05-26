@@ -172,20 +172,12 @@ static Context* kmt_schedule(Event ev, Context* context) {
 }
 
 static int kmt_create(task_t* task, const char* name, void (*entry)(void* arg), void* arg) {
-  Log("======================  1");
-  for (int j = runnable_head; j < runnable_tail; j++) {
-    Log("TASK#%p : rip = %p", runnable_task[j]->stack, runnable_task[j]->context->rip);
-  }
   task->name = name;
   task->stack = pmm->alloc(STACK_SIZE);
   Area stack = (Area){ task->stack, task->stack + STACK_SIZE };
   task->context = kcontext(stack, entry, arg);
   // Log("context rip=%p stack=%p", task->context->rip, task->stack);
   task->status = RUNNABLE;
-  Log("======================  2");
-  for (int j = runnable_head; j < runnable_tail; j++) {
-    Log("TASK#%p : rip = %p", runnable_task[j]->stack, runnable_task[j]->context->rip);
-  }
   runnable_task_push(task);
   // Log("TASK#%p : rip = %p", task->stack, task->context->rip);
   // Log("TH#%p context: %p", task->stack, task->context);

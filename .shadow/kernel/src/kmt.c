@@ -120,7 +120,7 @@ static void kmt_sem_signal(sem_t* sem) {
 static void runnable_task_push(task_t* task) {
   // Log("task context rip=%p", task->context->rip);
   runnable_task[runnable_tail] = task;
-  Log("TASK#%p : rip = %p", runnable_task[runnable_tail]->stack, runnable_task[runnable_tail]->context->rip);
+  printf("TASK#%p : rip = %p\n", runnable_task[runnable_tail]->stack, runnable_task[runnable_tail]->context->rip);
   runnable_tail = (runnable_tail + 1) % MAX_TASK;
 }
 

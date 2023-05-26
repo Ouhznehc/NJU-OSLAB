@@ -29,9 +29,11 @@ static void create_threads() {
   Log("head = %d, tail = %d", runnable_head, runnable_tail);
   for (int i = 0; i < 10; i++) {
     kmt->create(pmm->alloc(sizeof(task_t)), "producer", Tproduce, NULL);
+    Log("TASK#%p : rip = %p", runnable_task[runnable_tail - 1]->stack, runnable_task[runnable_tail - 1]->context->rip);
   }
   for (int i = 0; i < 1; i++) {
     kmt->create(pmm->alloc(sizeof(task_t)), "consumer", Tconsume, NULL);
+    Log("TASK#%p : rip = %p", runnable_task[runnable_tail - 1]->stack, runnable_task[runnable_tail - 1]->context->rip);
   }
   Log("head = %d, tail = %d", runnable_head, runnable_tail);
   for (int i = runnable_head; i < runnable_tail; i++) {

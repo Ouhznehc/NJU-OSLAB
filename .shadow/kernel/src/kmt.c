@@ -157,15 +157,15 @@ static Context* kmt_schedule(Event ev, Context* context) {
   task_t* next_task = runnable_task_pop();
   if (next_task == NULL) ret = current_task[cpu];
   else {
-    if (current_task[cpu] != NULL) Log("TH#%p: %s is sleeping", current_task[cpu]->stack, current_task[cpu]->name);
-    else Log("This is the first task");
+    // if (current_task[cpu] != NULL) Log("TH#%p: %s is sleeping", current_task[cpu]->stack, current_task[cpu]->name);
+  // else Log("This is the first task");
     ret = next_task;
     buffer_task[cpu] = current_task[cpu];
     current_task[cpu] = next_task;
     next_task->status = RUNNING;
   }
   // Log("TH#%p context: %p", ret->stack, ret->context);
-  Log("TH#%p: %s is running", ret->stack, ret->name);
+  // Log("TH#%p: %s is running", ret->stack, ret->name);
   // Log("context rsp=%p rip=%p rsp0=%p", ret->context->rsp, ret->context->rip, ret->context->rsp0);
   kmt_spin_unlock(&os_trap_lk);
   return ret->context;
@@ -176,11 +176,8 @@ static int kmt_create(task_t* task, const char* name, void (*entry)(void* arg), 
   task->stack = pmm->alloc(STACK_SIZE);
   Area stack = (Area){ task->stack, task->stack + STACK_SIZE };
   task->context = kcontext(stack, entry, arg);
-  // Log("context rip=%p stack=%p", task->context->rip, task->stack);
   task->status = RUNNABLE;
   runnable_task_push(task);
-  // Log("TASK#%p : rip = %p", task->stack, task->context->rip);
-  // Log("TH#%p context: %p", task->stack, task->context);
   return 0;
 }
 

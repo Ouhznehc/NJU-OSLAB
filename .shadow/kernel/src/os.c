@@ -14,7 +14,7 @@ static irq_t* irq_list_head;
 kspinlock_t debug_lk;
 #endif
 
-extern struct task* runnable_task[100];
+extern struct task* runnable_task[MAX_TASK];
 extern int runnable_head, runnable_tail;
 
 static void os_init() {

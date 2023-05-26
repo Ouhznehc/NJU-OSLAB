@@ -2,6 +2,9 @@
 #include <os.h>
 #include <common.h>
 
+extern struct task* runnable_task[MAX_TASK];
+extern int runnable_head, runnable_tail;
+
 #define P kmt->sem_wait
 #define V kmt->sem_signal
 sem_t empty, fill;
@@ -35,6 +38,9 @@ int main() {
   cte_init(os->trap);
   os->init();
   create_threads();
+  for (int i = runnable_head; i < runnable_tail; i++) {
+    Log("TASK#%p : rip = %p", runnable_task[i]->stack, runnable_task[i]->context->rip);
+  }
   mpe_init(os->run);
   return 1;
 }

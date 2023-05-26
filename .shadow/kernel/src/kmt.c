@@ -172,6 +172,7 @@ static Context* kmt_schedule(Event ev, Context* context) {
 }
 
 static int kmt_create(task_t* task, const char* name, void (*entry)(void* arg), void* arg) {
+  Log("======================");
   for (int j = runnable_head; j < runnable_tail; j++) {
     Log("TASK#%p : rip = %p", runnable_task[j]->stack, runnable_task[j]->context->rip);
   }

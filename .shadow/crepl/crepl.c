@@ -20,6 +20,7 @@ static int crepl_fd;
 static void copy_shared_lib(int src, int dst) {
   FILE* src_file = fdopen(src, "r");
   FILE* dst_file = fdopen(dst, "w");
+  assert(0);
   char string[4096];
   while (fgets(string, sizeof(string), src_file) != NULL) fputs(string, dst_file);
   fclose(src_file);
@@ -60,7 +61,6 @@ static void update_shared_lib(char* code) {
 
 static int compile_shared_function(char* code) {
   compile_fd = mkstemp(compile_filename);
-  assert(0);
   copy_shared_lib(crepl_fd, compile_fd);
   int ret = compile_new_lib(code);
   if (ret) update_shared_lib(code);

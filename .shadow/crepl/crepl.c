@@ -33,14 +33,13 @@ static int compile_new_lib(FILE* lib_file, char* code) {
   pid_t pid = fork();
   if (pid == 0) {
     execlp("gcc", "gcc", "-shared", "-fPIC", compile_filename, "-o", "/tmp/compile.so", NULL);
-    printf("fuck");
     exit(1);
   }
   else {
     int status;
     waitpid(pid, &status, 0);
-    if (WIFEXITED(status) && WEXITSTATUS(status) == 0) return 1;
-    else return 0;
+    if (WIFEXITED(status) && WEXITSTATUS(status) == 0) return 0;
+    else return 1;
   }
 }
 

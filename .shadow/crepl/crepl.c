@@ -51,8 +51,8 @@ static int compile_new_lib(FILE* lib_file, char* code) {
 }
 
 static void update_shared_lib(char* code) {
-  FILE* lib_file = fdopen(crepl_fd, "w");
-  fprintf(lib_file, "%s", code);
+  int ret = fprintf(crepl_file, "%s", code);
+  assert(ret >= 0);
 
   pid_t pid = fork();
   // fprintf(stderr, "%s", compile_filename);

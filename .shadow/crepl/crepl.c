@@ -38,6 +38,8 @@ static int compile_new_lib(FILE* lib_file, char* code) {
   else {
     int status;
     waitpid(pid, &status, 0);
+    int exit_status = WEXITSTATUS(status);
+    printf("Compilation finish. Exit status: %d\n", exit_status);
     if (WIFEXITED(status) && WEXITSTATUS(status) == 0) return 1;
     else return 0;
   }
@@ -48,7 +50,10 @@ static void update_shared_lib(char* code) {
   fprintf(lib_file, "%s", code);
 
   pid_t pid = fork();
-  if (pid == 0) execlp("gcc", "gcc", "-shared", "-fPIC", compile_filename, "-o", "/tmp/crepl.so", NULL);
+  if (pid == 0) {
+    execlp("gcc", "gcc", "-shared", "-fPIC", compile_filename, "-o", "/tmp/crepl.so", NULL);
+    exit(1);
+  }
   else {
     int status;
     waitpid(pid, &status, 0);

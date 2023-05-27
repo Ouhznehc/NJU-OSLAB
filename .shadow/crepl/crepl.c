@@ -54,6 +54,7 @@ static int compile_new_lib(FILE* lib_file, char* code) {
       // 子进程异常退出
       printf("Compilation failed. Abnormal termination.\n");
     }
+    return 0;
   }
 }
 

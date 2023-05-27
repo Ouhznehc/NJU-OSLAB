@@ -20,8 +20,7 @@ static int crepl_fd;
 static void copy_shared_lib(int src, int dst) {
   FILE* src_file = fdopen(src, "r");
   FILE* dst_file = fdopen(dst, "w");
-  assert(src_file != NULL);
-  assert(dst_file != NULL);
+  assert(src_file != NULL && dst_file != NULL);
   char string[4096];
   while (fgets(string, sizeof(string), src_file) != NULL) fputs(string, dst_file);
   fclose(src_file);
@@ -30,6 +29,7 @@ static void copy_shared_lib(int src, int dst) {
 
 static int compile_new_lib(char* code) {
   FILE* lib_file = fdopen(compile_fd, "w");
+  assert(lib_file != NULL);
   fprintf(lib_file, "%s", code);
   fclose(lib_file);
 
@@ -83,8 +83,6 @@ static int fetch_expression_value(char* expression) {
 int main(int argc, char* argv[]) {
   crepl_fd = mkstemp(crepl_filename);
   FILE* try = fdopen(crepl_fd, "r");
-  assert(try != NULL);
-  fclose(try);
   while (1) {
     printf("crepl> ");
     fflush(stdout);

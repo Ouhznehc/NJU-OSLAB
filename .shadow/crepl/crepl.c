@@ -61,7 +61,7 @@ static int compile_shared_function(char* code) {
   copy_shared_lib(crepl_fd, compile_fd);
   int ret = compile_new_lib(code);
   if (ret) update_shared_lib(code);
-  fdclose(compile_fd);
+  fclose(compile_filename);
   unlink(compile_filename);
   return ret;
 }
@@ -90,7 +90,7 @@ int main(int argc, char* argv[]) {
     if (is_expression) printf("= %d\n", rc);
     else printf("Compile %s.\n", rc ? "ok" : "error");
   }
-  fdclode(crepl_fd);
+  fclode(crepl_filename);
   unlink(crepl_filename);
   return 0;
 }

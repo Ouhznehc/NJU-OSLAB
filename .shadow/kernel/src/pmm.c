@@ -113,6 +113,7 @@ static memory_t* memory_from_heap(size_t size) {
       ret = cur;
     }
   }
+  assert((uintptr_t)ret % 4 KB == 0);
   kspin_unlock(&heap_lock);
   return ret;
 }

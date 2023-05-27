@@ -43,15 +43,13 @@ static int compile_new_lib(char* lib_filename, char* code) {
 
   pid_t pid = fork();
   if (pid == 0) {
-    // fclose(stderr);
+    fclose(stderr);
     execlp("gcc", "gcc", "-shared", "-fPIC", lib_filename, "-o", "/tmp/compile.so", NULL);
     exit(1);
   }
   else {
     int status;
     waitpid(pid, &status, 0);
-    int exit_status = WEXITSTATUS(status);
-    // printf("Compilation finish. Exit status: %d\n", exit_status);
     if (WIFEXITED(status) && WEXITSTATUS(status) == 0) return 1;
     else return 0;
   }

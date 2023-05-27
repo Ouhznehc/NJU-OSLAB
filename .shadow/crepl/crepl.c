@@ -8,25 +8,25 @@
 #include <assert.h>
 
 
-static char crepl_filename[] = "/tmp/creplXXXXXX";
-static char compile_filename[] = "/tmp/compileXXXXXX";
+
 static char line[4096];
 static int is_expression;
 static int rc;
 
+static char crepl_filename[] = "/tmp/creplXXXXXX";
+static char compile_filename[] = "/tmp/compileXXXXXX";
 static int compile_fd;
 static int crepl_fd;
+static FILE* compile_file;
+static FILE* crepl_file;
 
-static void copy_shared_lib(int src, int dst) {
-  FILE* src_file = fdopen(src, "r");
-  FILE* dst_file = fdopen(dst, "w");
+static void copy_shared_lib(FILE* src_file, FILE* dst_file) {
   assert(src_file != NULL && dst_file != NULL);
   char string[4096];
   while (fgets(string, sizeof(string), src_file) != NULL) fputs(string, dst_file);
 }
 
-static int compile_new_lib(char* code) {
-  FILE* lib_file = fdopen(compile_fd, "w");
+static int compile_new_lib(FILE* lib_file, char* code) {
   assert(lib_file != NULL);
   fprintf(lib_file, "%s", code);
 
@@ -58,8 +58,8 @@ static void update_shared_lib(char* code) {
 
 static int compile_shared_function(char* code) {
   compile_fd = mkstemp(compile_filename);
-  copy_shared_lib(crepl_fd, compile_fd);
-  int ret = compile_new_lib(code);
+  copy_shared_lib(crepl_file, compile_file);
+  int ret = compile_new_lib(crepl_file, code);
   if (ret) update_shared_lib(code);
   fclose(compile_filename);
   unlink(compile_filename);
@@ -79,7 +79,6 @@ static int fetch_expression_value(char* expression) {
 
 int main(int argc, char* argv[]) {
   crepl_fd = mkstemp(crepl_filename);
-  FILE* try = fdopen(crepl_fd, "r");
   while (1) {
     printf("crepl> ");
     fflush(stdout);

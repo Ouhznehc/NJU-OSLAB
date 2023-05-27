@@ -73,6 +73,7 @@ static int compile_shared_function(char* code) {
 
 static int compile_shared_lib(char* code) {
   is_expression = 0;
+  printf("%s", code);
   int ret = compile_shared_function(code);
   return ret;
 }
@@ -93,7 +94,6 @@ int main(int argc, char* argv[]) {
     printf("crepl> ");
     fflush(stdout);
     if (fgets(line, sizeof(line), stdin) != NULL) {
-      printf("%s\n", line);
       if (strncmp(line, "int", 3) == 0) rc = compile_shared_lib(line);
       else rc = fetch_expression_value(line);
     }

@@ -52,13 +52,13 @@ static int compile_new_lib(char* lib_filename, char* code) {
     waitpid(pid, &status, 0);
     int exit_status = WEXITSTATUS(status);
     // printf("Compilation finish. Exit status: %d\n", exit_status);
+    assert(0);
     if (WIFEXITED(status) && WEXITSTATUS(status) == 0) return 1;
     else return 0;
   }
 }
 
 static void update_shared_lib(char* code) {
-  assert(0);
   FILE* lib_file = fopen(crepl_filename, "w+");
   assert(lib_file != NULL);
   int ret = fprintf(lib_file, "%s", code);

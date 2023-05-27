@@ -28,7 +28,6 @@ static void copy_shared_lib(FILE* src_file, FILE* dst_file) {
 
 static int compile_new_lib(FILE* lib_file, char* code) {
   assert(lib_file != NULL);
-  printf("%s", code);
   int ret = fprintf(lib_file, "%s", code);
   assert(ret >= 0);
   char string[4096];

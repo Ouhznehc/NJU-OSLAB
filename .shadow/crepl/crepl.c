@@ -92,7 +92,7 @@ static int fetch_expression_value(char* expression) {
 
 int main(int argc, char* argv[]) {
   crepl_fd = mkstemps(crepl_filename, 2);
-  crepl_file = fdopen(crepl_fd, "w+");
+  crepl_file = fdopen(crepl_fd, "rw+");
 
 
   while (1) {

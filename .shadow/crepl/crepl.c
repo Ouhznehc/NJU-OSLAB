@@ -2,8 +2,8 @@
 #include <string.h>
 #include <stdlib.h>
 
-const char crepl_filename[] = "/tmp/crepl.so";
-const char compile_filename[] = "/tmp/compile.so";
+static char crepl_filename[] = "/tmp/crepl.so";
+static char compile_filename[] = "/tmp/compile.so";
 static char line[4096];
 
 int main(int argc, char* argv[]) {

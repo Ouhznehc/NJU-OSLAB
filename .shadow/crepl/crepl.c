@@ -23,15 +23,12 @@ static void copy_shared_lib(int src, int dst) {
   assert(src_file != NULL && dst_file != NULL);
   char string[4096];
   while (fgets(string, sizeof(string), src_file) != NULL) fputs(string, dst_file);
-  fclose(src_file);
-  fclose(dst_file);
 }
 
 static int compile_new_lib(char* code) {
   FILE* lib_file = fdopen(compile_fd, "w");
   assert(lib_file != NULL);
   fprintf(lib_file, "%s", code);
-  fclose(lib_file);
 
   pid_t pid = fork();
   if (pid == 0) {
@@ -49,7 +46,6 @@ static int compile_new_lib(char* code) {
 static void update_shared_lib(char* code) {
   FILE* lib_file = fdopen(crepl_fd, "w");
   fprintf(lib_file, "%s", code);
-  fclose(lib_file);
 
   pid_t pid = fork();
   if (pid == 0) execlp("gcc", "gcc", "-shared", "-fPIC", compile_filename, "-o", "/tmp/crepl.so", NULL);
@@ -65,6 +61,7 @@ static int compile_shared_function(char* code) {
   copy_shared_lib(crepl_fd, compile_fd);
   int ret = compile_new_lib(code);
   if (ret) update_shared_lib(code);
+  fdclose(compile_fd);
   unlink(compile_filename);
   return ret;
 }
@@ -93,7 +90,7 @@ int main(int argc, char* argv[]) {
     if (is_expression) printf("= %d\n", rc);
     else printf("Compile %s.\n", rc ? "ok" : "error");
   }
-
+  fdclode(crepl_fd);
   unlink(crepl_filename);
   return 0;
 }

@@ -29,6 +29,7 @@ static void copy_shared_lib(FILE* src_file, FILE* dst_file) {
 static int compile_new_lib(FILE* lib_file, char* code) {
   assert(lib_file != NULL);
   fprintf(lib_file, "%s", code);
+  assert(0);
   char string[4096];
   while (fgets(string, sizeof(string), lib_file) != NULL) puts(string);
   pid_t pid = fork();

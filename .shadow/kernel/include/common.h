@@ -7,7 +7,7 @@
 #include "kspinlock.h"
 #include "pmm.h"
 
-#define __DEBUG_MODE__
+// #define __DEBUG_MODE__
 
 #ifdef assert
 #undef assert
@@ -15,9 +15,7 @@
 #ifdef panic
 #undef panic
 #endif
-#ifdef panic_on
-#undef panic_on
-#endif
+
 
 #ifdef __DEBUG_MODE__
 
@@ -83,7 +81,6 @@ extern kspinlock_t debug_lk;
 #define kernal_panic(format, ...)
 #define Log(format, ...)
 #define panic(format, ...)
-#define panic_on(cond, format, ...)
 #define assert(cond)
 #define Assert(cond, format, ...)
 #endif

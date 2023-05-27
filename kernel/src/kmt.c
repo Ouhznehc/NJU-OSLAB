@@ -3,7 +3,7 @@
 
 #define INT_MAX 2147483647
 #define INT_MIN -2147483648
-#define STACK_SIZE 8196
+#define STACK_SIZE 8192
 
 static void kmt_init();
 static int kmt_create(task_t* task, const char* name, void (*entry)(void* arg), void* arg);
@@ -173,7 +173,15 @@ static Context* kmt_schedule(Event ev, Context* context) {
 
 static int kmt_create(task_t* task, const char* name, void (*entry)(void* arg), void* arg) {
   task->name = name;
+  Log("before 8KB");
+  for (int j = runnable_head; j < runnable_tail; j++) {
+    Log("TASK#%p : rip = %p", runnable_task[j]->stack, runnable_task[j]->context->rip);
+  }
   task->stack = pmm->alloc(STACK_SIZE);
+  Log("after 8KB");
+  for (int j = runnable_head; j < runnable_tail; j++) {
+    Log("TASK#%p : rip = %p", runnable_task[j]->stack, runnable_task[j]->context->rip);
+  }
   Area stack = (Area){ task->stack, task->stack + STACK_SIZE };
   task->context = kcontext(stack, entry, arg);
   task->status = RUNNABLE;

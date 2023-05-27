@@ -140,6 +140,7 @@ static int fetch_expression_value(char* expression) {
 }
 
 int main(int argc, char* argv[]) {
+  printf("%d\n", 1 + 2 || (3 * 5));
   crepl_fd = mkstemps(crepl_filename, 2);
   while (1) {
     printf("crepl> ");

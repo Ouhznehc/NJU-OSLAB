@@ -32,7 +32,7 @@ static int compile_new_lib(FILE* lib_file, char* code) {
 
   pid_t pid = fork();
   if (pid == 0) {
-    execlp("gcc", "gcc", "-shared", "-fPIC", compile_filename, NULL);
+    execlp("gcc", "gcc", "-shared", "-fPIC", compile_filename, "-o", "/tmp/compile.so", NULL);
     exit(1);
   }
   else {

@@ -13,10 +13,12 @@ static int is_expression;
 static int rc;
 
 static int compile_shared_lib(char* line) {
+  is_expression = 0;
   return 1;
 }
 
 static int fetch_expression_value(char* line) {
+  is_expression = 1;
   return 0;
 }
 
@@ -31,7 +33,7 @@ int main(int argc, char* argv[]) {
       else rc = fetch_expression_value(line);
     }
     if (is_expression) printf("= %d\n", rc);
-    else printf("Compile %s.\n", rc ? "OK" : "error");
+    else printf("Compile %s.\n", rc ? "ok" : "error");
   }
 
   close(fd);

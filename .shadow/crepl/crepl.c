@@ -49,6 +49,7 @@ static int compile_new_lib(FILE* lib_file, char* code) {
 
 static void update_shared_lib(char* code) {
   FILE* lib_file = fdopen(crepl_fd, "w");
+  printf("%s", code);
   fprintf(lib_file, "%s", code);
 
   pid_t pid = fork();
@@ -85,11 +86,9 @@ static int fetch_expression_value(char* expression) {
 int main(int argc, char* argv[]) {
   crepl_fd = mkstemp(crepl_filename);
   crepl_file = fdopen(crepl_fd, "rw");
-  assert(crepl_file != NULL);
 
   compile_fd = mkstemp(compile_filename);
   compile_file = fdopen(compile_fd, "rw");
-  assert(compile_file != NULL);
 
   while (1) {
     printf("crepl> ");

@@ -35,7 +35,7 @@ static void copy_shared_lib(char* src_filename, char* dst_filename) {
 }
 
 static int compile_new_lib(char* lib_filename, char* code) {
-  FILE* lib_file = fopen(lib_filename, "w+");
+  FILE* lib_file = fopen(lib_filename, "a");
   assert(lib_file != NULL);
   int ret = fprintf(lib_file, "%s", code);
   assert(ret >= 0);
@@ -58,7 +58,7 @@ static int compile_new_lib(char* lib_filename, char* code) {
 }
 
 static void update_shared_lib(char* code) {
-  FILE* lib_file = fopen(crepl_filename, "w+");
+  FILE* lib_file = fopen(crepl_filename, "a");
   assert(lib_file != NULL);
   int ret = fprintf(lib_file, "%s", code);
   assert(ret >= 0);

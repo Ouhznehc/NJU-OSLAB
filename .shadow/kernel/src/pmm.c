@@ -37,6 +37,7 @@ static void* object_from_slab(slab_t* page) {
       continue;
     for (int j = 0; j < 32; j++) {
       if (getbit(page->bitset[i], j) == 0) {
+        assert(32 * i + j <= page->object_capacity);
         setbit(page->bitset[i], j);
         page->object_counter++;
         if (page->object_counter == page->object_capacity) {
@@ -180,8 +181,7 @@ static memory_t* page_from_slab_pool() {
 static slab_t* fetch_page_to_slab(int slab_index, int cpu) {
   assert(cpu < MAX_CPU);
   slab_t* page = (slab_t*)page_from_slab_pool();
-  if (page == NULL)
-    return NULL;
+  if (page == NULL) return NULL;
   memset(page, 0, sizeof(slab_t));
   assert(page != NULL);
   page->next = kmem[cpu].slab_list[slab_index].next;
@@ -231,10 +231,7 @@ static void* kalloc_slab(size_t size) {
   else {
     // Log("alloc slab");
     slab_t* new_page = fetch_page_to_slab(slab_index, cpu);
-    if (new_page == NULL) {
-
-      ret = NULL;
-    }
+    if (new_page == NULL) ret = NULL;
     else {
       assert(new_page->object_size == slab_type[slab_index]);
       assert(new_page->object_counter == 0);
@@ -291,7 +288,6 @@ static void* kalloc(size_t size) {
     ret = kalloc_large(size);
   }
   else if (size == 4 KB) {
-    assert(0);
     ret = kalloc_page();
   }
   else {

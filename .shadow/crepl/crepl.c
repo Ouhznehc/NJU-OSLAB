@@ -58,6 +58,7 @@ static int compile_new_lib(char* lib_filename, char* code) {
 }
 
 static void update_shared_lib(char* code) {
+  assert(0);
   FILE* lib_file = fopen(crepl_filename, "w+");
   assert(lib_file != NULL);
   int ret = fprintf(lib_file, "%s", code);
@@ -81,7 +82,6 @@ static int compile_shared_function(char* code) {
   compile_fd = mkstemps(compile_filename, 2);
   copy_shared_lib(crepl_filename, compile_filename);
   int ret = compile_new_lib(compile_filename, code);
-  assert(0);
   if (ret) update_shared_lib(code);
   fclose(compile_file);
   return ret;

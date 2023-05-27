@@ -29,6 +29,8 @@ static int compile_new_lib(char* code) {
   fprintf(lib_file, "%s", code);
   fclose(lib_file);
 
+  assert(0);
+
   pid_t pid = fork();
   if (pid == 0) {
     execlp("gcc", "gcc", "-shared", "-fPIC", compile_filename, NULL);

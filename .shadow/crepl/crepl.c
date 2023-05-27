@@ -28,8 +28,9 @@ static void copy_shared_lib(FILE* src_file, FILE* dst_file) {
 
 static int compile_new_lib(FILE* lib_file, char* code) {
   assert(lib_file != NULL);
+  printf("%s", code);
   int ret = fprintf(lib_file, "%s", code);
-  assert(ret >= 0);
+  // assert(ret >= 0);
   char string[4096];
   while (fgets(string, sizeof(string), lib_file) != NULL) puts(string);
   pid_t pid = fork();
@@ -66,7 +67,6 @@ static void update_shared_lib(char* code) {
 
 static int compile_shared_function(char* code) {
   copy_shared_lib(crepl_file, compile_file);
-  printf("%s", code);
   int ret = compile_new_lib(crepl_file, code);
   if (ret) update_shared_lib(code);
   return ret;

@@ -30,12 +30,12 @@ static void create_threads() {
   for (int i = 0; i < 5; i++) {
     Log("before slab");
     for (int j = runnable_head; j < runnable_tail; j++) {
-      Log("TASK#%p : rip = %p", runnable_task[j]->stack, runnable_task[j]->context->rip);
+      Log("TASK#%p : rip#%p = %p", runnable_task[j]->stack, &runnable_task[j]->context->rip, runnable_task[j]->context->rip);
     }
     void* ret = pmm->alloc(sizeof(task_t));
     Log("after slab");
     for (int j = runnable_head; j < runnable_tail; j++) {
-      Log("TASK#%p : rip = %p", runnable_task[j]->stack, runnable_task[j]->context->rip);
+      Log("TASK#%p : rip#%p = %p", runnable_task[j]->stack, &runnable_task[j]->context->rip, runnable_task[j]->context->rip);
     }
     kmt->create(ret, "producer", Tproduce, NULL);
   }

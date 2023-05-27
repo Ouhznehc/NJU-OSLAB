@@ -15,9 +15,7 @@
 #ifdef panic
 #undef panic
 #endif
-#ifdef panic_on
-#undef panic_on
-#endif
+
 
 #ifdef __DEBUG_MODE__
 
@@ -50,15 +48,6 @@ extern kspinlock_t debug_lk;
         halt(1);                                     \
     } while (0)
 
-#define panic_on(cond, format, ...) \
-    do                              \
-    {                               \
-        if (cond)                   \
-        {                           \
-            panic(format);          \
-        }                           \
-    } while (0)
-
 #define assert(cond)                              \
     do                                            \
     {                                             \
@@ -83,7 +72,6 @@ extern kspinlock_t debug_lk;
 #define kernal_panic(format, ...)
 #define Log(format, ...)
 #define panic(format, ...)
-#define panic_on(cond, format, ...)
 #define assert(cond)
 #define Assert(cond, format, ...)
 #endif

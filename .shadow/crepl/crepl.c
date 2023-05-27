@@ -60,8 +60,8 @@ static void update_shared_lib(char* code) {
 
 static int compile_shared_function(char* code) {
   compile_fd = mkstemp(compile_filename);
-  copy_shared_lib(crepl_fd, compile_fd);
   assert(0);
+  copy_shared_lib(crepl_fd, compile_fd);
   int ret = compile_new_lib(code);
   if (ret) update_shared_lib(code);
   unlink(compile_filename);

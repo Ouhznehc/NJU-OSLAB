@@ -8,8 +8,8 @@
 #include <assert.h>
 
 
-static char crepl_filename[] = "/tmp/crepl.c";
-static char compile_filename[] = "/tmp/compile.c";
+static char crepl_filename[] = "/tmp/creplXXXXXX.c";
+static char compile_filename[] = "/tmp/compileXXXXXX.c";
 static char line[4096];
 static int is_expression;
 static int rc;

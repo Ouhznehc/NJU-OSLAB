@@ -291,6 +291,7 @@ static void* kalloc(size_t size) {
     ret = kalloc_large(size);
   }
   else if (size == 4 KB) {
+    assert(0);
     ret = kalloc_page();
   }
   else {

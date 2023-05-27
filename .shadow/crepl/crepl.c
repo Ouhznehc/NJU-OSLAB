@@ -66,6 +66,7 @@ static void update_shared_lib(char* code) {
 }
 
 static int compile_shared_function(char* code) {
+  strcpy(compile_filename, "/tmp/compile_XXXXXXX.c");
   compile_fd = mkstemps(compile_filename, 2);
   compile_file = fdopen(compile_fd, "w");
   copy_shared_lib(crepl_file, compile_file);

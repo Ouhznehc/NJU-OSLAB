@@ -13,8 +13,8 @@ static char line[4096];
 static int is_expression;
 static int rc;
 
-static char crepl_filename[] = "/tmp/crepl_XXXXXX.c";
-static char compile_filename[] = "/tmp/compile_XXXXXX.c";
+static char crepl_filename[] = "/tmp/crepl_XXXXXXX.c";
+static char compile_filename[] = "/tmp/compile_XXXXXXX.c";
 static int compile_fd;
 static int crepl_fd;
 static FILE* compile_file;
@@ -85,11 +85,11 @@ static int fetch_expression_value(char* expression) {
 
 int main(int argc, char* argv[]) {
   crepl_fd = mkstemp(crepl_filename);
-  crepl_file = fdopen(crepl_fd, "w");
+  crepl_file = fdopen(crepl_fd, "w+");
   assert(crepl_file != NULL);
 
   compile_fd = mkstemp(compile_filename);
-  compile_file = fdopen(compile_fd, "w");
+  compile_file = fdopen(compile_fd, "w+");
   assert(compile_file != NULL);
 
   while (1) {

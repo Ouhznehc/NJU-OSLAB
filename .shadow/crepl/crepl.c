@@ -85,9 +85,11 @@ static int fetch_expression_value(char* expression) {
 int main(int argc, char* argv[]) {
   crepl_fd = mkstemp(crepl_filename);
   crepl_file = fdopen(crepl_fd, "rw");
+  assert(crepl_file != NULL);
 
   compile_fd = mkstemp(compile_filename);
   compile_file = fdopen(compile_fd, "rw");
+  assert(compile_file != NULL);
 
   while (1) {
     printf("crepl> ");

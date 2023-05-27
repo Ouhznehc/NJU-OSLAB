@@ -31,8 +31,6 @@ static int compile_new_lib(char* code) {
   fprintf(lib_file, "%s", code);
   fclose(lib_file);
 
-  assert(0);
-
   pid_t pid = fork();
   if (pid == 0) {
     execlp("gcc", "gcc", "-shared", "-fPIC", compile_filename, NULL);
@@ -63,6 +61,7 @@ static void update_shared_lib(char* code) {
 static int compile_shared_function(char* code) {
   compile_fd = mkstemp(compile_filename);
   copy_shared_lib(crepl_fd, compile_fd);
+  assert(0);
   int ret = compile_new_lib(code);
   if (ret) update_shared_lib(code);
   unlink(compile_filename);

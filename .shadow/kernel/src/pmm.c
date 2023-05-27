@@ -58,8 +58,7 @@ static void* object_from_slab(slab_t* page) {
 static memory_t* memory_from_heap(size_t size) {
   memory_t* ret = NULL;
   kspin_lock(&heap_lock);
-  if (heap_pool.next == NULL)
-    ret = NULL;
+  if (heap_pool.next == NULL) ret = NULL;
   else {
     memory_t* cur = heap_pool.next, * prev = NULL;
     assert(cur != NULL);

@@ -84,11 +84,11 @@ static int fetch_expression_value(char* expression) {
 }
 
 int main(int argc, char* argv[]) {
-  crepl_fd = mkstemps(crepl_filename);
+  crepl_fd = mkstemps(crepl_filename, 2);
   crepl_file = fdopen(crepl_fd, "w+");
   assert(crepl_file != NULL);
 
-  compile_fd = mkstemps(compile_filename);
+  compile_fd = mkstemps(compile_filename, 2);
   compile_file = fdopen(compile_fd, "w+");
   assert(compile_file != NULL);
 

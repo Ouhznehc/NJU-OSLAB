@@ -49,8 +49,6 @@ static int compile_new_lib(FILE* lib_file, char* code) {
 
 static void update_shared_lib(char* code) {
   FILE* lib_file = fdopen(crepl_fd, "w");
-  printf("%s", code);
-  fflush(stdout);
   fprintf(lib_file, "%s", code);
 
   pid_t pid = fork();
@@ -95,6 +93,7 @@ int main(int argc, char* argv[]) {
     printf("crepl> ");
     fflush(stdout);
     if (fgets(line, sizeof(line), stdin) != NULL) {
+      printf("%s\n", line);
       if (strncmp(line, "int", 3) == 0) rc = compile_shared_lib(line);
       else rc = fetch_expression_value(line);
     }

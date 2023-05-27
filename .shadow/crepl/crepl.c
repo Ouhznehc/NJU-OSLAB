@@ -20,9 +20,9 @@ static int crepl_fd;
 static void copy_shared_lib(int src, int dst) {
   FILE* src_file = fdopen(src, "r");
   FILE* dst_file = fdopen(dst, "w");
+  assert(src_file != NULL && dst_file != NULL);
   char string[4096];
   while (fgets(string, sizeof(string), src_file) != NULL) fputs(string, dst_file);
-  assert(0);
   fclose(src_file);
   fclose(dst_file);
 }

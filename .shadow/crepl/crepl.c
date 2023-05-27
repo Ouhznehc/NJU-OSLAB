@@ -65,8 +65,8 @@ static void update_shared_lib(char* code) {
 }
 
 static int compile_shared_function(char* code) {
-  printf("%s", code);
   copy_shared_lib(crepl_file, compile_file);
+  printf("%s", code);
   int ret = compile_new_lib(crepl_file, code);
   if (ret) update_shared_lib(code);
   return ret;

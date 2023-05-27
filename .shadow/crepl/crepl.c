@@ -30,7 +30,8 @@ static int compile_new_lib(FILE* lib_file, char* code) {
   assert(lib_file != NULL);
   int ret = fprintf(lib_file, "%s", code);
   assert(ret >= 0);
-
+  char string[4096];
+  while (fgets(string, sizeof(string), lib_file) != NULL) puts(string);
   pid_t pid = fork();
   if (pid == 0) {
     fclose(stderr);
@@ -52,6 +53,7 @@ static void update_shared_lib(char* code) {
   fprintf(lib_file, "%s", code);
 
   pid_t pid = fork();
+  // fprintf(stderr, "%s", compile_filename);
 
   if (pid == 0) {
     execlp("gcc", "gcc", "-shared", "-fPIC", compile_filename, "-o", "/tmp/crepl.so", NULL);

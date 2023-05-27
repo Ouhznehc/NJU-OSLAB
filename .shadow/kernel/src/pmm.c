@@ -190,6 +190,8 @@ static slab_t* fetch_page_to_slab(int slab_index, int cpu) {
   page->cpu = cpu;
   page->object_capacity = 4 KB / page->object_size;
   page->object_start = (void*)page + 4 KB;
+  assert(*(uintptr_t*)(page->object_start - sizeof(uintptr_t)) == 0);
+  assert(*(uintptr_t*)(page->object_start - 2 * sizeof(uintptr_t)) != 0);
   assert(page->object_counter == 0);
   return page;
 }

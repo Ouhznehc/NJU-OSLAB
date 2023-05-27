@@ -50,6 +50,7 @@ static void update_shared_lib(char* code) {
   fprintf(lib_file, "%s", code);
 
   pid_t pid = fork();
+  assert(pid != -1);
   if (pid == 0) {
     printf("%s", compile_filename);
     execlp("gcc", "gcc", "-shared", "-fPIC", compile_filename, "-o", "/tmp/crepl.so", NULL);

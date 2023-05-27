@@ -146,7 +146,7 @@ int main(int argc, char* argv[]) {
     printf("crepl> ");
     fflush(stdout);
     if (fgets(line, sizeof(line), stdin) != NULL) {
-      if (strncmp(line, "int", 3) == 0) compile_shared_lib(line);
+      if (strncmp(line, "int", 3) == 0) rc = compile_shared_lib(line);
       else rc = fetch_expression_value(line);
     }
     if (is_expression) {

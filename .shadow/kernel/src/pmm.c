@@ -286,6 +286,7 @@ static void* kalloc(size_t size) {
     return NULL;
   void* ret = NULL;
   size = align_size(size);
+  Log("alloc size = %d", size);
   if (size > 4 KB) {
     ret = kalloc_large(size);
   }

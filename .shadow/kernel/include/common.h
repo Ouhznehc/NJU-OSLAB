@@ -7,7 +7,7 @@
 #include "kspinlock.h"
 #include "pmm.h"
 
-// #define __DEBUG_MODE__
+#define __DEBUG_MODE__
 
 #ifdef assert
 #undef assert
@@ -46,15 +46,6 @@ extern kspinlock_t debug_lk;
     {                                                \
         Log("system panic: " format, ##__VA_ARGS__); \
         halt(1);                                     \
-    } while (0)
-
-#define panic_on(cond, format, ...) \
-    do                              \
-    {                               \
-        if (cond)                   \
-        {                           \
-            panic(format);          \
-        }                           \
     } while (0)
 
 #define assert(cond)                              \

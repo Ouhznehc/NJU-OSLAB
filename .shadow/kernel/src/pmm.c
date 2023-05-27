@@ -95,6 +95,7 @@ static memory_t* memory_from_heap(size_t size) {
         }
       }
       else {
+        assert(0);
         if (cur == heap_pool.next) {
           heap_pool.next = cur->next;
           cur->next = NULL;

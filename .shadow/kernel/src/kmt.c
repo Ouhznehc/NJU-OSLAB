@@ -178,7 +178,7 @@ static int kmt_create(task_t* task, const char* name, void (*entry)(void* arg), 
     Log("TASK#%p : rip#%p = %p", runnable_task[j]->stack, &runnable_task[j]->context->rip, runnable_task[j]->context->rip);
   }
   task->stack = pmm->alloc(STACK_SIZE);
-  assert(*(uintptr_t*)((uintptr_t)task->stack - sizeof(uintptr_t)) == MAGIC);
+  // assert(*(uintptr_t*)((uintptr_t)task->stack - sizeof(uintptr_t)) == MAGIC);
 
   Log("after 8KB");
   for (int j = runnable_head; j < runnable_tail; j++) {

@@ -67,7 +67,7 @@ static int compile_shared_function(char* code) {
 
 static int compile_shared_lib(char* code) {
   is_expression = 0;
-  int ret = complie_shared_function(code);
+  int ret = compile_shared_function(code);
   return ret;
 }
 

@@ -38,9 +38,24 @@ static int compile_new_lib(FILE* lib_file, char* code) {
   else {
     int status;
     waitpid(pid, &status, 0);
-    if (WIFEXITED(status) && WEXITSTATUS(status) == 0) return 0;
-    else return 1;
+    if (WIFEXITED(status)) {
+      // 子进程正常退出
+      int exit_status = WEXITSTATUS(status);
+      if (exit_status == 0) {
+        // 编译成功
+        printf("Compilation succeeded.\n");
+      }
+      else {
+        // 编译失败
+        printf("Compilation failed. Exit status: %d\n", exit_status);
+      }
+    }
+    else {
+      // 子进程异常退出
+      printf("Compilation failed. Abnormal termination.\n");
+    }
   }
+}
 }
 
 static void update_shared_lib(char* code) {

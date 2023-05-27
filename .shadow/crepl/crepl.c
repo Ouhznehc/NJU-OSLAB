@@ -85,10 +85,10 @@ static int fetch_expression_value(char* expression) {
 
 int main(int argc, char* argv[]) {
   crepl_fd = mkstemp(crepl_filename);
-  crepl_file = fdopen(crepl_fd, "rw+");
+  crepl_file = fdopen(crepl_fd, "w+");
 
   compile_fd = mkstemp(compile_filename);
-  compile_file = fdopen(compile_fd, "rw+");
+  compile_file = fdopen(compile_fd, "w+");
 
   while (1) {
     printf("crepl> ");

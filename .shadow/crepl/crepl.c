@@ -52,7 +52,6 @@ static int compile_new_lib(char* lib_filename, char* code) {
     waitpid(pid, &status, 0);
     int exit_status = WEXITSTATUS(status);
     // printf("Compilation finish. Exit status: %d\n", exit_status);
-    assert(0);
     if (WIFEXITED(status) && WEXITSTATUS(status) == 0) return 1;
     else return 0;
   }
@@ -82,6 +81,7 @@ static int compile_shared_function(char* code) {
   compile_fd = mkstemps(compile_filename, 2);
   copy_shared_lib(crepl_filename, compile_filename);
   int ret = compile_new_lib(compile_filename, code);
+  assert(0);
   if (ret) update_shared_lib(code);
   fclose(compile_file);
   return ret;

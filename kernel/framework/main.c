@@ -9,7 +9,6 @@ extern int runnable_head, runnable_tail;
 #define V kmt->sem_signal
 sem_t empty, fill;
 void Tproduce(void* arg) {
-  assert(0);
   while (1) {
     P(&empty);
     putch('(');
@@ -26,23 +25,12 @@ void Tconsume(void* arg) {
 static void create_threads() {
   kmt->sem_init(&empty, "empty", 1);
   kmt->sem_init(&fill, "fill", 0);
-  Log("head = %d, tail = %d", runnable_head, runnable_tail);
   for (int i = 0; i < 5; i++) {
-    Log("before slab");
-    for (int j = runnable_head; j < runnable_tail; j++) {
-      Log("TASK#%p : rip#%p = %p", runnable_task[j]->stack, &runnable_task[j]->context->rip, runnable_task[j]->context->rip);
-    }
-    void* ret = pmm->alloc(sizeof(task_t));
-    Log("after slab");
-    for (int j = runnable_head; j < runnable_tail; j++) {
-      Log("TASK#%p : rip#%p = %p", runnable_task[j]->stack, &runnable_task[j]->context->rip, runnable_task[j]->context->rip);
-    }
-    kmt->create(ret, "producer", Tproduce, NULL);
+    kmt->create(pmm->alloc(sizeof(task_t)), "producer", Tproduce, NULL);
   }
   for (int i = 0; i < 1; i++) {
     kmt->create(pmm->alloc(sizeof(task_t)), "consumer", Tconsume, NULL);
   }
-  Log("head = %d, tail = %d", runnable_head, runnable_tail);
 }
 int main() {
   ioe_init();

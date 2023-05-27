@@ -72,7 +72,6 @@ static int compile_shared_function(char* code) {
   int ret = compile_new_lib(compile_file, code);
   if (ret) update_shared_lib(code);
   fclose(compile_file);
-  unlink(compile_filename);
   return ret;
 }
 
@@ -104,5 +103,6 @@ int main(int argc, char* argv[]) {
   }
   fclose(crepl_file);
   unlink(crepl_filename);
+  unlink(compile_filename);
   return 0;
 }

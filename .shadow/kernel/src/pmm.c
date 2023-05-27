@@ -18,10 +18,8 @@ static inline int match_slab_type(size_t size) {
 
 static inline size_t align_size(size_t size) {
   size_t msb = 31 - __builtin_clz(size);
-  if (size == (1 << msb))
-    return size;
-  else
-    return (1 << (msb + 1));
+  if (size == (1 << msb)) return size;
+  else return (1 << (msb + 1));
 }
 
 static inline uintptr_t align_address(void* address, size_t size) {
@@ -95,7 +93,6 @@ static memory_t* memory_from_heap(size_t size) {
         }
       }
       else {
-        assert(0);
         if (cur == heap_pool.next) {
           heap_pool.next = cur->next;
           cur->next = NULL;

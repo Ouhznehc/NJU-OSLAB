@@ -14,7 +14,7 @@ struct task {
   const char* name;
   struct task* next;
   Context* context;
-  uintptr_t* stack;
+  void* stack;
 };
 
 struct spinlock {

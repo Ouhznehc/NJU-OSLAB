@@ -3,7 +3,7 @@
 
 #define INT_MAX 2147483647
 #define INT_MIN -2147483648
-#define STACK_SIZE 8197
+#define STACK_SIZE 8193
 
 static void kmt_init();
 static int kmt_create(task_t* task, const char* name, void (*entry)(void* arg), void* arg);

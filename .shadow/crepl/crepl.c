@@ -58,6 +58,7 @@ static int compile_new_lib(char* lib_filename, char* code) {
 }
 
 static void update_shared_lib(char* code) {
+  assert(0);
   FILE* lib_file = fopen(crepl_filename, "w+");
   assert(lib_file != NULL);
   int ret = fprintf(lib_file, "%s", code);

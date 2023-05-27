@@ -27,7 +27,7 @@ static void create_threads() {
   kmt->sem_init(&empty, "empty", 1);
   kmt->sem_init(&fill, "fill", 0);
   Log("head = %d, tail = %d", runnable_head, runnable_tail);
-  for (int i = 0; i < 10; i++) {
+  for (int i = 0; i < 5; i++) {
     kmt->create(pmm->alloc(sizeof(task_t)), "producer", Tproduce, NULL);
   }
   for (int i = 0; i < 1; i++) {

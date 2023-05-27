@@ -61,7 +61,7 @@ static int compile_shared_function(char* code) {
   copy_shared_lib(crepl_fd, compile_fd);
   int ret = compile_new_lib(code);
   if (ret) update_shared_lib(code);
-  unlink(compile_fd);
+  unlink(compile_filename);
   return ret;
 }
 

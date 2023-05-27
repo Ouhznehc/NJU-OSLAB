@@ -11,7 +11,6 @@
 
 static char line[4096];
 static int is_expression;
-static int expression_cnt;
 static int is_valid;
 static int rc;
 
@@ -95,7 +94,7 @@ static int compile_shared_lib(char* code) {
 static int compile_expression_with_lib(char* lib_filename, char* expression) {
   FILE* lib_file = fopen(lib_filename, "a");
   assert(lib_file != NULL);
-  fprintf(lib_file, "int expression_%d(){\n", expression_cnt);
+  fprintf(lib_file, "int expression(){\n");
   fprintf(lib_file, "return %s;\n", expression);
   fprintf(lib_file, "}\n");
   fclose(lib_file);
@@ -126,7 +125,7 @@ static int fetch_expression_value_with_lib() {
   void* handle = dlopen("/tmp/compile.so", RTLD_LAZY);
   typedef int (*expression_func)();
   char function_name[128];
-  sprintf(function_name, "expression_%d", expression_cnt++);
+  sprintf(function_name, "expression");
   expression_func function = (expression_func)dlsym(handle, function_name);
   int ret = function();
   dlclose(handle);

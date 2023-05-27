@@ -89,7 +89,7 @@ int main(int argc, char* argv[]) {
     if (is_expression) printf("= %d\n", rc);
     else printf("Compile %s.\n", rc ? "ok" : "error");
   }
-  fclose(crepl_filename);
+  fclose(crepl_file);
   unlink(crepl_filename);
   return 0;
 }

@@ -28,7 +28,7 @@ static void create_threads() {
   for (int i = 0; i < 5; i++) {
     kmt->create(pmm->alloc(sizeof(task_t)), "producer", Tproduce, NULL);
   }
-  for (int i = 0; i < 5; i++) {
+  for (int i = 0; i < 1; i++) {
     kmt->create(pmm->alloc(sizeof(task_t)), "consumer", Tconsume, NULL);
   }
 }

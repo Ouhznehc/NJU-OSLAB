@@ -13,8 +13,8 @@ static char line[4096];
 static int is_expression;
 static int rc;
 
-static char crepl_filename[] = "/tmp/creplXXXXXX.c";
-static char compile_filename[] = "/tmp/compileXXXXXX.c";
+static char crepl_filename[] = "/tmp/crepl_XXXXXX.c";
+static char compile_filename[] = "/tmp/compile_XXXXXX.c";
 static int compile_fd;
 static int crepl_fd;
 static FILE* compile_file;

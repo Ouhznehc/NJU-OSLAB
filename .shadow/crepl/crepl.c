@@ -5,6 +5,8 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <dlfcn.h>
+#include <assert.h>
+
 
 static char crepl_filename[] = "/tmp/crepl.c";
 static char compile_filename[] = "/tmp/compile.c";

@@ -34,7 +34,7 @@ static int compile_new_lib(FILE* lib_file, char* code) {
   while (fgets(string, sizeof(string), lib_file) != NULL) puts(string);
   pid_t pid = fork();
   if (pid == 0) {
-    fclose(stderr);
+    // fclose(stderr);
     execlp("gcc", "gcc", "-shared", "-fPIC", compile_filename, "-o", "/tmp/compile.so", NULL);
     exit(1);
   }

@@ -157,6 +157,7 @@ static Context* kmt_schedule(Event ev, Context* context) {
     next_task->status = RUNNING;
   }
   // Log("CPU#%d is running", cpu);
+  Log("%p ret\n", ret->context);
   kmt_spin_unlock(&os_trap_lk);
   return ret->context;
 }

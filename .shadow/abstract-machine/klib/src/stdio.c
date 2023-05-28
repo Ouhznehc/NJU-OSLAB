@@ -103,7 +103,11 @@ int sprintf(char* out, const char* fmt, ...) {
 }
 
 int snprintf(char* out, size_t n, const char* fmt, ...) {
-  sprintf(my_str, fmt);
+  va_list args;
+  va_start(args, fmt);
+  vsprintf(my_str, fmt, args);
+  va_end(args);
+
   printf("%s\n", my_str);
   int cur = 0;
   while (my_str[cur] != '\0' && cur < n) {

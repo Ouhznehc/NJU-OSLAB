@@ -104,6 +104,7 @@ int sprintf(char* out, const char* fmt, ...) {
 
 int snprintf(char* out, size_t n, const char* fmt, ...) {
   sprintf(my_str, fmt);
+  printf("%s\n", my_str);
   int cur = 0;
   while (my_str[cur] != '\0' && cur < n) {
     out[cur] = my_str[cur];

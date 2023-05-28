@@ -22,7 +22,7 @@ static int lock_cnt[MAX_CPU];
 
 
 static spinlock_t os_trap_lk;
-static task_t* current_task[MAX_CPU], * buffer_task[MAX_CPU];
+static task_t* current_task[MAX_CPU], * buffer_task[MAX_CPU], * spin_task[MAX_CPU];
 task_t* runnable_task[MAX_TASK];
 int runnable_head = 0, runnable_tail = 0;
 
@@ -114,6 +114,11 @@ static void kmt_sem_signal(sem_t* sem) {
 
 /*====================== kmt ====================== */
 
+static void dead_loop() {
+  iset(true);
+  while (1) yield();
+}
+
 static void runnable_task_push(task_t* task) {
   runnable_task[runnable_tail] = task;
   runnable_tail = (runnable_tail + 1) % MAX_TASK;
@@ -150,14 +155,16 @@ static Context* kmt_schedule(Event ev, Context* context) {
   }
   task_t* next_task = runnable_task_pop();
   if (next_task == NULL) {
-    ret = current_task[cpu];
-    assert(ret != NULL);
+    ret = spin_task[cpu];
+    buffer_task[cpu] = current_task[cpu];
+    current_task[cpu] = ret;
+    ret->status = RUNNING;
   }
   else {
     ret = next_task;
     buffer_task[cpu] = current_task[cpu];
-    current_task[cpu] = next_task;
-    next_task->status = RUNNING;
+    current_task[cpu] = ret;
+    ret->status = RUNNING;
   }
   Log("CPU#%d change to task %p, ret = %p", cpu, next_task, ret);
   // Log("%p ret\n", ret->context);
@@ -190,6 +197,14 @@ static void kmt_init() {
     buffer_task[i] = NULL;
     current_task[i] = NULL;
   }
+
+  for (int i = 0; i < MAX_CPU;i++) {
+    spin_task[i] = pmm->alloc(sizeof(task_t));
+    spin_task[i]->stack = pmm->alloc(STACK_SIZE);
+    Area stack = (Area){ spin_task[i]->stack, spin_task[i]->stack + STACK_SIZE };
+    spin_task[i]->context = kcontext(stack, (void*)dead_loop, NULL);
+  }
+
   memset(runnable_task, 0, sizeof(runnable_task));
   os->on_irq(INT_MIN, EVENT_NULL, kmt_context_save);
   os->on_irq(INT_MAX, EVENT_NULL, kmt_schedule);

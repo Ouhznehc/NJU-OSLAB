@@ -42,6 +42,7 @@ static void os_init() {
   irq_list_head->handler = NULL;
   irq_list_head->event = EVENT_NULL;
   kmt->init();
+  dev->init();
   kmt->create(pmm->alloc(sizeof(task_t)), "tty_reader", tty_reader, "tty1");
   kmt->create(pmm->alloc(sizeof(task_t)), "tty_reader", tty_reader, "tty2");
 }

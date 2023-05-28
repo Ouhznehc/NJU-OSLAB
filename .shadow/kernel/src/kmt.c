@@ -149,7 +149,10 @@ static Context* kmt_schedule(Event ev, Context* context) {
     buffer_task[cpu] = NULL;
   }
   task_t* next_task = runnable_task_pop();
-  if (next_task == NULL) ret = current_task[cpu];
+  if (next_task == NULL) {
+    ret = current_task[cpu];
+    assert(ret != NULL);
+  }
   else {
     ret = next_task;
     buffer_task[cpu] = current_task[cpu];

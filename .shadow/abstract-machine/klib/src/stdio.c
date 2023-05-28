@@ -102,14 +102,15 @@ int sprintf(char* out, const char* fmt, ...) {
 }
 
 int snprintf(char* out, size_t n, const char* fmt, ...) {
-  sprintf(my_str, fmt);
-  int cur = 0;
-  while (my_str[cur] != '\0' && cur < n) {
-    out[cur] = my_str[cur];
-    cur++;
-  }
-  out[cur] = '\0';
-  return strlen(out);
+  // sprintf(my_str, fmt);
+  // int cur = 0;
+  // while (my_str[cur] != '\0' && cur < n) {
+  //   out[cur] = my_str[cur];
+  //   cur++;
+  // }
+  // out[cur] = '\0';
+  // return strlen(out);
+  panic("fuck");
 }
 
 int vsnprintf(char* out, size_t n, const char* fmt, va_list ap) {

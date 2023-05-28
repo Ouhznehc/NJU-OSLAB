@@ -95,7 +95,7 @@ static void kmt_sem_wait(sem_t* sem) {
   int sem_time = 0;
   while (sem->count == 0) {
     sem_time++;
-    if (sem_time >= 100000) panic("%s: sem time exceeded", sem->name);
+    // if (sem_time >= 100000) panic("%s: sem time exceeded", sem->name);
     kmt_spin_unlock(&sem->lk);
     yield();
     kmt_spin_lock(&sem->lk);

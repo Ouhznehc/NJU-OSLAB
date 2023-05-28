@@ -22,7 +22,7 @@ static int lock_cnt[MAX_CPU];
 
 
 static spinlock_t os_trap_lk;
-static task_t* current_task[MAX_CPU], * buffer_task[MAX_CPU];
+static task_t* current_task[MAX_CPU], * buffer_task[MAX_CPU], * spin_task[MAX_CPU];
 task_t* runnable_task[MAX_TASK];
 int runnable_head = 0, runnable_tail = 0;
 
@@ -64,7 +64,7 @@ static void kmt_spin_lock(spinlock_t* lk) {
   if (holding(lk)) panic("double lock: %s in CPU #%d", lk->name, lk->cpu);
   while (atomic_xchg(&lk->locked, 1) != 0) {
     spin_time++;
-    if (spin_time >= 100000) panic("%s: spin time exceed", lk->name);
+    if (spin_time >= 1000000) panic("%s: spin time exceed", lk->name);
   }
   __sync_synchronize();
   lk->cpu = cpu_current();
@@ -95,7 +95,7 @@ static void kmt_sem_wait(sem_t* sem) {
   int sem_time = 0;
   while (sem->count == 0) {
     sem_time++;
-    if (sem_time >= 100000) panic("%s: sem time exceeded", sem->name);
+    // if (sem_time >= 100000) panic("%s: sem time exceeded", sem->name);
     kmt_spin_unlock(&sem->lk);
     yield();
     kmt_spin_lock(&sem->lk);
@@ -113,6 +113,11 @@ static void kmt_sem_signal(sem_t* sem) {
 
 
 /*====================== kmt ====================== */
+
+static void dead_loop() {
+  iset(true);
+  while (1) yield();
+}
 
 static void runnable_task_push(task_t* task) {
   runnable_task[runnable_tail] = task;
@@ -149,14 +154,20 @@ static Context* kmt_schedule(Event ev, Context* context) {
     buffer_task[cpu] = NULL;
   }
   task_t* next_task = runnable_task_pop();
-  if (next_task == NULL) ret = current_task[cpu];
+  if (next_task == NULL) {
+    ret = spin_task[cpu];
+    buffer_task[cpu] = current_task[cpu];
+    current_task[cpu] = ret;
+    ret->status = RUNNING;
+  }
   else {
     ret = next_task;
     buffer_task[cpu] = current_task[cpu];
-    current_task[cpu] = next_task;
-    next_task->status = RUNNING;
+    current_task[cpu] = ret;
+    ret->status = RUNNING;
   }
-  Log("CPU#%d is running", cpu);
+  // Log("CPU#%d change to task %p, ret = %p", cpu, next_task, ret);
+  // Log("%p ret\n", ret->context);
   kmt_spin_unlock(&os_trap_lk);
   return ret->context;
 }
@@ -186,6 +197,14 @@ static void kmt_init() {
     buffer_task[i] = NULL;
     current_task[i] = NULL;
   }
+
+  for (int i = 0; i < MAX_CPU;i++) {
+    spin_task[i] = pmm->alloc(sizeof(task_t));
+    spin_task[i]->stack = pmm->alloc(STACK_SIZE);
+    Area stack = (Area){ spin_task[i]->stack, spin_task[i]->stack + STACK_SIZE };
+    spin_task[i]->context = kcontext(stack, (void*)dead_loop, NULL);
+  }
+
   memset(runnable_task, 0, sizeof(runnable_task));
   os->on_irq(INT_MIN, EVENT_NULL, kmt_context_save);
   os->on_irq(INT_MAX, EVENT_NULL, kmt_schedule);

@@ -72,6 +72,7 @@ int vsprintf(char* out, const char* fmt, va_list ap) {
       str = int_to_string(num, str, zeroflag, field_width);
       continue;
     case 'p':
+    case 'x':
       num = va_arg(ap, uint32_t);
       str = uint_to_string(num, str, zeroflag, field_width);
       continue;
@@ -102,15 +103,14 @@ int sprintf(char* out, const char* fmt, ...) {
 }
 
 int snprintf(char* out, size_t n, const char* fmt, ...) {
-  // sprintf(my_str, fmt);
-  // int cur = 0;
-  // while (my_str[cur] != '\0' && cur < n) {
-  //   out[cur] = my_str[cur];
-  //   cur++;
-  // }
-  // out[cur] = '\0';
-  // return strlen(out);
-  panic("fuck");
+  sprintf(my_str, fmt);
+  int cur = 0;
+  while (my_str[cur] != '\0' && cur < n) {
+    out[cur] = my_str[cur];
+    cur++;
+  }
+  out[cur] = '\0';
+  return strlen(out);
 }
 
 int vsnprintf(char* out, size_t n, const char* fmt, va_list ap) {

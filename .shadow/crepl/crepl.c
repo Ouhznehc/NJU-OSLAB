@@ -112,8 +112,6 @@ static int compile_expression_with_lib(char* lib_filename, char* expression) {
 }
 
 static int compile_expression(char* expression) {
-  strcpy(compile_filename, "/tmp/compile_XXXXXXX.c");
-  compile_fd = mkstemps(compile_filename, 2);
   copy_shared_lib(crepl_filename, compile_filename);
   int ret = compile_expression_with_lib(compile_filename, expression);
   return ret;

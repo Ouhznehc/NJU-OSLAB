@@ -123,7 +123,7 @@ static int fetch_expression_value_with_lib() {
   void* handle = dlopen("/tmp/compile.so", RTLD_LAZY);
   typedef int (*expression_func)();
   char function_name[128];
-  sprintf(function_name, "expression");
+  sprintf(function_name, "__expr_wrapper__");
   expression_func function = (expression_func)dlsym(handle, function_name);
   int ret = function();
   dlclose(handle);

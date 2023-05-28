@@ -103,7 +103,7 @@ int sprintf(char* out, const char* fmt, ...) {
 
 int snprintf(char* out, size_t n, const char* fmt, ...) {
   int val = sprintf(my_str, fmt);
-  if (val <= n) {
+  if (val < n) {
     strcpy(out, my_str);
     return val;
   }

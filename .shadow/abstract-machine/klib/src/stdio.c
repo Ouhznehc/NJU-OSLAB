@@ -102,7 +102,16 @@ int sprintf(char* out, const char* fmt, ...) {
 }
 
 int snprintf(char* out, size_t n, const char* fmt, ...) {
-  panic("Not implemented");
+  int val = sprintf(my_str, fmt);
+  if (val <= n) {
+    strcpy(out, my_str);
+    return val;
+  }
+  else {
+    strncpy(out, my_str, n);
+    out[n] = '\0';
+    return n;
+  }
 }
 
 int vsnprintf(char* out, size_t n, const char* fmt, va_list ap) {

@@ -77,8 +77,6 @@ static void update_shared_lib(char* code) {
 }
 
 static int compile_shared_function(char* code) {
-  strcpy(compile_filename, "/tmp/compile_XXXXXXX.c");
-  compile_fd = mkstemps(compile_filename, 2);
   copy_shared_lib(crepl_filename, compile_filename);
   int ret = compile_new_lib(compile_filename, code);
   if (ret) update_shared_lib(code);
@@ -94,7 +92,7 @@ static int compile_shared_lib(char* code) {
 static int compile_expression_with_lib(char* lib_filename, char* expression) {
   FILE* lib_file = fopen(lib_filename, "a");
   assert(lib_file != NULL);
-  fprintf(lib_file, "int expression(){\n");
+  fprintf(lib_file, "int __expr_wrapper__(){\n");
   fprintf(lib_file, "return %s;\n", expression);
   fprintf(lib_file, "}\n");
   fclose(lib_file);
@@ -140,8 +138,8 @@ static int fetch_expression_value(char* expression) {
 }
 
 int main(int argc, char* argv[]) {
-  printf("%d\n", 1 + 2 || (3 * 5));
   crepl_fd = mkstemps(crepl_filename, 2);
+  compile_fd = mkstemps(compile_filename, 2);
   while (1) {
     printf("crepl> ");
     fflush(stdout);

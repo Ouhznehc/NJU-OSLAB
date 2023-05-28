@@ -108,7 +108,6 @@ int snprintf(char* out, size_t n, const char* fmt, ...) {
   vsprintf(my_str, fmt, args);
   va_end(args);
 
-  printf("%s\n", my_str);
   int cur = 0;
   while (my_str[cur] != '\0' && cur < n) {
     out[cur] = my_str[cur];

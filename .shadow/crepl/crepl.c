@@ -46,8 +46,10 @@ static int compile_new_lib(char* lib_filename, char* code) {
   pid_t pid = fork();
   if (pid == 0) {
     fclose(stderr);
-    execlp("gcc", "gcc", "-m32", "-shared", "-fPIC", lib_filename, "-o", "/tmp/compile.so", NULL);
-    // execlp("gcc", "gcc", "-shared", "-fPIC", lib_filename, "-o", "/tmp/compile.so", NULL);
+    if (sizeof(void*) == 4)
+      execlp("gcc", "gcc", "-m32", "-shared", "-fPIC", lib_filename, "-o", "/tmp/compile.so", NULL);
+    else
+      execlp("gcc", "gcc", "-m64", "-shared", "-fPIC", lib_filename, "-o", "/tmp/compile.so", NULL);
     exit(1);
   }
   else {
@@ -67,8 +69,10 @@ static void update_shared_lib(char* code) {
 
   pid_t pid = fork();
   if (pid == 0) {
-    execlp("gcc", "gcc", "-m32", "-shared", "-fPIC", crepl_filename, "-o", "/tmp/crepl.so", NULL);
-    // execlp("gcc", "gcc", "-shared", "-fPIC", crepl_filename, "-o", "/tmp/crepl.so", NULL);
+    if (sizeof(void*) == 4)
+      execlp("gcc", "gcc", "-m32", "-shared", "-fPIC", crepl_filename, "-o", "/tmp/crepl.so", NULL);
+    else
+      execlp("gcc", "gcc", "-m64", "-shared", "-fPIC", crepl_filename, "-o", "/tmp/crepl.so", NULL);
     exit(1);
   }
   else {
@@ -102,8 +106,10 @@ static int compile_expression_with_lib(char* lib_filename, char* expression) {
   pid_t pid = fork();
   if (pid == 0) {
     fclose(stderr);
-    execlp("gcc", "gcc", "-m32", "-shared", "-fPIC", lib_filename, "-o", "/tmp/compile.so", NULL);
-    // execlp("gcc", "gcc", "-shared", "-fPIC", lib_filename, "-o", "/tmp/compile.so", NULL);
+    if (sizeof(void*) == 4)
+      execlp("gcc", "gcc", "-m32", "-shared", "-fPIC", lib_filename, "-o", "/tmp/compile.so", NULL);
+    else
+      execlp("gcc", "gcc", "-m64", "-shared", "-fPIC", lib_filename, "-o", "/tmp/compile.so", NULL);
     exit(1);
   }
   else {

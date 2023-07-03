@@ -130,6 +130,7 @@ static int fetch_expression_value_with_lib() {
 static int fetch_expression_value(char* expression) {
   is_expression = 1;
   is_valid = compile_expression(expression);
+  printf("expression %s, %d\n", expression, is_valid);
   if (!is_valid) return 0;
   else return fetch_expression_value_with_lib();
 }

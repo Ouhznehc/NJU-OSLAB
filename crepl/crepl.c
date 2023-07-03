@@ -8,7 +8,6 @@
 #include <assert.h>
 
 
-
 static char line[4096];
 static int is_expression;
 static int is_valid;
@@ -130,6 +129,7 @@ static int fetch_expression_value_with_lib() {
 static int fetch_expression_value(char* expression) {
   is_expression = 1;
   is_valid = compile_expression(expression);
+
   if (!is_valid) return 0;
   else return fetch_expression_value_with_lib();
 }
@@ -145,11 +145,10 @@ int main(int argc, char* argv[]) {
       else rc = fetch_expression_value(line);
     }
     if (is_expression) {
-      if (is_valid) printf("= %d\n", rc);
+      if (is_valid) printf("%d\n", rc);
       else printf("Invalid expression.\n");
     }
-    else if (rc) printf("OK.\n");
-    // else printf("Compile %s.\n", rc ? "ok" : "error");
+    else printf("Compile %s.\n", rc ? "ok" : "error");
   }
   return 0;
 }

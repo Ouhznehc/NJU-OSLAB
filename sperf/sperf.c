@@ -55,7 +55,6 @@ void fetch_path_env() {
   }
 }
 
-
 void display_sperf() {
   qsort(syscalls, syscall_count, sizeof(syscall_t), syscall_compare);
   printf("Time: %ds\n", display_time);

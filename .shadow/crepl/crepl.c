@@ -27,6 +27,7 @@ static FILE* crepl_file;
 static void copy_shared_lib(char* src_filename, char* dst_filename) {
   FILE* src_file = fopen(src_filename, "r");
   FILE* dst_file = fopen(dst_filename, "w");
+
   assert(src_file != NULL && dst_file != NULL);
 
   char string[4096];
@@ -67,20 +68,20 @@ static void update_shared_lib(char* code) {
   assert(ret >= 0);
   fclose(lib_file);
 
-  pid_t pid = fork();
-  if (pid == 0) {
-    fclose(stderr);
-    if (sizeof(void*) == 4)
-      execlp("gcc", "gcc", "-m32", "-shared", "-fPIC", crepl_filename, "-o", "/tmp/crepl.so", NULL);
-    else
-      execlp("gcc", "gcc", "-m64", "-shared", "-fPIC", crepl_filename, "-o", "/tmp/crepl.so", NULL);
-    exit(1);
-  }
-  else {
-    int status;
-    waitpid(pid, &status, 0);
-    return;
-  }
+  // pid_t pid = fork();
+  // if (pid == 0) {
+  //   fclose(stderr);
+  //   if (sizeof(void*) == 4)
+  //     execlp("gcc", "gcc", "-m32", "-shared", "-fPIC", crepl_filename, "-o", "/tmp/crepl.so", NULL);
+  //   else
+  //     execlp("gcc", "gcc", "-m64", "-shared", "-fPIC", crepl_filename, "-o", "/tmp/crepl.so", NULL);
+  //   exit(1);
+  // }
+  // else {
+  //   int status;
+  //   waitpid(pid, &status, 0);
+  //   return;
+  // }
 }
 
 static int compile_shared_function(char* code) {
@@ -157,10 +158,10 @@ int main(int argc, char* argv[]) {
       else rc = fetch_expression_value(line);
     }
     if (is_expression) {
-      //if (is_valid) printf("%d\n", rc);
-      //else printf("Invalid expression.\n");
+      if (is_valid) printf("%d\n", rc);
+      else printf("Invalid expression.\n");
     }
-    //else printf("Compile %s.\n", rc ? "ok" : "error");
+    else printf("Compile %s.\n", rc ? "ok" : "error");
   }
   return 0;
 }

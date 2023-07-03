@@ -48,9 +48,9 @@ static int compile_new_lib(char* lib_filename, char* code) {
     fclose(stderr);
     fclose(stdout);
     if (sizeof(void*) == 4)
-      execlp("gcc", "gcc", "-m32", "-shared", "-fPIC", lib_filename, "-o", "/tmp/compile.so", NULL);
+      execlp("gcc", "gcc", "-m32", "-shared", "-fPIC", lib_filename, "-o", "/tmp/compile.o", NULL);
     else
-      execlp("gcc", "gcc", "-m64", "-shared", "-fPIC", lib_filename, "-o", "/tmp/compile.so", NULL);
+      execlp("gcc", "gcc", "-m64", "-shared", "-fPIC", lib_filename, "-o", "/tmp/compile.o", NULL);
     exit(1);
   }
   else {
@@ -95,9 +95,9 @@ static int compile_expression_with_lib(char* lib_filename, char* expression) {
     fclose(stderr);
     fclose(stdout);
     if (sizeof(void*) == 4)
-      execlp("gcc", "gcc", "-m32", "-shared", "-fPIC", lib_filename, "-o", "/tmp/compile.so", NULL);
+      execlp("gcc", "gcc", "-m32", "-shared", "-fPIC", lib_filename, "-o", "/tmp/compile.o", NULL);
     else
-      execlp("gcc", "gcc", "-m64", "-shared", "-fPIC", lib_filename, "-o", "/tmp/compile.so", NULL);
+      execlp("gcc", "gcc", "-m64", "-shared", "-fPIC", lib_filename, "-o", "/tmp/compile.o", NULL);
     exit(1);
   }
   else {
@@ -115,7 +115,7 @@ static int compile_expression(char* expression) {
 }
 
 static int fetch_expression_value_with_lib() {
-  void* handle = dlopen("/tmp/compile.so", RTLD_NOW);
+  void* handle = dlopen("/tmp/compile.o", RTLD_NOW);
   assert(handle != NULL);
   typedef int (*expression_func)();
   char function_name[128];

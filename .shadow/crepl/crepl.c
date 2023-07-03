@@ -8,7 +8,6 @@
 #include <assert.h>
 
 
-
 static char line[4096];
 static int is_expression;
 static int is_valid;

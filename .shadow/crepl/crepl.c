@@ -156,7 +156,7 @@ int main(int argc, char* argv[]) {
       else rc = fetch_expression_value(line);
     }
     if (is_expression) {
-      if (is_valid) printf("%d\n", rc);
+      //if (is_valid) printf("%d\n", rc);
       //else printf("Invalid expression.\n");
     }
     //else printf("Compile %s.\n", rc ? "ok" : "error");

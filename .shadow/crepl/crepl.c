@@ -108,6 +108,8 @@ static int compile_expression_with_lib(char* lib_filename, char* expression) {
   pid_t pid = fork();
   if (pid == 0) {
     fclose(stderr);
+    fclose(stdout);
+    fclose(stdin);
     if (sizeof(void*) == 4)
       execlp("gcc", "gcc", "-m32", "-shared", "-fPIC", lib_filename, "-o", "/tmp/compile.so", NULL);
     else

@@ -56,9 +56,10 @@ static int compile_new_lib(char* lib_filename, char* code) {
   }
   else {
     int status;
-    waitpid(pid, &status, 0);
-    if (WIFEXITED(status) && WEXITSTATUS(status) == 0) return 1;
-    else return 0;
+    if (waitpid(pid, &status, WNOHANG) != 0) return 0;
+    return 1;
+    // if (WIFEXITED(status) && WEXITSTATUS(status) == 0) return 1;
+    // else return 0;
   }
 }
 

@@ -46,7 +46,8 @@ static int compile_new_lib(char* lib_filename, char* code) {
 
   pid_t pid = fork();
   if (pid == 0) {
-    fclose(stderr);
+    // fclose(stderr);
+    // fclose(stdout);
     if (sizeof(void*) == 4)
       execlp("gcc", "gcc", "-m32", "-shared", "-fPIC", lib_filename, "-o", "/tmp/compile.so", NULL);
     else
@@ -67,21 +68,6 @@ static void update_shared_lib(char* code) {
   int ret = fprintf(lib_file, "%s", code);
   assert(ret >= 0);
   fclose(lib_file);
-
-  // pid_t pid = fork();
-  // if (pid == 0) {
-  //   fclose(stderr);
-  //   if (sizeof(void*) == 4)
-  //     execlp("gcc", "gcc", "-m32", "-shared", "-fPIC", crepl_filename, "-o", "/tmp/crepl.so", NULL);
-  //   else
-  //     execlp("gcc", "gcc", "-m64", "-shared", "-fPIC", crepl_filename, "-o", "/tmp/crepl.so", NULL);
-  //   exit(1);
-  // }
-  // else {
-  //   int status;
-  //   waitpid(pid, &status, 0);
-  //   return;
-  // }
 }
 
 static int compile_shared_function(char* code) {
@@ -107,9 +93,8 @@ static int compile_expression_with_lib(char* lib_filename, char* expression) {
 
   pid_t pid = fork();
   if (pid == 0) {
-    fclose(stderr);
-    fclose(stdout);
-    fclose(stdin);
+    // fclose(stderr);
+    // fclose(stdout);
     if (sizeof(void*) == 4)
       execlp("gcc", "gcc", "-m32", "-shared", "-fPIC", lib_filename, "-o", "/tmp/compile.so", NULL);
     else

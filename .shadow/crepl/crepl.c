@@ -157,9 +157,9 @@ int main(int argc, char* argv[]) {
     }
     if (is_expression) {
       if (is_valid) printf("%d\n", rc);
-      else printf("Invalid expression.\n");
+      //else printf("Invalid expression.\n");
     }
-    else printf("Compile %s.\n", rc ? "ok" : "error");
+    //else printf("Compile %s.\n", rc ? "ok" : "error");
   }
   return 0;
 }

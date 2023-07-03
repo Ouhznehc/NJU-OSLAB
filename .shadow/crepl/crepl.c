@@ -116,7 +116,7 @@ static int compile_expression(char* expression) {
 }
 
 static int fetch_expression_value_with_lib() {
-  void* handle = dlopen("/tmp/compile.so", RTLD_LAZY);
+  void* handle = dlopen("/tmp/compile.so", RTLD_NOW);
   assert(handle != NULL);
   typedef int (*expression_func)();
   char function_name[128];

@@ -144,11 +144,11 @@ int main(int argc, char* argv[]) {
       if (strncmp(line, "int", 3) == 0) rc = compile_shared_lib(line);
       else rc = fetch_expression_value(line);
     }
-    if (is_expression) {
-      if (is_valid) printf("%d\n", rc);
-      else printf("Invalid expression.\n");
-    }
-    else printf("Compile %s.\n", rc ? "ok" : "error");
+    // if (is_expression) {
+    //   if (is_valid) printf("%d\n", rc);
+    //   else printf("Invalid expression.\n");
+    // }
+    // else printf("Compile %s.\n", rc ? "ok" : "error");
   }
   return 0;
 }

@@ -69,6 +69,7 @@ static void update_shared_lib(char* code) {
 
   pid_t pid = fork();
   if (pid == 0) {
+    fclose(stderr);
     if (sizeof(void*) == 4)
       execlp("gcc", "gcc", "-m32", "-shared", "-fPIC", crepl_filename, "-o", "/tmp/crepl.so", NULL);
     else

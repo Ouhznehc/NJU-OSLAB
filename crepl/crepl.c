@@ -46,8 +46,8 @@ static int compile_new_lib(char* lib_filename, char* code) {
 
   pid_t pid = fork();
   if (pid == 0) {
-    // fclose(stderr);
-    // fclose(stdout);
+    fclose(stderr);
+    fclose(stdout);
     if (sizeof(void*) == 4)
       execlp("gcc", "gcc", "-m32", "-shared", "-fPIC", lib_filename, "-o", "/tmp/compile.so", NULL);
     else
@@ -93,8 +93,8 @@ static int compile_expression_with_lib(char* lib_filename, char* expression) {
 
   pid_t pid = fork();
   if (pid == 0) {
-    // fclose(stderr);
-    // fclose(stdout);
+    fclose(stderr);
+    fclose(stdout);
     if (sizeof(void*) == 4)
       execlp("gcc", "gcc", "-m32", "-shared", "-fPIC", lib_filename, "-o", "/tmp/compile.so", NULL);
     else
@@ -116,7 +116,7 @@ static int compile_expression(char* expression) {
 }
 
 static int fetch_expression_value_with_lib() {
-  void* handle = dlopen("/tmp/compile.so", RTLD_LAZY);
+  void* handle = dlopen("/tmp/compile.so", RTLD_NOW);
   assert(handle != NULL);
   typedef int (*expression_func)();
   char function_name[128];
@@ -144,11 +144,11 @@ int main(int argc, char* argv[]) {
       if (strncmp(line, "int", 3) == 0) rc = compile_shared_lib(line);
       else rc = fetch_expression_value(line);
     }
-    if (is_expression) {
-      if (is_valid) printf("%d\n", rc);
-      else printf("Invalid expression.\n");
-    }
-    else printf("Compile %s.\n", rc ? "ok" : "error");
+    // if (is_expression) {
+    //   if (is_valid) printf("%d\n", rc);
+    //   else printf("Invalid expression.\n");
+    // }
+    // else printf("Compile %s.\n", rc ? "ok" : "error");
   }
   return 0;
 }

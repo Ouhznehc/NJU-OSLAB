@@ -246,6 +246,6 @@ void dfs(u32 clusId, int depth, int is_dir) {
   for (; clusId; clusId = next_cluster(clusId)) {
     counter++;
     printf("#%x \n", clusId);
-    if (counter >= 3) break;
+    if (counter >= 2) break;
   }
 }

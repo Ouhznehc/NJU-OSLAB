@@ -59,7 +59,7 @@ int main(int argc, char* argv[]) {
 
   // map disk image to memory
   struct fat32hdr* hdr = map_disk(argv[1]);
-  size_t cluster_sz = hdr->BPB_BytsPerSec * hdr->BPB_SecPerClus;
+  int cluster_sz = hdr->BPB_BytsPerSec * hdr->BPB_SecPerClus;
   printf("%d", cluster_sz);
   u32 data_sec = hdr->BPB_RsvdSecCnt + hdr->BPB_NumFATs * hdr->BPB_FATSz32;
   u8* data_st = (u8*)hdr + data_sec * hdr->BPB_BytsPerSec;

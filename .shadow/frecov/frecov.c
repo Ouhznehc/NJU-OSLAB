@@ -243,6 +243,6 @@ void* cluster_to_sec(int n) {
 void dfs(u32 clusId, int depth, int is_dir) {
   // RTFM: Sec 6
   for (; clusId; clusId = next_cluster(clusId)) {
-    printf("#%d \n", clusId);
+    printf("#%x \n", clusId);
   }
 }

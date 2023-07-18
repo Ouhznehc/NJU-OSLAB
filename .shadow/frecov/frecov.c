@@ -61,10 +61,10 @@ int main(int argc, char* argv[]) {
   struct fat32hdr* hdr = map_disk(argv[1]);
   size_t cluster_sz = hdr->BPB_BytsPerSec * hdr->BPB_SecPerClus;
   u32 data_sec = hdr->BPB_RsvdSecCnt + hdr->BPB_NumFATs * hdr->BPB_FATSz32;
-  char* data_st = (char*)hdr + data_sec * hdr->BPB_BytsPerSec;
-  char* data_ed = (char*)hdr + hdr->BPB_TotSec32 * hdr->BPB_BytsPerSec;
+  u8* data_st = (u8*)hdr + data_sec * hdr->BPB_BytsPerSec;
+  u8* data_ed = (u8*)hdr + hdr->BPB_TotSec32 * hdr->BPB_BytsPerSec;
 
-  for (char* cluster_st = data_st; cluster_st < data_ed; cluster_st += cluster_sz) {
+  for (u8* cluster_st = data_st; cluster_st < data_ed; cluster_st += cluster_sz) {
     if (*(u16*)cluster_st == 0x424d) printf("Found a BMP header!\n");
     // else printf("this cluster not found!\n");
   }

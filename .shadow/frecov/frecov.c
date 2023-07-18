@@ -59,14 +59,19 @@ int main(int argc, char* argv[]) {
 
   // map disk image to memory
   struct fat32hdr* hdr = map_disk(argv[1]);
+
   int cluster_sz = hdr->BPB_BytsPerSec * hdr->BPB_SecPerClus;
-  printf("%d", cluster_sz);
+  assert(cluster_sz == 4096); // defensive
+
   u32 data_sec = hdr->BPB_RsvdSecCnt + hdr->BPB_NumFATs * hdr->BPB_FATSz32;
   u8* data_st = (u8*)hdr + data_sec * hdr->BPB_BytsPerSec;
   u8* data_ed = (u8*)hdr + hdr->BPB_TotSec32 * hdr->BPB_BytsPerSec;
 
-  for (u8* cluster_st = data_st; cluster_st < data_ed; cluster_st += cluster_sz) {
-    if (*(u16*)cluster_st == 0x424d) printf("Found a BMP header!\n");
+#define CLUS_SZ 4096
+  unsigned char cluster[CLUS_SZ];
+  for (u8* cluster_ptr = data_st; cluster_ptr < data_ed; cluster_ptr += cluster_sz) {
+    memcpy(cluster, cluster_ptr, CLUS_SZ);
+    if (cluster[0] == 'B' && cluster[1] == 'M') printf("Found a BMP header!\n");
     // else printf("this cluster not found!\n");
   }
 

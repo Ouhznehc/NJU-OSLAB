@@ -66,7 +66,7 @@ int main(int argc, char* argv[]) {
 
   for (char* cluster_st = data_st; cluster_st < data_ed; cluster_st += cluster_sz) {
     if (*(u16*)cluster_st == 0x424d) printf("Found a BMP header!\n");
-    else printf("this cluster not found!\n");
+    // else printf("this cluster not found!\n");
   }
 
   // TODO: frecov

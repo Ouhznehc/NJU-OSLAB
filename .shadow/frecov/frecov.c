@@ -73,7 +73,7 @@ int main(int argc, char* argv[]) {
     memcpy(cluster, cluster_ptr, CLUS_SZ);
     // if (cluster[0] == 'B' && cluster[1] == 'M') printf("Found a BMP header!\n");
     if (*(u16*)cluster_ptr == 0x4d42) printf("Found a BMP header!\n");
-    // else printf("this cluster not found!\n");
+    else printf("this cluster not found!\n");
   }
 
   // TODO: frecov

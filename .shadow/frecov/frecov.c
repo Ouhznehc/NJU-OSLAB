@@ -45,9 +45,9 @@ struct fat32hdr {
 } __attribute__((packed));
 
 
-void *map_disk(const char *fname);
+void* map_disk(const char* fname);
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   if (argc < 2) {
     fprintf(stderr, "Usage: %s fs-image\n", argv[0]);
     exit(1);
@@ -58,7 +58,15 @@ int main(int argc, char *argv[]) {
   assert(sizeof(struct fat32hdr) == 512); // defensive
 
   // map disk image to memory
-  struct fat32hdr *hdr = map_disk(argv[1]);
+  struct fat32hdr* hdr = map_disk(argv[1]);
+  size_t cluster_sz = hdr->BPB_BytsPerSec * hdr->BPB_SecPerClus;
+  u32 data_sec = hdr->BPB_RsvdSecCnt + hdr->BPB_NumFATs * hdr->BPB_FATSz32;
+  char* data_st = (char*)hdr + data_sec * hdr->BPB_BytsPerSec;
+  char* data_ed = (char*)hdr + hdr->BPB_TotSec32 * hdr->BPB_BytsPerSec;
+
+  for (char* cluster_st = data_st; cluster_st < data_ed; cluster_st += cluster_sz) {
+    if (*(u16*)cluster_st == 0x424d) printf("Found a BMP header!\n");
+  }
 
   // TODO: frecov
 
@@ -66,7 +74,11 @@ int main(int argc, char *argv[]) {
   munmap(hdr, hdr->BPB_TotSec32 * hdr->BPB_BytsPerSec);
 }
 
-void *map_disk(const char *fname) {
+
+
+
+
+void* map_disk(const char* fname) {
   int fd = open(fname, O_RDWR);
 
   if (fd < 0) {
@@ -80,15 +92,15 @@ void *map_disk(const char *fname) {
     goto release;
   }
 
-  struct fat32hdr *hdr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
-  if (hdr == (void *)-1) {
+  struct fat32hdr* hdr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
+  if (hdr == (void*)-1) {
     goto release;
   }
 
   close(fd);
 
   if (hdr->Signature_word != 0xaa55 ||
-      hdr->BPB_TotSec32 * hdr->BPB_BytsPerSec != size) {
+    hdr->BPB_TotSec32 * hdr->BPB_BytsPerSec != size) {
     fprintf(stderr, "%s: Not a FAT file image\n", fname);
     goto release;
   }

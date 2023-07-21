@@ -45,6 +45,25 @@ struct fat32hdr {
 } __attribute__((packed));
 
 
+struct fat32dent {
+  u8 DIR_Name[11];
+  u8 DIR_Attr;
+  u8 DIR_NTRes;
+  u8 DIR_CrtTimeTenth;
+  u16 DIR_CrtTime;
+  u16 DIR_CrtDate;
+  u16 DIR_LastAccDate;
+  u16 DIR_FstClusHI;
+  u16 DIR_WrtTime;
+  u16 DIR_WrtDate;
+  u16 DIR_FstClusLO;
+  u32 DIR_FileSize;
+}__attribute__((packed));
+
+#define CLUS_SZ 4096
+unsigned char cluster[CLUS_SZ];
+
+
 void* map_disk(const char* fname);
 
 int main(int argc, char* argv[]) {
@@ -56,6 +75,8 @@ int main(int argc, char* argv[]) {
   setbuf(stdout, NULL);
 
   assert(sizeof(struct fat32hdr) == 512); // defensive
+  assert(sizeof(struct fat32dent) == 32); // defensive
+
 
   // map disk image to memory
   struct fat32hdr* hdr = map_disk(argv[1]);
@@ -67,16 +88,16 @@ int main(int argc, char* argv[]) {
   u8* data_st = (u8*)hdr + data_sec * hdr->BPB_BytsPerSec;
   u8* data_ed = (u8*)hdr + hdr->BPB_TotSec32 * hdr->BPB_BytsPerSec;
 
-#define CLUS_SZ 4096
-  unsigned char cluster[CLUS_SZ];
+  int num = 2;
+
   for (u8* cluster_ptr = data_st; cluster_ptr < data_ed; cluster_ptr += cluster_sz) {
     memcpy(cluster, cluster_ptr, CLUS_SZ);
+    num++;
     // if (cluster[0] == 'B' && cluster[1] == 'M') printf("Found a BMP header!\n");
     if (*(u16*)cluster_ptr == 0x4d42) printf("Found a BMP header!\n");
     else printf("this cluster not found!\n");
   }
-
-  // TODO: frecov
+  printf("%d\n", num);
 
   // file system traversal
   munmap(hdr, hdr->BPB_TotSec32 * hdr->BPB_BytsPerSec);

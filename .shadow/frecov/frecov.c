@@ -117,6 +117,9 @@ int cluster_type[CLUS_CNT];
 
 
 void* map_disk(const char* fname);
+int classify_cluster();
+void get_long_filename(struct fat32Longdent* dent, int* clusId, char filename[]);
+void get_short_filename(struct fat32dent* dent, int* clusId, char filename[]);
 
 int main(int argc, char* argv[]) {
   if (argc < 2) {

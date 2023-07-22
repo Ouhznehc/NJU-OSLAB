@@ -182,9 +182,6 @@ int main(int argc, char* argv[]) {
 
         get_short_filename(dent, &bmp_clus, bmp_name);
       }
-      else {
-        printf("should not reach here!\n");
-      }
 
       printf("%s\n", file_name);
 

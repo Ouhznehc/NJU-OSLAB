@@ -257,6 +257,7 @@ void get_long_filename(struct fat32Longdent* dent, int* clusId, char filename[])
   for (int i = ordinal - 1; i >= 0; i--) {
     struct fat32Longdent* Longdent = dent + i;
     assert((Longdent->LDIR_Attr & ATTR_LONG_NAME) == ATTR_LONG_NAME);
+    assert(i == 0 || Longdent->LDIR_Ord == ordinal - i);
 
 
     for (int j = 0; j < 5; j++) filename[cnt++] = Longdent->LDIR_Name1[j];

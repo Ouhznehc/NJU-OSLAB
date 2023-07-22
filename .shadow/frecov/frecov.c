@@ -157,11 +157,10 @@ int main(int argc, char* argv[]) {
   for (u8* cluster_ptr = data_st; cluster_ptr < data_ed; cluster_ptr += cluster_sz) {
     int is_dir = cluster_type[cluster_id++] == CLUS_DENT;
     if (!is_dir) continue;
-    int d = 0;
     int bmp_clus = 0;
     char bmp_name[64], file_name[64];
 
-    while (d < ndents) {
+    for (int d = 0; d < ndents; d++) {
       struct fat32dent* dent = (struct fat32dent*)cluster_ptr + d;
 
       if ((dent->DIR_Attr & ATTR_LONG_NAME) == ATTR_LONG_NAME) {
@@ -180,11 +179,9 @@ int main(int argc, char* argv[]) {
           dent->DIR_Attr & ATTR_HIDDEN) continue;
 
         get_short_filename(dent, &bmp_clus, bmp_name);
-        d += 1;
       }
       else {
         printf("should not reach here!\n");
-        assert(0);
       }
 
       printf("%s\n", file_name);

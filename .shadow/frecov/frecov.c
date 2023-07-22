@@ -153,13 +153,12 @@ int main(int argc, char* argv[]) {
   int cluster_cnt = cluster_id;
   cluster_id = 2;
   int ndents = CLUS_SZ / sizeof(struct fat32dent);
-
+  int counter = 0;
   for (u8* cluster_ptr = data_st; cluster_ptr < data_ed; cluster_ptr += cluster_sz) {
     int is_dir = cluster_type[cluster_id++] == CLUS_DENT;
     if (!is_dir) continue;
     int bmp_clus = 0;
     char bmp_name[64], file_name[64];
-
     for (int d = 0; d < ndents; d++) {
       struct fat32dent* dent = (struct fat32dent*)cluster_ptr + d;
 
@@ -173,6 +172,7 @@ int main(int argc, char* argv[]) {
 
         get_long_filename(Longdent, &bmp_clus, bmp_name);
         printf("Long filename: %s\n", bmp_name);
+        counter++;
         d += ordinal;
       }
       else if ((dent->DIR_Attr & ATTR_ARCHIVE) == ATTR_ARCHIVE) {
@@ -182,13 +182,15 @@ int main(int argc, char* argv[]) {
 
         get_short_filename(dent, &bmp_clus, bmp_name);
         printf("short filename: %s\n", bmp_name);
+        counter++;
       }
+
 
 
 
     }
   }
-
+  printf("%d\n", counter);
   // file system traversal
   munmap(hdr, hdr->BPB_TotSec32 * hdr->BPB_BytsPerSec);
 }

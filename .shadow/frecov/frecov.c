@@ -172,7 +172,7 @@ int main(int argc, char* argv[]) {
         if (ordinal + d > ndents) continue; // long name cross the cluster
 
         get_long_filename(Longdent, &bmp_clus, bmp_name);
-        printf("%s\n", bmp_name);
+        printf("Long filename: %s\n", bmp_name);
         d += ordinal;
       }
       else if ((dent->DIR_Attr & ATTR_ARCHIVE) == ATTR_ARCHIVE) {
@@ -181,7 +181,7 @@ int main(int argc, char* argv[]) {
           dent->DIR_Attr & ATTR_HIDDEN) continue;
 
         get_short_filename(dent, &bmp_clus, bmp_name);
-        printf("%s\n", bmp_name);
+        printf("short filename: %s\n", bmp_name);
       }
 
 

@@ -244,7 +244,7 @@ int classify_cluster() {
     if (cluster[i] == 0x00) zero++;
   }
 
-  if (dent > 4) return CLUS_DENT;
+  if (dent > 5) return CLUS_DENT;
   if (zero == CLUS_SZ - 2) return CLUS_UNUSED;
   return CLUS_BMP_DATA;
 }

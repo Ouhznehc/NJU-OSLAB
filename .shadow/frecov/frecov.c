@@ -165,7 +165,7 @@ int main(int argc, char* argv[]) {
 
       if ((dent->DIR_Attr & ATTR_LONG_NAME) == ATTR_LONG_NAME) {
         struct fat32Longdent* Longdent = (struct fat32Longdent*)dent;
-        assert((Longdent->LDIR_Ord & 0x40) == 0x40);
+        if ((Longdent->LDIR_Ord & 0x40) != 0x40) continue;
 
         u8 ordinal = Longdent->LDIR_Ord - 0x40;
         if (ordinal + d > ndents) continue; // long name cross the cluster

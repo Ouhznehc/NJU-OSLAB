@@ -164,6 +164,8 @@ int main(int argc, char* argv[]) {
       struct fat32dent* dent = (struct fat32dent*)cluster_ptr + d;
 
       if ((dent->DIR_Attr & ATTR_LONG_NAME) == ATTR_LONG_NAME) {
+
+        printf("Longname\n");
         struct fat32Longdent* Longdent = (struct fat32Longdent*)dent;
         if ((Longdent->LDIR_Ord & 0x40) != 0x40) continue;
 

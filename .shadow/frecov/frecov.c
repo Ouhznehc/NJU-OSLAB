@@ -193,7 +193,7 @@ int main(int argc, char* argv[]) {
       struct bmpHeader* bmp_header = (struct bmpHeader*)cluster_to_sec(hdr, bmp_clus);
       u32 bmp_size = bmp_header->bfSize;
       printf("%x %x\n", bmp_size, dent->DIR_FileSize);
-      // assert(bmp_size == dent->DIR_FileSize);
+      assert(bmp_size == dent->DIR_FileSize);
       u8* bmp_st = (u8*)bmp_header;
       printf("hdr = %p\n", hdr);
       printf("dent = %x\n", (int)((u8*)dent - (u8*)hdr));

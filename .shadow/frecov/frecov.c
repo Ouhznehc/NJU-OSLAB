@@ -203,6 +203,13 @@ int main(int argc, char* argv[]) {
       for (u8* bmp_ptr = bmp_st; bmp_ptr < bmp_ed; bmp_ptr++) fprintf(bmp, "%c", *bmp_ptr);
       fclose(bmp);
 
+      char buf[64];
+      FILE* fp = popens("sha1sum %s", file_name);
+      fscanf(fp, "%s", buf);
+      pclose(fp);
+      printf("%s %s\n", buf, bmp_name);
+      fflush(stdout);
+
 
     }
   }

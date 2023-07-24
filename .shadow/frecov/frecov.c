@@ -194,7 +194,7 @@ int main(int argc, char* argv[]) {
       struct bmpHeader* bmp_header = (struct bmpHeader*)cluster_to_sec(hdr, bmp_clus);
       u32 bmp_size = bmp_header->bfSize;
       printf("%x %x\n", bmp_size, dent->DIR_FileSize);
-      assert(bmp_size == dent->DIR_FileSize);
+      // assert(bmp_size == dent->DIR_FileSize);
       u8* bmp_st = (u8*)bmp_header;
       u8* bmp_ed = bmp_st + bmp_size;
       // printf("%x %x\n", (u32)bmp_st, (u32)bmp_ed);

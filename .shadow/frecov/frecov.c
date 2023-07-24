@@ -174,6 +174,7 @@ int main(int argc, char* argv[]) {
         get_long_filename(Longdent, &bmp_clus, bmp_name);
         printf("Long filename: %s\n", bmp_name);
         d += ordinal;
+        dent += ordinal;
       }
       else if ((dent->DIR_Attr & ATTR_ARCHIVE) == ATTR_ARCHIVE) {
         if (dent->DIR_Name[0] == 0x00 ||

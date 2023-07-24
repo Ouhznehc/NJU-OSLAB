@@ -172,7 +172,7 @@ int main(int argc, char* argv[]) {
         if (ordinal + d > ndents) continue; // long name cross the cluster
 
         get_long_filename(Longdent, &bmp_clus, bmp_name);
-        printf("Long filename: %s\n", bmp_name);
+        // printf("Long filename: %s\n", bmp_name);
         d += ordinal;
         dent += ordinal;
       }
@@ -182,7 +182,7 @@ int main(int argc, char* argv[]) {
           dent->DIR_Attr & ATTR_HIDDEN) continue;
 
         get_short_filename(dent, &bmp_clus, bmp_name);
-        printf("short filename: %s\n", bmp_name);
+        // printf("short filename: %s\n", bmp_name);
       }
       else continue;
       // if (bmp_clus == 0 || bmp_clus >= CLUS_CNT) continue;
@@ -197,9 +197,9 @@ int main(int argc, char* argv[]) {
 
       u8* bmp_st = (u8*)bmp_header;
       u8* bmp_ed = bmp_st + bmp_size;
-      printf("bmp_size = %x\n", bmp_size);
-      printf("%p %p\n", bmp_st, bmp_ed);
-      printf("%p %p\n", data_st, data_ed);
+      // printf("bmp_size = %x\n", bmp_size);
+      // printf("%p %p\n", bmp_st, bmp_ed);
+      // printf("%p %p\n", data_st, data_ed);
       for (u8* bmp_ptr = bmp_st; bmp_ptr < bmp_ed; bmp_ptr++) fprintf(bmp, "%c", *bmp_ptr);
       fclose(bmp);
 

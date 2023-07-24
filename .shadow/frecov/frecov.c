@@ -195,7 +195,7 @@ int main(int argc, char* argv[]) {
       // assert(bmp_size == dent->DIR_FileSize);
       u8* bmp_st = (u8*)bmp_header;
       printf("hdr = %p\n", hdr);
-      printf("dent = %p\n", dent - (u8*)hdr);
+      printf("dent = %p\n", (u8*)dent - (u8*)hdr);
       printf("bmp_st = %p\n", bmp_st - (u8*)hdr);
       u8* bmp_ed = bmp_st + bmp_size;
       // printf("%x %x\n", (u32)bmp_st, (u32)bmp_ed);

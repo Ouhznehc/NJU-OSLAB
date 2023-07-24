@@ -200,6 +200,7 @@ int main(int argc, char* argv[]) {
       // printf("bmp_size = %x\n", bmp_size);
       // printf("%p %p\n", bmp_st, bmp_ed);
       // printf("%p %p\n", data_st, data_ed);
+      if (bmp_ed > data_ed || bmp_st < data_st) continue;
       for (u8* bmp_ptr = bmp_st; bmp_ptr < bmp_ed; bmp_ptr++) fprintf(bmp, "%c", *bmp_ptr);
       fclose(bmp);
 

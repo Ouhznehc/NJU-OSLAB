@@ -185,12 +185,15 @@ int main(int argc, char* argv[]) {
         printf("short filename: %s\n", bmp_name);
         counter++;
       }
+
       if (bmp_clus == 0 || bmp_clus >= CLUS_CNT) continue;
       printf("bmp_clus = %d\n", bmp_clus);
       sprintf(file_name, "/tmp/%s", bmp_name);
       FILE* bmp = fopen(file_name, "w");
       struct bmpHeader* bmp_header = cluster_to_sec(hdr, bmp_clus);
       u32 bmp_size = bmp_header->bfSize;
+
+      assert(bmp_size == dent->DIR_FileSize);
       u8* bmp_st = (u8*)bmp_header;
       u8* bmp_ed = bmp_st + bmp_size;
       for (u8* bmp_ptr = bmp_st; bmp_ptr < bmp_ed; bmp_ptr++) fputc(*bmp_ptr, bmp);

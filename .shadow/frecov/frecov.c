@@ -185,6 +185,7 @@ int main(int argc, char* argv[]) {
         printf("short filename: %s\n", bmp_name);
         counter++;
       }
+      if (bmp_clus == 0 || bmp_clus >= CLUS_CNT) continue;
       printf("bmp_clus = %d\n", bmp_clus);
       sprintf(file_name, "/tmp/%s", bmp_name);
       FILE* bmp = fopen(file_name, "w");

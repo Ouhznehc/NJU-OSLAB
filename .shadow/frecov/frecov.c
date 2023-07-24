@@ -4,6 +4,7 @@
 #include <string.h>
 #include <assert.h>
 #include <fcntl.h>
+#include <stdarg.h>
 #include <unistd.h>
 #include <sys/mman.h>
 

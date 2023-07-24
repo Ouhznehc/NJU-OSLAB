@@ -191,7 +191,7 @@ int main(int argc, char* argv[]) {
       printf("bmp_clus = %d\n", bmp_clus);
       sprintf(file_name, "/tmp/%s", bmp_name);
       FILE* bmp = fopen(file_name, "w");
-      struct bmpHeader* bmp_header = cluster_to_sec(hdr, bmp_clus);
+      struct bmpHeader* bmp_header = (struct bmpHeader*)cluster_to_sec(hdr, bmp_clus);
       u32 bmp_size = bmp_header->bfSize;
       printf("%x %x\n", bmp_size, dent->DIR_FileSize);
       assert(bmp_size == dent->DIR_FileSize);
@@ -293,8 +293,8 @@ void get_short_filename(struct fat32dent* dent, int* clusId, char filename[]) {
 
 }
 
-struct bmpHeader* cluster_to_sec(struct fat32hdr* hdr, int n) {
+void* cluster_to_sec(struct fat32hdr* hdr, int n) {
   u32 DataSec = hdr->BPB_RsvdSecCnt + hdr->BPB_NumFATs * hdr->BPB_FATSz32;
   DataSec += (n - 2) * hdr->BPB_SecPerClus;
-  return (struct bmpHeader*)((u8*)hdr + DataSec * hdr->BPB_BytsPerSec);
+  return ((u8*)hdr + DataSec * hdr->BPB_BytsPerSec);
 }

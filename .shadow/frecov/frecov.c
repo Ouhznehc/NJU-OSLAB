@@ -197,7 +197,7 @@ int main(int argc, char* argv[]) {
       assert(bmp_size == dent->DIR_FileSize);
       u8* bmp_st = (u8*)bmp_header;
       u8* bmp_ed = bmp_st + bmp_size;
-      printf("%x %x\n", (int)bmp_st, (int)bmp_ed);
+      printf("%x %x\n", (u32)bmp_st, (u32)bmp_ed);
       for (u8* bmp_ptr = bmp_st; bmp_ptr < bmp_ed; bmp_ptr++) fputc(*bmp_ptr, bmp);
 
 

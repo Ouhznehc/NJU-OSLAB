@@ -4,6 +4,7 @@
 #include <string.h>
 #include <assert.h>
 #include <fcntl.h>
+#include <stdarg.h>
 #include <unistd.h>
 #include <sys/mman.h>
 
@@ -121,6 +122,7 @@ int classify_cluster();
 void get_long_filename(struct fat32Longdent* dent, int* clusId, char filename[]);
 void get_short_filename(struct fat32dent* dent, int* clusId, char filename[]);
 void* cluster_to_sec(struct fat32hdr* hdr, int n);
+FILE* popens(const char* fmt, ...);
 
 int main(int argc, char* argv[]) {
   if (argc < 2) {
@@ -172,7 +174,7 @@ int main(int argc, char* argv[]) {
         if (ordinal + d > ndents) continue; // long name cross the cluster
 
         get_long_filename(Longdent, &bmp_clus, bmp_name);
-        printf("Long filename: %s\n", bmp_name);
+        // printf("Long filename: %s\n", bmp_name);
         d += ordinal;
         dent += ordinal;
       }
@@ -182,22 +184,33 @@ int main(int argc, char* argv[]) {
           dent->DIR_Attr & ATTR_HIDDEN) continue;
 
         get_short_filename(dent, &bmp_clus, bmp_name);
-        printf("short filename: %s\n", bmp_name);
+        // printf("short filename: %s\n", bmp_name);
       }
       else continue;
       // if (bmp_clus == 0 || bmp_clus >= CLUS_CNT) continue;
 
+      fflush(stdout);
       sprintf(file_name, "/tmp/%s", bmp_name);
       FILE* bmp = fopen(file_name, "w");
       struct bmpHeader* bmp_header = (struct bmpHeader*)cluster_to_sec(hdr, bmp_clus);
       u32 bmp_size = bmp_header->bfSize;
       assert(bmp_size == dent->DIR_FileSize);
 
+
       u8* bmp_st = (u8*)bmp_header;
       u8* bmp_ed = bmp_st + bmp_size;
-      printf("%p %p\n", bmp_st, bmp_ed);
+      // printf("bmp_size = %x\n", bmp_size);
+      // printf("%p %p\n", bmp_st, bmp_ed);
+      // printf("%p %p\n", data_st, data_ed);
       for (u8* bmp_ptr = bmp_st; bmp_ptr < bmp_ed; bmp_ptr++) fprintf(bmp, "%c", *bmp_ptr);
+      fclose(bmp);
 
+      char buf[64];
+      FILE* fp = popens("sha1sum %s", file_name);
+      fscanf(fp, "%s", buf);
+      pclose(fp);
+      printf("%s %s\n", buf, bmp_name);
+      fflush(stdout);
 
 
     }
@@ -294,4 +307,15 @@ void* cluster_to_sec(struct fat32hdr* hdr, int n) {
   u32 DataSec = hdr->BPB_RsvdSecCnt + hdr->BPB_NumFATs * hdr->BPB_FATSz32;
   DataSec += (n - 2) * hdr->BPB_SecPerClus;
   return ((u8*)hdr + DataSec * hdr->BPB_BytsPerSec);
+}
+
+FILE* popens(const char* fmt, ...) {
+  char cmd[128];
+  va_list args;
+  va_start(args, fmt);
+  vsnprintf(cmd, sizeof(cmd), fmt, args);
+  va_end(args);
+  FILE* ret = popen(cmd, "r");
+  assert(ret);
+  return ret;
 }

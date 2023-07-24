@@ -194,6 +194,7 @@ int main(int argc, char* argv[]) {
       printf("%x %x\n", bmp_size, dent->DIR_FileSize);
       // assert(bmp_size == dent->DIR_FileSize);
       u8* bmp_st = (u8*)bmp_header;
+      printf("%x\n", dent);
       printf("bmp_st = %hhn\n", bmp_st);
       u8* bmp_ed = bmp_st + bmp_size;
       // printf("%x %x\n", (u32)bmp_st, (u32)bmp_ed);

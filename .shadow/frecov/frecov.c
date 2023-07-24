@@ -185,7 +185,7 @@ int main(int argc, char* argv[]) {
         printf("short filename: %s\n", bmp_name);
         counter++;
       }
-
+      printf("bmp_clus = %d\n", bmp_clus);
       sprintf(file_name, "/tmp/%s", bmp_name);
       FILE* bmp = fopen(file_name, "w");
       struct bmpHeader* bmp_header = cluster_to_sec(hdr, bmp_clus);

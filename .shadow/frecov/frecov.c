@@ -196,8 +196,9 @@ int main(int argc, char* argv[]) {
 
       u8* bmp_st = (u8*)bmp_header;
       u8* bmp_ed = bmp_st + bmp_size;
-      // printf("%p %p\n", bmp_st, bmp_ed);
-      for (u8* bmp_ptr = bmp_st; bmp_ptr < bmp_ed; bmp_ptr++) fprintf(bmp, "%c", *bmp_st);
+      printf("%p %p\n", bmp_st, bmp_ed);
+      printf("%p %p\n", data_st, data_ed);
+      for (u8* bmp_ptr = bmp_st; bmp_ptr < bmp_ed; bmp_ptr++) fprintf(bmp, "%c", *bmp_ptr);
       fclose(bmp);
 
 

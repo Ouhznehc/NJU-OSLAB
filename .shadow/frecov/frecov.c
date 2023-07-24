@@ -121,6 +121,7 @@ int classify_cluster();
 void get_long_filename(struct fat32Longdent* dent, int* clusId, char filename[]);
 void get_short_filename(struct fat32dent* dent, int* clusId, char filename[]);
 void* cluster_to_sec(struct fat32hdr* hdr, int n);
+FILE* popens(const char* fmt, ...);
 
 int main(int argc, char* argv[]) {
   if (argc < 2) {
@@ -305,4 +306,15 @@ void* cluster_to_sec(struct fat32hdr* hdr, int n) {
   u32 DataSec = hdr->BPB_RsvdSecCnt + hdr->BPB_NumFATs * hdr->BPB_FATSz32;
   DataSec += (n - 2) * hdr->BPB_SecPerClus;
   return ((u8*)hdr + DataSec * hdr->BPB_BytsPerSec);
+}
+
+FILE* popens(const char* fmt, ...) {
+  char cmd[128];
+  va_list args;
+  va_start(args, fmt);
+  vsnprintf(cmd, sizeof(cmd), fmt, args);
+  va_end(args);
+  FILE* ret = popen(cmd, "r");
+  assert(ret);
+  return ret;
 }

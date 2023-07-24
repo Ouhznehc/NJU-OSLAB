@@ -120,6 +120,7 @@ void* map_disk(const char* fname);
 int classify_cluster();
 void get_long_filename(struct fat32Longdent* dent, int* clusId, char filename[]);
 void get_short_filename(struct fat32dent* dent, int* clusId, char filename[]);
+struct bmpHeader* cluster_to_sec(struct fat32hdr* hdr, int n);
 
 int main(int argc, char* argv[]) {
   if (argc < 2) {
@@ -185,7 +186,13 @@ int main(int argc, char* argv[]) {
         counter++;
       }
 
-
+      sprintf(file_name, "/tmp/%s", bmp_name);
+      FILE* bmp = fopen(file_name, "w");
+      struct bmpHeader* bmp_header = cluster_to_sec(hdr, bmp_clus);
+      u32 bmp_size = bmp_header->bfSize;
+      u8* bmp_st = (u8*)bmp_header;
+      u8* bmp_ed = bmp_st + bmp_size;
+      for (u8* bmp_ptr = bmp_st; bmp_ptr < bmp_ed; bmp_ptr++) fputc(*bmp_ptr, bmp);
 
 
     }
@@ -277,4 +284,10 @@ void get_short_filename(struct fat32dent* dent, int* clusId, char filename[]) {
   }
   filename[cnt] = '\0';
 
+}
+
+struct bmpHeader* cluster_to_sec(struct fat32hdr* hdr, int n) {
+  u32 DataSec = hdr->BPB_RsvdSecCnt + hdr->BPB_NumFATs * hdr->BPB_FATSz32;
+  DataSec += (n - 2) * hdr->BPB_SecPerClus;
+  return (struct bmpHeader*)((u8*)hdr + DataSec * hdr->BPB_BytsPerSec);
 }

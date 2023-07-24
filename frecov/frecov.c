@@ -94,7 +94,7 @@ struct bmpHeader {
 
 
 
-#define CLUS_SZ 4096
+#define CLUS_SZ 8192
 #define CLUS_CNT 16384
 #define CLUS_INVALID   0xffffff7
 
@@ -118,7 +118,7 @@ int cluster_type[CLUS_CNT];
 
 
 void* map_disk(const char* fname);
-int classify_cluster();
+int classify_cluster(int cluster_sz);
 void get_long_filename(struct fat32Longdent* dent, int* clusId, char filename[]);
 void get_short_filename(struct fat32dent* dent, int* clusId, char filename[]);
 void* cluster_to_sec(struct fat32hdr* hdr, int n);
@@ -131,7 +131,6 @@ int main(int argc, char* argv[]) {
   }
 
   setbuf(stdout, NULL);
-  assert(0);
   assert(sizeof(struct fat32hdr) == 512); // defensive
   assert(sizeof(struct fat32dent) == 32); // defensive
 
@@ -140,7 +139,6 @@ int main(int argc, char* argv[]) {
   struct fat32hdr* hdr = map_disk(argv[1]);
 
   int cluster_sz = hdr->BPB_BytsPerSec * hdr->BPB_SecPerClus;
-  assert(cluster_sz == 4096); // defensive
 
   u32 data_sec = hdr->BPB_RsvdSecCnt + hdr->BPB_NumFATs * hdr->BPB_FATSz32;
   u8* data_st = (u8*)hdr + data_sec * hdr->BPB_BytsPerSec;
@@ -149,13 +147,13 @@ int main(int argc, char* argv[]) {
   int cluster_id = 2;
 
   for (u8* cluster_ptr = data_st; cluster_ptr < data_ed; cluster_ptr += cluster_sz) {
-    memcpy(cluster, cluster_ptr, CLUS_SZ);
-    cluster_type[cluster_id++] = classify_cluster();
+    memcpy(cluster, cluster_ptr, cluster_sz);
+    cluster_type[cluster_id++] = classify_cluster(cluster_sz);
   }
 
   int cluster_cnt = cluster_id;
   cluster_id = 2;
-  int ndents = CLUS_SZ / sizeof(struct fat32dent);
+  int ndents = cluster_sz / sizeof(struct fat32dent);
 
   for (u8* cluster_ptr = data_st; cluster_ptr < data_ed; cluster_ptr += cluster_sz) {
     int is_dir = cluster_type[cluster_id++] == CLUS_DENT;
@@ -256,17 +254,17 @@ release:
 }
 
 
-int classify_cluster() {
+int classify_cluster(int cluster_sz) {
   if (cluster[0] == 'B' && cluster[1] == 'M') return CLUS_BMP_HEAD;
   int dent = 0, zero = 0;
 
-  for (int i = 0; i < CLUS_SZ - 2; i++) {
+  for (int i = 0; i < cluster_sz - 2; i++) {
     if (cluster[i] == 'B' && cluster[i + 1] == 'M' && cluster[i + 2] == 'P') dent++;
     if (cluster[i] == 0x00) zero++;
   }
 
   if (dent > 5) return CLUS_DENT;
-  if (zero == CLUS_SZ - 2) return CLUS_UNUSED;
+  if (zero == cluster_sz - 2) return CLUS_UNUSED;
   return CLUS_BMP_DATA;
 }
 
@@ -293,7 +291,7 @@ void get_short_filename(struct fat32dent* dent, int* clusId, char filename[]) {
   int cnt = 0;
   for (int i = 0; i < 11; i++) {
     if (i == 8) filename[cnt++] = '.';
-    if (dent->DIR_Name[i] == 0x20) continue; // ignore space
+    if (dent->DIR_Name[i] == ' ') continue; // ignore space
     filename[cnt++] = dent->DIR_Name[i];
   }
   filename[cnt] = '\0';

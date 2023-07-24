@@ -187,6 +187,7 @@ int main(int argc, char* argv[]) {
       else continue;
       // if (bmp_clus == 0 || bmp_clus >= CLUS_CNT) continue;
 
+      fflush(stdout);
       sprintf(file_name, "/tmp/%s", bmp_name);
       FILE* bmp = fopen(file_name, "w");
       struct bmpHeader* bmp_header = (struct bmpHeader*)cluster_to_sec(hdr, bmp_clus);

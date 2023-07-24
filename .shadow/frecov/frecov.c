@@ -193,7 +193,7 @@ int main(int argc, char* argv[]) {
       FILE* bmp = fopen(file_name, "w");
       struct bmpHeader* bmp_header = cluster_to_sec(hdr, bmp_clus);
       u32 bmp_size = bmp_header->bfSize;
-      printf("%x %x %x\n", bmp_size, dent->DIR_FileSize);
+      printf("%x %x\n", bmp_size, dent->DIR_FileSize);
       assert(bmp_size == dent->DIR_FileSize);
       u8* bmp_st = (u8*)bmp_header;
       u8* bmp_ed = bmp_st + bmp_size;

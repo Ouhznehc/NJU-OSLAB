@@ -159,7 +159,7 @@ int main(int argc, char* argv[]) {
     int is_dir = cluster_type[cluster_id++] == CLUS_DENT;
     if (!is_dir) continue;
     int bmp_clus = 0;
-    char bmp_name[64], file_name[64];
+    char bmp_name[64], file_name[128];
     for (int d = 0; d < ndents; d++) {
       struct fat32dent* dent = (struct fat32dent*)cluster_ptr + d;
 
@@ -193,6 +193,7 @@ int main(int argc, char* argv[]) {
       u8* bmp_st = (u8*)bmp_header;
       u8* bmp_ed = bmp_st + bmp_size;
       for (u8* bmp_ptr = bmp_st; bmp_ptr < bmp_ed; bmp_ptr++) fputc(*bmp_ptr, bmp);
+
 
 
     }

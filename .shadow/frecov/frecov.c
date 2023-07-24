@@ -131,7 +131,7 @@ int main(int argc, char* argv[]) {
   }
 
   setbuf(stdout, NULL);
-
+  assert(0);
   assert(sizeof(struct fat32hdr) == 512); // defensive
   assert(sizeof(struct fat32dent) == 32); // defensive
 
@@ -210,9 +210,6 @@ int main(int argc, char* argv[]) {
       fscanf(fp, "%s", buf);
       pclose(fp);
       printf("%s %s\n", buf, bmp_name);
-      fflush(stdout);
-
-
     }
   }
   // file system traversal

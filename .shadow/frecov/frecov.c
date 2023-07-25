@@ -200,19 +200,21 @@ int main(int argc, char* argv[]) {
       u8* bmp_ed = bmp_st + bmp_size;
       if (bmp_ed > clus_ed || bmp_st < clus_st) continue;
 
-      u32 bmp_width = bmp_header->biWidth;
+      u32 bmp_width = 3 * bmp_header->biWidth;
       u32 bmp_offset = bmp_header->bfOffByte;
       u8* data_st = bmp_st + bmp_offset;
-      u32 bmp_row = (3 * 8 * bmp_width + 31) / 32 * 4; // 4 bytes align
+      u32 bmp_row = (8 * bmp_width + 31) / 32 * 4; // 4 bytes align
 
       for (u8* bmp_ptr = bmp_st; bmp_ptr < data_st; bmp_ptr++) fputc(*bmp_ptr, bmp);
 
       int bmp_ptr = bmp_offset;
+      int cur_pos = 0;
       u32 cur_clus = bmp_clus;
 
       for (int bmp_cnt = bmp_offset; bmp_cnt < bmp_size; bmp_cnt++) {
         fputc(*(bmp_st + bmp_ptr), bmp);
         bmp_ptr++;
+        cur_pos = (cur_pos + 1) % bmp_row;
         if (bmp_ptr != clus_sz) continue;
         bmp_ptr = 0;
 
@@ -225,9 +227,13 @@ int main(int argc, char* argv[]) {
           u32 cur_rgb = 0;
           u8* next_clus_st = clus_to_sec(hdr, clus);
 
+          //to accelerate(must)
+          if (cur_pos >= bmp_width && *next_clus_st != 0) continue;
+          if (cur_pos < bmp_width && *(next_clus_st + bmp_width - cur_pos) != 0) continue;
+
           for (int k = 0; k < bmp_row; k++) {
             cur_rgb += rgb_distance(bmp_st + clus_sz - bmp_row + k, next_clus_st + k);
-            if (cur_rgb > min_rgb) break;
+            if (cur_rgb > min_rgb) break; // to accelerate(must)
           }
 
           if (cur_rgb < min_rgb) {

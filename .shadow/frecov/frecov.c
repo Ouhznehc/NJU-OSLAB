@@ -158,10 +158,10 @@ int main(int argc, char* argv[]) {
   for (u8* cluster_ptr = data_st; cluster_ptr < data_ed; cluster_ptr += cluster_sz) {
     int is_dir = cluster_type[cluster_id++] == CLUS_DENT;
     if (!is_dir) continue;
-    int bmp_clus = 0;
-    char bmp_name[256], file_name[512];
 
     for (int d = 0; d < ndents; d++) {
+      int bmp_clus = 0;
+      char bmp_name[256], file_name[512];
       struct fat32dent* dent = (struct fat32dent*)cluster_ptr + d;
 
       if ((dent->DIR_Attr & ATTR_LONG_NAME) == ATTR_LONG_NAME) {

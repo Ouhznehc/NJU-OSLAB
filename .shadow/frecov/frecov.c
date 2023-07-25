@@ -269,7 +269,7 @@ int classify_cluster(int cluster_sz) {
     if (cluster[i] == 0x00) zero++;
   }
 
-  if (dent > 10) return CLUS_DENT;
+  if (dent > 2) return CLUS_DENT;
   if (zero == cluster_sz - 2) return CLUS_UNUSED;
   return CLUS_BMP_DATA;
 }

@@ -178,7 +178,8 @@ int main(int argc, char* argv[]) {
       }
       else if ((dent->DIR_Attr & ATTR_ARCHIVE) == ATTR_ARCHIVE) {
         if (dent->DIR_Name[0] == 0x00 ||
-          dent->DIR_Name[0] == 0xe5) continue;
+          dent->DIR_Name[0] == 0xe5 ||
+          dent->DIR_Attr & ATTR_HIDDEN) continue;
 
         get_short_filename(dent, &bmp_clus, bmp_name);
       }

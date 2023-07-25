@@ -228,8 +228,8 @@ int main(int argc, char* argv[]) {
           u8* next_clus_st = clus_to_sec(hdr, clus);
 
           //to accelerate(must)
-          if (cur_pos >= bmp_width && *next_clus_st != 0) continue;
-          // if (cur_pos < bmp_width && *(next_clus_st + bmp_width - cur_pos) != 0) continue;
+          // if (cur_pos >= bmp_width && *next_clus_st != 0) continue;
+          if (cur_pos < bmp_width && *(next_clus_st + bmp_width - cur_pos) != 0) continue;
 
           for (int k = 0; k < bmp_row && bmp_cnt + k < bmp_size; k++) {
             cur_rgb += rgb_distance(bmp_st + clus_sz - bmp_row + k, next_clus_st + k);

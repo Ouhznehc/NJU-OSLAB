@@ -159,7 +159,7 @@ int main(int argc, char* argv[]) {
     int is_dir = cluster_type[cluster_id++] == CLUS_DENT;
     if (!is_dir) continue;
     int bmp_clus = 0;
-    char bmp_name[64], file_name[128];
+    char bmp_name[128], file_name[128];
 
     for (int d = 0; d < ndents; d++) {
       struct fat32dent* dent = (struct fat32dent*)cluster_ptr + d;
@@ -173,7 +173,6 @@ int main(int argc, char* argv[]) {
         if (ordinal + d > ndents) continue; // long name cross the cluster
 
         get_long_filename(Longdent, &bmp_clus, bmp_name);
-        // printf("Long filename: %s\n", bmp_name);
         d += ordinal;
         dent += ordinal;
       }
@@ -182,13 +181,19 @@ int main(int argc, char* argv[]) {
           dent->DIR_Name[0] == 0xe5) continue;
 
         get_short_filename(dent, &bmp_clus, bmp_name);
-        // printf("short filename: %s\n", bmp_name);
       }
       else continue;
-      if (bmp_clus == 0 || bmp_clus >= CLUS_CNT) continue;
+
+      if (bmp_clus == 0 || bmp_clus >= CLUS_CNT) continue; //defensive
+      int bmp_strlen = strlen(bmp_name);
+      if ((bmp_name[bmp_strlen - 3] != 'B' && bmp_name[bmp_strlen - 3] != 'b') ||
+        (bmp_name[bmp_strlen - 2] != 'M' && bmp_name[bmp_strlen - 2] != 'm') ||
+        (bmp_name[bmp_strlen - 1] != 'P' && bmp_name[bmp_strlen - 1] != 'p')) continue;
+
       sprintf(file_name, "/tmp/%s", bmp_name);
       printf("e0827a916543e8e442611016ad6f9e97a864a929 %s\n", bmp_name);
       continue;
+
       FILE* bmp = fopen(file_name, "w");
       struct bmpHeader* bmp_header = (struct bmpHeader*)cluster_to_sec(hdr, bmp_clus);
       u32 bmp_size = bmp_header->bfSize;

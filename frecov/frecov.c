@@ -181,11 +181,11 @@ int main(int argc, char* argv[]) {
           dent->DIR_Name[0] == 0xe5 ||
           dent->DIR_Attr & ATTR_HIDDEN) continue;
 
-        // get_short_filename(dent, &bmp_clus, bmp_name);
+        get_short_filename(dent, &bmp_clus, bmp_name);
       }
       else continue;
 
-      if (bmp_clus == 0 || bmp_clus >= CLUS_CNT) continue; //defensive
+      if (bmp_clus < 2 || bmp_clus >= CLUS_CNT || cluster_type[bmp_clus] != CLUS_BMP_HEAD) continue; //defensive
       int bmp_strlen = strlen(bmp_name);
       if ((bmp_name[bmp_strlen - 3] != 'B' && bmp_name[bmp_strlen - 3] != 'b') ||
         (bmp_name[bmp_strlen - 2] != 'M' && bmp_name[bmp_strlen - 2] != 'm') ||
@@ -282,6 +282,8 @@ void get_long_filename(struct fat32Longdent* dent, int* clusId, char filename[])
   int cnt = 0;
   for (int i = ordinal - 1; i >= 0; i--) {
     struct fat32Longdent* Longdent = dent + i;
+    if ((Longdent->LDIR_Attr & ATTR_LONG_NAME) != ATTR_LONG_NAME) *clusId = 0;
+    if (i != 0 && Longdent->LDIR_Ord != ordinal - i) *clusId = 0;
 
     for (int j = 0; j < 5; j++) filename[cnt++] = Longdent->LDIR_Name1[j];
     for (int j = 0; j < 6; j++) filename[cnt++] = Longdent->LDIR_Name2[j];

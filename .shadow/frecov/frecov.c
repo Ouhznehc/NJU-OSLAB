@@ -231,7 +231,7 @@ int main(int argc, char* argv[]) {
           if (cur_pos >= bmp_width && *next_clus_st != 0) continue;
           if (cur_pos < bmp_width && *(next_clus_st + bmp_width - cur_pos) != 0) continue;
 
-          for (int k = 0; k < bmp_row; k++) {
+          for (int k = 0; k < bmp_row && bmp_cnt + k < bmp_size; k++) {
             cur_rgb += rgb_distance(bmp_st + clus_sz - bmp_row + k, next_clus_st + k);
             if (cur_rgb > min_rgb) break; // to accelerate(must)
           }

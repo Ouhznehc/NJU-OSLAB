@@ -172,7 +172,7 @@ int main(int argc, char* argv[]) {
         u8 ordinal = Longdent->LDIR_Ord - 0x40;
         if (ordinal + d > ndents) continue; // long name cross the cluster
 
-        // get_long_filename(Longdent, &bmp_clus, bmp_name);
+        get_long_filename(Longdent, &bmp_clus, bmp_name);
         d += ordinal;
         dent += ordinal;
       }
@@ -181,7 +181,7 @@ int main(int argc, char* argv[]) {
           dent->DIR_Name[0] == 0xe5 ||
           dent->DIR_Attr & ATTR_HIDDEN) continue;
 
-        get_short_filename(dent, &bmp_clus, bmp_name);
+        // get_short_filename(dent, &bmp_clus, bmp_name);
       }
       else continue;
 

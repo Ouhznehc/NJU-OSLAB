@@ -219,7 +219,7 @@ int main(int argc, char* argv[]) {
 
         bmp_ptr = 0;
         u32 min_rgb = 0x3fffffff;
-        u32 next_clus = -1;
+        u32 next_clus = cur_clus + 1;
 
         for (int clus = 2; clus < clus_cnt; clus++) {
           if (clus_type[clus] != CLUS_BMP_DATA) continue;
@@ -243,7 +243,7 @@ int main(int argc, char* argv[]) {
           }
         }
 
-        assert(next_clus != -1);
+        //assert(next_clus != -1);
         clus_type[cur_clus] = CLUS_INVALID;
         cur_clus = next_clus;
         bmp_st = clus_to_sec(hdr, cur_clus);

@@ -185,7 +185,7 @@ int main(int argc, char* argv[]) {
         // printf("short filename: %s\n", bmp_name);
       }
       else continue;
-      // if (bmp_clus == 0 || bmp_clus >= CLUS_CNT) continue;
+      if (bmp_clus == 0 || bmp_clus >= CLUS_CNT) continue;
       sprintf(file_name, "/tmp/%s", bmp_name);
       printf("e0827a916543e8e442611016ad6f9e97a864a929 %s\n", bmp_name);
       continue;
@@ -278,6 +278,7 @@ void get_long_filename(struct fat32Longdent* dent, int* clusId, char filename[])
   int cnt = 0;
   for (int i = ordinal - 1; i >= 0; i--) {
     struct fat32Longdent* Longdent = dent + i;
+
     for (int j = 0; j < 5; j++) filename[cnt++] = Longdent->LDIR_Name1[j];
     for (int j = 0; j < 6; j++) filename[cnt++] = Longdent->LDIR_Name2[j];
     for (int j = 0; j < 2; j++) filename[cnt++] = Longdent->LDIR_Name3[j];

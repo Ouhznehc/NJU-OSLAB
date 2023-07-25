@@ -225,7 +225,7 @@ int main(int argc, char* argv[]) {
           if (clus_type[clus] != CLUS_BMP_DATA) continue;
 
           u32 cur_rgb = 0;
-          u8* next_clus_st = (u8*)clus_to_sec(hdr, clus);
+          u8* next_clus_st = clus_to_sec(hdr, clus);
 
           //to accelerate(must)
           // if ((cur_pos < bmp_width) && (*(next_clus_st + bmp_width - cur_pos) != 0)) continue;

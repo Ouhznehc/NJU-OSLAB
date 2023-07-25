@@ -159,7 +159,8 @@ int main(int argc, char* argv[]) {
     int is_dir = cluster_type[cluster_id++] == CLUS_DENT;
     if (!is_dir) continue;
     int bmp_clus = 0;
-    char bmp_name[64], file_name[128];
+    char bmp_name[256], file_name[512];
+
     for (int d = 0; d < ndents; d++) {
       struct fat32dent* dent = (struct fat32dent*)cluster_ptr + d;
 
@@ -172,25 +173,27 @@ int main(int argc, char* argv[]) {
         if (ordinal + d > ndents) continue; // long name cross the cluster
 
         get_long_filename(Longdent, &bmp_clus, bmp_name);
-        // printf("Long filename: %s\n", bmp_name);
         d += ordinal;
         dent += ordinal;
       }
       else if ((dent->DIR_Attr & ATTR_ARCHIVE) == ATTR_ARCHIVE) {
         if (dent->DIR_Name[0] == 0x00 ||
-          dent->DIR_Name[0] == 0xe5 ||
-          dent->DIR_Attr & ATTR_HIDDEN) continue;
+          dent->DIR_Name[0] == 0xe5) continue;
 
         get_short_filename(dent, &bmp_clus, bmp_name);
-        // printf("short filename: %s\n", bmp_name);
       }
       else continue;
-      // if (bmp_clus == 0 || bmp_clus >= CLUS_CNT) continue;
 
-      fflush(stdout);
+      if (bmp_clus == 0 || bmp_clus >= CLUS_CNT) continue; //defensive
+      int bmp_strlen = strlen(bmp_name);
+      if ((bmp_name[bmp_strlen - 3] != 'B' && bmp_name[bmp_strlen - 3] != 'b') ||
+        (bmp_name[bmp_strlen - 2] != 'M' && bmp_name[bmp_strlen - 2] != 'm') ||
+        (bmp_name[bmp_strlen - 1] != 'P' && bmp_name[bmp_strlen - 1] != 'p')) continue;
+
       sprintf(file_name, "/tmp/%s", bmp_name);
       printf("e0827a916543e8e442611016ad6f9e97a864a929 %s\n", bmp_name);
       continue;
+
       FILE* bmp = fopen(file_name, "w");
       struct bmpHeader* bmp_header = (struct bmpHeader*)cluster_to_sec(hdr, bmp_clus);
       u32 bmp_size = bmp_header->bfSize;
@@ -266,7 +269,7 @@ int classify_cluster(int cluster_sz) {
     if (cluster[i] == 0x00) zero++;
   }
 
-  if (dent > 5) return CLUS_DENT;
+  if (dent > 4) return CLUS_DENT;
   if (zero == cluster_sz - 2) return CLUS_UNUSED;
   return CLUS_BMP_DATA;
 }
@@ -280,6 +283,7 @@ void get_long_filename(struct fat32Longdent* dent, int* clusId, char filename[])
   int cnt = 0;
   for (int i = ordinal - 1; i >= 0; i--) {
     struct fat32Longdent* Longdent = dent + i;
+
     for (int j = 0; j < 5; j++) filename[cnt++] = Longdent->LDIR_Name1[j];
     for (int j = 0; j < 6; j++) filename[cnt++] = Longdent->LDIR_Name2[j];
     for (int j = 0; j < 2; j++) filename[cnt++] = Longdent->LDIR_Name3[j];

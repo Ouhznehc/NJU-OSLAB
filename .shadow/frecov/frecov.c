@@ -227,7 +227,7 @@ int main(int argc, char* argv[]) {
           }
           if (clus_rgb < min_rgb) {
             min_rgb = clus_rgb;
-            min_clus = clus;
+            min_clus = next_clus;
             clus_type[clus] = CLUS_INVALID;
           }
         }

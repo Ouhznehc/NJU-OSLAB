@@ -95,7 +95,7 @@ struct bmpHeader {
 
 
 #define CLUS_SZ 8192
-#define CLUS_CNT 16384
+#define CLUS_CNT 32768
 #define CLUS_INVALID   0xffffff7
 
 #define ATTR_READ_ONLY 0x01

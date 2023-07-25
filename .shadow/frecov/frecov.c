@@ -227,6 +227,7 @@ int main(int argc, char* argv[]) {
 
           for (int k = 0; k < bmp_row; k++) {
             cur_rgb += rgb_distance(bmp_st + clus_sz - bmp_row + k, next_clus_st + k);
+            if (cur_rgb > min_rgb) break;
           }
 
           if (cur_rgb < min_rgb) {

@@ -113,15 +113,15 @@ struct bmpHeader {
 enum { CLUS_DENT, CLUS_BMP_HEAD, CLUS_BMP_DATA, CLUS_UNUSED };
 
 
-u8 cluster[CLUS_SZ];
-int cluster_type[CLUS_CNT];
+u8 clus[CLUS_SZ];
+int clus_type[CLUS_CNT];
 
 
 void* map_disk(const char* fname);
-int classify_cluster(int cluster_sz);
+int classify_clus(int clus_sz);
 void get_long_filename(struct fat32Longdent* dent, int* clusId, char filename[]);
 void get_short_filename(struct fat32dent* dent, int* clusId, char filename[]);
-void* cluster_to_sec(struct fat32hdr* hdr, int n);
+void* clus_to_sec(struct fat32hdr* hdr, int n);
 FILE* popens(const char* fmt, ...);
 
 int main(int argc, char* argv[]) {
@@ -139,31 +139,31 @@ int main(int argc, char* argv[]) {
   // map disk image to memory
   struct fat32hdr* hdr = map_disk(argv[1]);
 
-  int cluster_sz = hdr->BPB_BytsPerSec * hdr->BPB_SecPerClus;
+  int clus_sz = hdr->BPB_BytsPerSec * hdr->BPB_SecPerClus;
 
   u32 data_sec = hdr->BPB_RsvdSecCnt + hdr->BPB_NumFATs * hdr->BPB_FATSz32;
-  u8* data_st = (u8*)hdr + data_sec * hdr->BPB_BytsPerSec;
-  u8* data_ed = (u8*)hdr + hdr->BPB_TotSec32 * hdr->BPB_BytsPerSec;
+  u8* clus_st = (u8*)hdr + data_sec * hdr->BPB_BytsPerSec;
+  u8* clus_ed = (u8*)hdr + hdr->BPB_TotSec32 * hdr->BPB_BytsPerSec;
 
-  int cluster_id = 2;
+  int clus_id = 2;
 
-  for (u8* cluster_ptr = data_st; cluster_ptr < data_ed; cluster_ptr += cluster_sz) {
-    memcpy(cluster, cluster_ptr, cluster_sz);
-    cluster_type[cluster_id++] = classify_cluster(cluster_sz);
+  for (u8* clus_ptr = clus_st; clus_ptr < clus_ed; clus_ptr += clus_sz) {
+    memcpy(clus, clus_ptr, clus_sz);
+    clus_type[clus_id++] = classify_clus(clus_sz);
   }
 
-  int cluster_cnt = cluster_id;
-  cluster_id = 2;
-  int ndents = cluster_sz / sizeof(struct fat32dent);
+  int clus_cnt = clus_id;
+  clus_id = 2;
+  int ndents = clus_sz / sizeof(struct fat32dent);
 
-  for (u8* cluster_ptr = data_st; cluster_ptr < data_ed; cluster_ptr += cluster_sz) {
-    int is_dir = cluster_type[cluster_id++] == CLUS_DENT;
+  for (u8* clus_ptr = clus_st; clus_ptr < clus_ed; clus_ptr += clus_sz) {
+    int is_dir = clus_type[clus_id++] == CLUS_DENT;
     if (!is_dir) continue;
 
     for (int d = 0; d < ndents; d++) {
       int bmp_clus = 0;
       char bmp_name[256], file_name[512];
-      struct fat32dent* dent = (struct fat32dent*)cluster_ptr + d;
+      struct fat32dent* dent = (struct fat32dent*)clus_ptr + d;
 
       if ((dent->DIR_Attr & ATTR_LONG_NAME) == ATTR_LONG_NAME) {
 
@@ -171,7 +171,7 @@ int main(int argc, char* argv[]) {
         if ((Longdent->LDIR_Ord & 0x40) != 0x40) continue;
 
         u8 ordinal = Longdent->LDIR_Ord - 0x40;
-        if (ordinal + d > ndents) continue; // long name cross the cluster
+        if (ordinal + d > ndents) continue; // long name cross the clus
 
         get_long_filename(Longdent, &bmp_clus, bmp_name);
         d += ordinal;
@@ -186,20 +186,27 @@ int main(int argc, char* argv[]) {
       }
       else continue;
 
-      if (bmp_clus < 2 || bmp_clus >= CLUS_CNT || cluster_type[bmp_clus] != CLUS_BMP_HEAD) continue; //defensive
+      if (bmp_clus < 2 || bmp_clus >= CLUS_CNT || clus_type[bmp_clus] != CLUS_BMP_HEAD) continue; //defensive
 
       sprintf(file_name, "/tmp/%s", bmp_name);
       FILE* bmp = fopen(file_name, "w");
-      struct bmpHeader* bmp_header = (struct bmpHeader*)cluster_to_sec(hdr, bmp_clus);
+      struct bmpHeader* bmp_header = (struct bmpHeader*)clus_to_sec(hdr, bmp_clus);
 
       u32 bmp_size = bmp_header->bfSize;
       if (bmp_size != dent->DIR_FileSize) continue;
 
       u8* bmp_st = (u8*)bmp_header;
       u8* bmp_ed = bmp_st + bmp_size;
-      if (bmp_ed > data_ed || bmp_st < data_st) continue;
+      if (bmp_ed > clus_ed || bmp_st < clus_st) continue;
 
       u32 bmp_width = bmp_header->biWidth;
+      u32 bmp_offset = bmp_header->bfOffByte;
+      u8* data_st = bmp_st + bmp_offset;
+      u32 bmp_row = bmp_width;
+
+      for (u8* bmp_ptr = bmp_st; bmp_ptr < bmp_st + bmp_offset; bmp_ptr++) fputc(*bmp_ptr, bmp);
+
+
 
       fclose(bmp);
 
@@ -254,17 +261,17 @@ release:
 }
 
 
-int classify_cluster(int cluster_sz) {
-  if (cluster[0] == 'B' && cluster[1] == 'M') return CLUS_BMP_HEAD;
+int classify_clus(int clus_sz) {
+  if (clus[0] == 'B' && clus[1] == 'M') return CLUS_BMP_HEAD;
   int dent = 0, zero = 0;
 
-  for (int i = 0; i < cluster_sz - 2; i++) {
-    if (cluster[i] == 'B' && cluster[i + 1] == 'M' && cluster[i + 2] == 'P') dent++;
-    if (cluster[i] == 0x00) zero++;
+  for (int i = 0; i < clus_sz - 2; i++) {
+    if (clus[i] == 'B' && clus[i + 1] == 'M' && clus[i + 2] == 'P') dent++;
+    if (clus[i] == 0x00) zero++;
   }
 
   if (dent > 4) return CLUS_DENT;
-  if (zero == cluster_sz - 2) return CLUS_UNUSED;
+  if (zero == clus_sz - 2) return CLUS_UNUSED;
   return CLUS_BMP_DATA;
 }
 
@@ -298,7 +305,7 @@ void get_short_filename(struct fat32dent* dent, int* clusId, char filename[]) {
 
 }
 
-void* cluster_to_sec(struct fat32hdr* hdr, int n) {
+void* clus_to_sec(struct fat32hdr* hdr, int n) {
   u32 DataSec = hdr->BPB_RsvdSecCnt + hdr->BPB_NumFATs * hdr->BPB_FATSz32;
   DataSec += (n - 2) * hdr->BPB_SecPerClus;
   return ((u8*)hdr + DataSec * hdr->BPB_BytsPerSec);

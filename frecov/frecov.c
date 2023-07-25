@@ -158,10 +158,10 @@ int main(int argc, char* argv[]) {
   for (u8* cluster_ptr = data_st; cluster_ptr < data_ed; cluster_ptr += cluster_sz) {
     int is_dir = cluster_type[cluster_id++] == CLUS_DENT;
     if (!is_dir) continue;
-    int bmp_clus = 0;
-    char bmp_name[256], file_name[512];
 
     for (int d = 0; d < ndents; d++) {
+      int bmp_clus = 0;
+      char bmp_name[256], file_name[512];
       struct fat32dent* dent = (struct fat32dent*)cluster_ptr + d;
 
       if ((dent->DIR_Attr & ATTR_LONG_NAME) == ATTR_LONG_NAME) {
@@ -172,13 +172,14 @@ int main(int argc, char* argv[]) {
         u8 ordinal = Longdent->LDIR_Ord - 0x40;
         if (ordinal + d > ndents) continue; // long name cross the cluster
 
-        get_long_filename(Longdent, &bmp_clus, bmp_name);
+        // get_long_filename(Longdent, &bmp_clus, bmp_name);
         d += ordinal;
         dent += ordinal;
       }
       else if ((dent->DIR_Attr & ATTR_ARCHIVE) == ATTR_ARCHIVE) {
         if (dent->DIR_Name[0] == 0x00 ||
-          dent->DIR_Name[0] == 0xe5) continue;
+          dent->DIR_Name[0] == 0xe5 ||
+          dent->DIR_Attr & ATTR_HIDDEN) continue;
 
         get_short_filename(dent, &bmp_clus, bmp_name);
       }
@@ -197,15 +198,13 @@ int main(int argc, char* argv[]) {
       FILE* bmp = fopen(file_name, "w");
       struct bmpHeader* bmp_header = (struct bmpHeader*)cluster_to_sec(hdr, bmp_clus);
       u32 bmp_size = bmp_header->bfSize;
-      // assert(bmp_size == dent->DIR_FileSize);
+      if (bmp_size != dent->DIR_FileSize) continue;
 
 
       u8* bmp_st = (u8*)bmp_header;
       u8* bmp_ed = bmp_st + bmp_size;
-      // printf("bmp_size = %x\n", bmp_size);
-      // printf("%p %p\n", bmp_st, bmp_ed);
-      // printf("%p %p\n", data_st, data_ed);
       if (bmp_ed > data_ed || bmp_st < data_st) continue;
+
       for (u8* bmp_ptr = bmp_st; bmp_ptr < bmp_ed; bmp_ptr++) fprintf(bmp, "%c", *bmp_ptr);
       fclose(bmp);
 
@@ -312,7 +311,7 @@ void* cluster_to_sec(struct fat32hdr* hdr, int n) {
 }
 
 FILE* popens(const char* fmt, ...) {
-  char cmd[128];
+  char cmd[512];
   va_list args;
   va_start(args, fmt);
   vsnprintf(cmd, sizeof(cmd), fmt, args);

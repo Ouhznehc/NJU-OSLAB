@@ -133,6 +133,7 @@ int main(int argc, char* argv[]) {
   setbuf(stdout, NULL);
   assert(sizeof(struct fat32hdr) == 512); // defensive
   assert(sizeof(struct fat32dent) == 32); // defensive
+  assert(sizeof(struct fat32Longdent) == 32); //defensive
 
 
   // map disk image to memory

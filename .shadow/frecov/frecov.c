@@ -200,7 +200,7 @@ int main(int argc, char* argv[]) {
       u8* bmp_ed = bmp_st + bmp_size;
       if (bmp_ed > clus_ed || bmp_st < clus_st) continue;
 
-      u32 bmp_width = 3 * bmp_header->biWidth;
+      int bmp_width = 3 * bmp_header->biWidth;
       u32 bmp_offset = bmp_header->bfOffByte;
       u8* data_st = bmp_st + bmp_offset;
       u32 bmp_row = (8 * bmp_width + 31) / 32 * 4; // 4 bytes align

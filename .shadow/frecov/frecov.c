@@ -216,8 +216,8 @@ int main(int argc, char* argv[]) {
         bmp_ptr++;
         cur_pos = (cur_pos + 1) % bmp_row;
         if (bmp_ptr != clus_sz) continue;
-        bmp_ptr = 0;
 
+        bmp_ptr = 0;
         u32 min_rgb = 0x3fffffff;
         u32 next_clus = -1;
 
@@ -229,7 +229,7 @@ int main(int argc, char* argv[]) {
 
           //to accelerate(must)
           // if (cur_pos >= bmp_width && *next_clus_st != 0) continue;
-          assert(next_clus_st + bmp_width - cur_pos < clus_ed);
+          assert(next_clus_st + bmp_width - cur_pos < clus_ed && next_clus_st + bmp_width - cur_pos > clus_st);
           if (cur_pos < bmp_width && *(next_clus_st + bmp_width - cur_pos) != 0) continue;
 
           for (int k = 0; k < bmp_row && bmp_cnt + k < bmp_size; k++) {

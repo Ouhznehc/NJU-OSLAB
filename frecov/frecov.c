@@ -218,30 +218,31 @@ int main(int argc, char* argv[]) {
         if (bmp_ptr != clus_sz) continue;
 
         bmp_ptr = 0;
-        u32 min_rgb = 0x5f5f5f5f;
-        u32 next_clus = 0;
+        u32 min_rgb = 0x3fffffff;
+        u32 next_clus = -1;
 
         for (int clus = 2; clus < clus_cnt; clus++) {
           if (clus_type[clus] != CLUS_BMP_DATA) continue;
 
           u32 cur_rgb = 0;
-          u8* next_clus_st = clus_to_sec(hdr, clus);
+          u8* next_clus_st = (u8*)clus_to_sec(hdr, clus);
 
           //to accelerate(must)
-          if (cur_pos >= bmp_width && *next_clus_st != 0) continue;
-          if (cur_pos < bmp_width && *(next_clus_st + bmp_width - cur_pos) != 0) continue;
+          // if ((cur_pos < bmp_width) && (*(next_clus_st + bmp_width - cur_pos) != 0)) continue;
+          if ((cur_pos >= bmp_width) && (*next_clus_st != 0)) continue;
 
           for (int k = 0; k < bmp_row && bmp_cnt + k < bmp_size; k++) {
             cur_rgb += rgb_distance(bmp_st + clus_sz - bmp_row + k, next_clus_st + k);
             if (cur_rgb > min_rgb) break; // to accelerate(must)
           }
 
-          if (cur_rgb < min_rgb || min_rgb == 0x5f5f5f5f) {
+          if (cur_rgb < min_rgb) {
             next_clus = clus;
             min_rgb = cur_rgb;
           }
         }
 
+        assert(next_clus != -1);
         clus_type[next_clus] = CLUS_INVALID;
         cur_clus = next_clus;
         bmp_st = clus_to_sec(hdr, cur_clus);

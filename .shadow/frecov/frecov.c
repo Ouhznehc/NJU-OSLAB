@@ -123,6 +123,7 @@ void get_long_filename(struct fat32Longdent* dent, int* clusId, char filename[])
 void get_short_filename(struct fat32dent* dent, int* clusId, char filename[]);
 void* clus_to_sec(struct fat32hdr* hdr, int n);
 FILE* popens(const char* fmt, ...);
+u32 rgb_distance(u8* x, u8* y);
 
 int main(int argc, char* argv[]) {
   if (argc < 2) {
@@ -202,9 +203,38 @@ int main(int argc, char* argv[]) {
       u32 bmp_width = bmp_header->biWidth;
       u32 bmp_offset = bmp_header->bfOffByte;
       u8* data_st = bmp_st + bmp_offset;
-      u32 bmp_row = bmp_width;
+      u32 bmp_row = (3 * 8 * bmp_width + 31) / 32 * 4; // 4 bytes align
 
-      for (u8* bmp_ptr = bmp_st; bmp_ptr < bmp_st + bmp_offset; bmp_ptr++) fputc(*bmp_ptr, bmp);
+      for (u8* bmp_ptr = bmp_st; bmp_ptr < data_st; bmp_ptr++) fputc(*bmp_ptr, bmp);
+
+      int bmp_ptr = bmp_offset;
+      u8* cur_clus = bmp_st;
+      for (int bmp_cnt = bmp_offset; bmp_cnt < bmp_size; bmp_cnt++) {
+        fputc(*(cur_clus + bmp_cnt), bmp);
+        bmp_ptr++;
+        if (bmp_ptr != clus_sz) continue;
+
+        bmp_ptr = 0;
+        u32 min_rgb = 0x3fffffff;
+        u8* min_clus = 0;
+        for (int clus = 2; clus < clus_cnt; clus++) {
+          if (clus_type[clus] != CLUS_BMP_DATA) continue;
+
+          u32 clus_rgb = 0;
+          u8* next_clus = (u8*)clus_to_sec(hdr, clus);
+          for (int k = 0; k < bmp_row; k++) {
+            clus_rgb += rgb_distance(next_clus + k, cur_clus + clus_sz - bmp_row + k);
+          }
+          if (clus_rgb < min_rgb) {
+            min_rgb = clus_rgb;
+            min_clus = clus;
+            clus_type[clus] = CLUS_INVALID;
+          }
+        }
+
+        cur_clus = min_clus;
+
+      }
 
 
 
@@ -309,6 +339,10 @@ void* clus_to_sec(struct fat32hdr* hdr, int n) {
   u32 DataSec = hdr->BPB_RsvdSecCnt + hdr->BPB_NumFATs * hdr->BPB_FATSz32;
   DataSec += (n - 2) * hdr->BPB_SecPerClus;
   return ((u8*)hdr + DataSec * hdr->BPB_BytsPerSec);
+}
+
+u32 rgb_distance(u8* x, u8* y) {
+  return (*x - *y) * (*x - *y);
 }
 
 FILE* popens(const char* fmt, ...) {

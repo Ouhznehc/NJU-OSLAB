@@ -312,7 +312,7 @@ void* cluster_to_sec(struct fat32hdr* hdr, int n) {
 }
 
 FILE* popens(const char* fmt, ...) {
-  char cmd[128];
+  char cmd[512];
   va_list args;
   va_start(args, fmt);
   vsnprintf(cmd, sizeof(cmd), fmt, args);

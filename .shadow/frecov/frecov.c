@@ -213,30 +213,7 @@ int main(int argc, char* argv[]) {
         fputc(*(cur_clus + bmp_cnt), bmp);
         bmp_ptr++;
         if (bmp_ptr != clus_sz) continue;
-
-        bmp_ptr = 0;
-        u32 min_rgb = 0x3fffffff;
-        u32 min_clus = bmp_clus + 1;
-        for (int clus = 2; clus < clus_cnt; clus++) {
-          if (clus_type[clus] != CLUS_BMP_DATA) continue;
-
-          u32 clus_rgb = 0;
-          u8* next_clus = (u8*)clus_to_sec(hdr, clus);
-          for (int k = 0; k < bmp_row; k++) {
-            clus_rgb += rgb_distance(next_clus + k, cur_clus + clus_sz - bmp_row + k);
-          }
-          if (clus_rgb < min_rgb) {
-            min_rgb = clus_rgb;
-            min_clus = clus;
-          }
-        }
-
-        bmp_clus = min_clus;
-        cur_clus = clus_to_sec(hdr, min_clus);
-        clus_type[min_clus] = CLUS_INVALID;
       }
-
-
 
       fclose(bmp);
 

@@ -218,7 +218,7 @@ int main(int argc, char* argv[]) {
         if (bmp_ptr != clus_sz) continue;
 
         bmp_ptr = 0;
-        u32 min_rgb = 0x3fffffff;
+        u32 min_rgb = 0x5f5f5f5f;
         u32 next_clus = -1;
 
         for (int clus = 2; clus < clus_cnt; clus++) {
@@ -236,7 +236,7 @@ int main(int argc, char* argv[]) {
             if (cur_rgb > min_rgb) break; // to accelerate(must)
           }
 
-          if (cur_rgb < min_rgb) {
+          if (cur_rgb < min_rgb || min_rgb == 0x5f5f5f5f) {
             next_clus = clus;
             min_rgb = cur_rgb;
           }

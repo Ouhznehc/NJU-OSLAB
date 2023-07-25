@@ -229,6 +229,7 @@ int main(int argc, char* argv[]) {
 
           //to accelerate(must)
           // if (cur_pos >= bmp_width && *next_clus_st != 0) continue;
+          assert(next_clus_st + bmp_width - cur_pos < clus_ed);
           if (cur_pos < bmp_width && *(next_clus_st + bmp_width - cur_pos) != 0) continue;
 
           for (int k = 0; k < bmp_row && bmp_cnt + k < bmp_size; k++) {

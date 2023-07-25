@@ -187,10 +187,6 @@ int main(int argc, char* argv[]) {
       else continue;
 
       if (bmp_clus < 2 || bmp_clus >= CLUS_CNT || cluster_type[bmp_clus] != CLUS_BMP_HEAD) continue; //defensive
-      int bmp_strlen = strlen(bmp_name);
-      if ((bmp_name[bmp_strlen - 3] != 'B' && bmp_name[bmp_strlen - 3] != 'b') ||
-        (bmp_name[bmp_strlen - 2] != 'M' && bmp_name[bmp_strlen - 2] != 'm') ||
-        (bmp_name[bmp_strlen - 1] != 'P' && bmp_name[bmp_strlen - 1] != 'p')) continue;
 
       sprintf(file_name, "/tmp/%s", bmp_name);
       printf("e0827a916543e8e442611016ad6f9e97a864a929 %s\n", bmp_name);
@@ -283,9 +279,6 @@ void get_long_filename(struct fat32Longdent* dent, int* clusId, char filename[])
   int cnt = 0;
   for (int i = ordinal - 1; i >= 0; i--) {
     struct fat32Longdent* Longdent = dent + i;
-    if ((Longdent->LDIR_Attr & ATTR_LONG_NAME) != ATTR_LONG_NAME) { *clusId = 0; return; }
-    if (i != 0 && Longdent->LDIR_Ord != ordinal - i) { *clusId = 0; return; }
-
     for (int j = 0; j < 5; j++) filename[cnt++] = Longdent->LDIR_Name1[j];
     for (int j = 0; j < 6; j++) filename[cnt++] = Longdent->LDIR_Name2[j];
     for (int j = 0; j < 2; j++) filename[cnt++] = Longdent->LDIR_Name3[j];

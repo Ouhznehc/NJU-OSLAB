@@ -218,14 +218,19 @@ int main(int argc, char* argv[]) {
         if (bmp_ptr != clus_sz) continue;
 
         bmp_ptr = 0;
-        u32 min_rgb = 0x3fffffff;
+        u32 min_rgb = 0;
         u32 next_clus = cur_clus + 1;
+        u8* next_clus_st = clus_to_sec(hdr, next_clus);
+        for (int k = 0; k < bmp_row && bmp_cnt + k < bmp_size; k++) {
+          min_rgb += rgb_distance(bmp_st + clus_sz - bmp_row + k, next_clus_st + k);
+        }
+
 
         for (int clus = 2; clus < clus_cnt; clus++) {
-          if (clus_type[clus] == CLUS_INVALID) continue;
+          if (clus_type[clus] != CLUS_BMP_DATA) continue;
 
           u32 cur_rgb = 0;
-          u8* next_clus_st = clus_to_sec(hdr, clus);
+          next_clus_st = clus_to_sec(hdr, clus);
 
           //to accelerate(must)
           if ((cur_pos < bmp_width) && (*(next_clus_st + bmp_width - cur_pos) != 0)) continue;

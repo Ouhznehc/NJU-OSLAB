@@ -189,7 +189,7 @@ int main(int argc, char* argv[]) {
 
       fflush(stdout);
       sprintf(file_name, "/tmp/%s", bmp_name);
-      printf("e0827a916543e8e442611016ad6f9e97a864a929 %s\n", file_name);
+      printf("e0827a916543e8e442611016ad6f9e97a864a929 %s\n", bmp_name);
       continue;
       FILE* bmp = fopen(file_name, "w");
       struct bmpHeader* bmp_header = (struct bmpHeader*)cluster_to_sec(hdr, bmp_clus);

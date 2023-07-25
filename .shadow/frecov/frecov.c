@@ -241,9 +241,7 @@ int main(int argc, char* argv[]) {
             min_rgb = cur_rgb;
           }
         }
-
-        if (min_rgb == 0x5f5f5f) continue;
-
+        assert(next_clus != -1);
         clus_type[next_clus] = CLUS_INVALID;
         cur_clus = next_clus;
         bmp_st = clus_to_sec(hdr, cur_clus);

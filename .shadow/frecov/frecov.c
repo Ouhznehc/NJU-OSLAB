@@ -353,7 +353,7 @@ void* clus_to_sec(struct fat32hdr* hdr, int n) {
 }
 
 u32 rgb_distance(u8* x, u8* y) {
-  return (*x - *y) * (*x - *y);
+  return abs((*x - *y));
 }
 
 FILE* popens(const char* fmt, ...) {

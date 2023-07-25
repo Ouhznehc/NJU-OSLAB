@@ -244,7 +244,7 @@ int main(int argc, char* argv[]) {
         }
 
         assert(next_clus != -1);
-        clus_type[next_clus] = CLUS_INVALID;
+        clus_type[cur_clus] = CLUS_INVALID;
         cur_clus = next_clus;
         bmp_st = clus_to_sec(hdr, cur_clus);
       }

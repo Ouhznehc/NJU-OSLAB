@@ -208,11 +208,36 @@ int main(int argc, char* argv[]) {
       for (u8* bmp_ptr = bmp_st; bmp_ptr < data_st; bmp_ptr++) fputc(*bmp_ptr, bmp);
 
       int bmp_ptr = bmp_offset;
-      u8* cur_clus = bmp_st;
+      u32 cur_clus = bmp_clus;
+
       for (int bmp_cnt = bmp_offset; bmp_cnt < bmp_size; bmp_cnt++) {
-        fputc(*(cur_clus + bmp_cnt), bmp);
+        fputc(*(bmp_st + bmp_ptr), bmp);
         bmp_ptr++;
         if (bmp_ptr != clus_sz) continue;
+        bmp_ptr = 0;
+
+        u32 min_rgb = 0x3fffffff;
+        u32 next_clus = -1;
+
+        for (int clus = 2; clus < clus_cnt; clus++) {
+          if (clus_type[clus] != CLUS_BMP_DATA) continue;
+
+          u32 cur_rgb = 0;
+          u8* next_clus_st = clus_to_sec(hdr, clus);
+
+          for (int k = 0; k < bmp_row; k++) {
+            cur_rgb += rgb_distance(bmp_st + clus_sz - bmp_row + k, next_clus_st + k);
+          }
+
+          if (cur_rgb < min_rgb) {
+            next_clus = clus;
+            min_rgb = cur_rgb;
+          }
+        }
+
+        clus_type[next_clus] = CLUS_INVALID;
+        cur_clus = next_clus;
+        bmp_st = clus_to_sec(hdr, cur_clus);
       }
 
       fclose(bmp);

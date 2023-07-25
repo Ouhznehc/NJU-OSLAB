@@ -228,7 +228,7 @@ int main(int argc, char* argv[]) {
           u8* next_clus_st = clus_to_sec(hdr, clus);
 
           //to accelerate(must)
-          if ((cur_pos < bmp_width) && (*(next_clus_st + bmp_width - cur_pos + 1) != 0)) continue;
+          if ((cur_pos < bmp_width) && (*(next_clus_st + bmp_width - cur_pos) != 0)) continue;
           if ((cur_pos >= bmp_width) && (*next_clus_st != 0)) continue;
 
 

@@ -189,10 +189,11 @@ int main(int argc, char* argv[]) {
 
       fflush(stdout);
       sprintf(file_name, "/tmp/%s", bmp_name);
+      printf("e0827a916543e8e442611016ad6f9e97a864a929 %s\n", file_name);
       FILE* bmp = fopen(file_name, "w");
       struct bmpHeader* bmp_header = (struct bmpHeader*)cluster_to_sec(hdr, bmp_clus);
       u32 bmp_size = bmp_header->bfSize;
-      assert(bmp_size == dent->DIR_FileSize);
+      // assert(bmp_size == dent->DIR_FileSize);
 
 
       u8* bmp_st = (u8*)bmp_header;

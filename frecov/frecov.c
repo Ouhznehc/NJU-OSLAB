@@ -222,7 +222,7 @@ int main(int argc, char* argv[]) {
         u32 next_clus = cur_clus + 1;
 
         for (int clus = 2; clus < clus_cnt; clus++) {
-          // if (clus_type[clus] != CLUS_BMP_DATA) continue;
+          if (clus_type[clus] == CLUS_INVALID) continue;
 
           u32 cur_rgb = 0;
           u8* next_clus_st = clus_to_sec(hdr, clus);

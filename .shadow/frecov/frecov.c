@@ -309,7 +309,7 @@ int classify_clus(int clus_sz) {
     if (clus[i] == 0x00) zero++;
   }
 
-  if (dent > 4) return CLUS_DENT;
+  if (dent > 5) return CLUS_DENT;
   if (zero == clus_sz - 2) return CLUS_UNUSED;
   return CLUS_BMP_DATA;
 }

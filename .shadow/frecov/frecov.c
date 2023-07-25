@@ -230,11 +230,11 @@ int main(int argc, char* argv[]) {
           //to accelerate(must)
           if ((cur_pos < bmp_width) && (*(next_clus_st + bmp_width - cur_pos) != 0)) {
             for (int k = 0; k < bmp_row && bmp_cnt + k < bmp_size; k++) {
-              printf("%x ", bmp_st + clus_sz - bmp_row + k);
+              printf("%x ", *(bmp_st + clus_sz - bmp_row + k));
             }
             printf("\n");
             for (int k = 0; k < bmp_row && bmp_cnt + k < bmp_size; k++) {
-              printf("%x ", next_clus_st + k);
+              printf("%x ", *(next_clus_st + k));
             }
             printf("\n");
             continue;

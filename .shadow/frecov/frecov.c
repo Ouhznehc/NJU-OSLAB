@@ -191,15 +191,16 @@ int main(int argc, char* argv[]) {
       sprintf(file_name, "/tmp/%s", bmp_name);
       FILE* bmp = fopen(file_name, "w");
       struct bmpHeader* bmp_header = (struct bmpHeader*)cluster_to_sec(hdr, bmp_clus);
+
       u32 bmp_size = bmp_header->bfSize;
       if (bmp_size != dent->DIR_FileSize) continue;
-
 
       u8* bmp_st = (u8*)bmp_header;
       u8* bmp_ed = bmp_st + bmp_size;
       if (bmp_ed > data_ed || bmp_st < data_st) continue;
 
-      for (u8* bmp_ptr = bmp_st; bmp_ptr < bmp_ed; bmp_ptr++) fprintf(bmp, "%c", *bmp_ptr);
+      u32 bmp_width = bmp_header->biWidth;
+
       fclose(bmp);
 
       char buf[64];
